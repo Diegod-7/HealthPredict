@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación Técnica - HealthPredict</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: #3a6ea5;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+        h1, h2, h3, h4 {
+            color: #3a6ea5;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        h2 {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        h3 {
+            margin-top: 25px;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #f5f5f5;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .note {
+            background-color: #e7f3fe;
+            border-left: 3px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border-left: 3px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .content-section {
+            margin-bottom: 40px;
+        }
+        .screenshot {
+            max-width: 100%;
+            height: auto;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        footer {
+            background-color: #f8f9fa;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 50px;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Documentación Técnica - HealthPredict</h1>
+            <p>Aplicación de análisis predictivo de salud personal</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="content-section">
+            <h2>1. Introducción</h2>
+            <p>HealthPredict es una aplicación de análisis predictivo de salud personal que integra monitoreo de datos vitales, análisis de patrones y recomendaciones personalizadas para mejorar hábitos y prevenir problemas de salud.</p>
+            
+            <h3>1.1. Propósito</h3>
+            <p>El propósito de esta documentación es proporcionar una descripción técnica detallada de la arquitectura, componentes y funcionalidades del sistema HealthPredict, facilitando su comprensión, mantenimiento y evolución futura.</p>
+            
+            <h3>1.2. Alcance</h3>
+            <p>Esta documentación abarca tanto el backend desarrollado en .NET como el frontend en Angular, así como la estructura de la base de datos Oracle y los mecanismos de integración entre los diferentes componentes del sistema.</p>
+        </div>
+
+        <div class="content-section">
+            <h2>2. Arquitectura del Sistema</h2>
+            
+            <h3>2.1. Visión General</h3>
+            <p>HealthPredict sigue una arquitectura cliente-servidor con una clara separación entre frontend y backend, aplicando patrones como N-capas, repositorio y servicios. La solución se estructura de la siguiente manera:</p>
+            <ul>
+                <li><strong>Frontend:</strong> Desarrollado en Angular 16, proporciona la interfaz de usuario.</li>
+                <li><strong>Backend:</strong> API REST desarrollada en .NET 7, siguiendo una arquitectura en capas.</li>
+                <li><strong>Base de Datos:</strong> Oracle Database para el almacenamiento persistente de la información.</li>
+            </ul>
+            
+            <h3>2.2. Diagrama de Arquitectura</h3>
+            <pre>
++-------------------+        +----------------------+        +-------------------+
+|                   |        |                      |        |                   |
+|  Angular Frontend |<------>|  .NET Backend API   |<------>|  Oracle Database  |
+|                   |  HTTP  |                      |  SQL   |                   |
++-------------------+        +----------------------+        +-------------------+
+                                      |
+                                      |
+                             +--------v---------+
+                             |                  |
+                             | Wearable Devices |
+                             |                  |
+                             +------------------+
+            </pre>
+            
+            <h3>2.3. Patrones de Diseño</h3>
+            <ul>
+                <li><strong>Patrón Repositorio:</strong> Utilizado en la capa de acceso a datos para abstraer las operaciones de la base de datos.</li>
+                <li><strong>Patrón Servicio:</strong> Implementado en la capa de lógica de negocio para encapsular la funcionalidad de la aplicación.</li>
+                <li><strong>Inyección de Dependencias:</strong> Utilizado en todo el backend para favorecer el bajo acoplamiento y facilitar las pruebas.</li>
+                <li><strong>MVC (Model-View-Controller):</strong> Aplicado en el backend a través de los controladores API.</li>
+                <li><strong>Observable:</strong> Utilizado en el frontend con Angular para la comunicación asíncrona con el backend.</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>3. Backend (.NET)</h2>
+            
+            <h3>3.1. Estructura de Proyectos</h3>
+            <p>El backend está organizado en los siguientes proyectos, siguiendo una arquitectura en capas:</p>
+            <ul>
+                <li><strong>HealthPredict.API:</strong> Capa de presentación que expone los endpoints REST.</li>
+                <li><strong>HealthPredict.BLL:</strong> Capa de lógica de negocio donde se implementan los algoritmos predictivos y reglas de negocio.</li>
+                <li><strong>HealthPredict.DAL:</strong> Capa de acceso a datos que gestiona la conexión con Oracle y las operaciones de base de datos.</li>
+                <li><strong>HealthPredict.Models:</strong> Contiene las entidades y modelos compartidos entre las diferentes capas.</li>
+            </ul>
+            
+            <h3>3.2. Modelos de Datos</h3>
+            <p>Principales entidades del sistema:</p>
+            
+            <h4>3.2.1. Usuario</h4>
+            <pre>
+public class Usuario
+{
+    public int Id { get; set; }
+    public string Nombre { get; set; }
+    public string Apellido { get; set; }
+    public string Email { get; set; }
+    public string Password { get; set; }
+    public DateTime FechaNacimiento { get; set; }
+    public string Genero { get; set; }
+    public decimal Altura { get; set; }
+    public decimal Peso { get; set; }
+    public DateTime FechaRegistro { get; set; }
+    public DateTime UltimoAcceso { get; set; }
+    public bool EsProfesionalMedico { get; set; }
+    public string? Especialidad { get; set; }
+    public string? NumeroLicencia { get; set; }
+
+    // Relaciones
+    public virtual ICollection<DatoVital>? DatosVitales { get; set; }
+    public virtual ICollection<Alerta>? Alertas { get; set; }
+}
+            </pre>
+            
+            <h4>3.2.2. DatoVital</h4>
+            <pre>
+public class DatoVital
+{
+    public int Id { get; set; }
+    public int UsuarioId { get; set; }
+    public DateTime FechaRegistro { get; set; }
+    public string TipoDato { get; set; }
+    public decimal Valor { get; set; }
+    public string Unidad { get; set; }
+    public string? DispositivoOrigen { get; set; }
+    public string? Notas { get; set; }
+
+    // Relaciones
+    public virtual Usuario? Usuario { get; set; }
+}
+            </pre>
+            
+            <h4>3.2.3. Alerta</h4>
+            <pre>
+public class Alerta
+{
+    public int Id { get; set; }
+    public int UsuarioId { get; set; }
+    public DateTime FechaCreacion { get; set; }
+    public string TipoAlerta { get; set; }
+    public string Descripcion { get; set; }
+    public string Severidad { get; set; }
+    public bool Leida { get; set; }
+    public DateTime? FechaLectura { get; set; }
+    public bool Resuelta { get; set; }
+    public DateTime? FechaResolucion { get; set; }
+    public string? NotasResolucion { get; set; }
+
+    // Relaciones
+    public virtual Usuario? Usuario { get; set; }
+}
+            </pre>
+            
+            <h3>3.3. Contexto de Base de Datos</h3>
+            <p>La clase <code>HealthPredictContext</code> es responsable de la configuración de Entity Framework Core:</p>
+            <pre>
+public class HealthPredictContext : DbContext
+{
+    public HealthPredictContext(DbContextOptions<HealthPredictContext> options) : base(options)
+    {
+    }
+
+    public DbSet<Usuario> Usuarios { get; set; }
+    public DbSet<DatoVital> DatosVitales { get; set; }
+    public DbSet<Alerta> Alertas { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        // Configuración de Usuario, DatoVital y Alerta 
+        // con sus respectivas tablas, columnas y relaciones
+    }
+}
+            </pre>
+            
+            <h3>3.4. Servicios</h3>
+            <p>Los servicios implementan la lógica de negocio de la aplicación:</p>
+            
+            <h4>3.4.1. UsuarioService</h4>
+            <p>Gestiona las operaciones relacionadas con usuarios: registro, autenticación, actualización de perfiles, etc.</p>
+            
+            <h4>3.4.2. DatoVitalService</h4>
+            <p>Responsable del registro y análisis de datos vitales, incluyendo métodos para calcular estadísticas y tendencias.</p>
+            
+            <h4>3.4.3. AlertaService</h4>
+            <p>Gestiona la creación, notificación y seguimiento de alertas basadas en los datos de salud.</p>
+            
+            <h3>3.5. Controladores API</h3>
+            <p>Exponen los endpoints REST para ser consumidos por el frontend:</p>
+            
+            <h4>3.5.1. UsuariosController</h4>
+            <pre>
+[Route("api/[controller]")]
+[ApiController]
+public class UsuariosController : ControllerBase
+{
+    private readonly UsuarioService _usuarioService;
+
+    public UsuariosController(UsuarioService usuarioService)
+    {
+        _usuarioService = usuarioService;
+    }
+
+    // Endpoints para CRUD de usuarios
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios() { ... }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Usuario>> GetUsuario(int id) { ... }
+
+    // Otros endpoints...
+}
+            </pre>
+            
+            <h3>3.6. Configuración</h3>
+            <p>La configuración del backend se realiza en los siguientes archivos:</p>
+            
+            <h4>3.6.1. appsettings.json</h4>
+            <pre>
+{
+  "ConnectionStrings": {
+    "OracleConnection": "User Id=healthpredict;Password=healthpredict;Data Source=localhost:1521/XEPDB1;"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "Cors": {
+    "AllowedOrigins": [
+      "http://localhost:4200"
+    ]
+  }
+}
+            </pre>
+            
+            <h4>3.6.2. Program.cs</h4>
+            <pre>
+var builder = WebApplication.CreateBuilder(args);
+
+// Configuración de servicios
+builder.Services.AddControllers();
+builder.Services.AddDbContext<HealthPredictContext>(options => 
+    options.UseOracle(builder.Configuration.GetConnectionString("OracleConnection")));
+builder.Services.AddCors(options => { ... });
+
+// Registro de servicios
+builder.Services.AddScoped<UsuarioService>();
+builder.Services.AddScoped<DatoVitalService>();
+builder.Services.AddScoped<AlertaService>();
+
+// Configuración de Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+// Configuración del pipeline de solicitudes HTTP
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+app.UseCors("AllowAngularApp");
+app.UseAuthorization();
+app.MapControllers();
+
+app.Run();
+            </pre>
+        </div>
+
+        <div class="content-section">
+            <h2>4. Frontend (Angular)</h2>
+            
+            <h3>4.1. Estructura del Proyecto</h3>
+            <p>El frontend está organizado siguiendo las mejores prácticas de Angular:</p>
+            <ul>
+                <li><strong>src/app/models:</strong> Interfaces que representan los modelos de datos.</li>
+                <li><strong>src/app/services:</strong> Servicios para la comunicación con el backend.</li>
+                <li><strong>src/app/components:</strong> Componentes reutilizables de la interfaz de usuario.</li>
+                <li><strong>src/app/pages:</strong> Componentes que representan páginas completas.</li>
+                <li><strong>src/environments:</strong> Configuración de entornos (desarrollo, producción).</li>
+            </ul>
+            
+            <h3>4.2. Modelos</h3>
+            <p>Interfaces TypeScript que representan las entidades del backend:</p>
+            
+            <h4>4.2.1. usuario.model.ts</h4>
+            <pre>
+export interface Usuario {
+  id?: number;
+  nombre: string;
+  apellido: string;
+  email: string;
+  password?: string;
+  fechaNacimiento: Date;
+  genero: string;
+  altura: number;
+  peso: number;
+  fechaRegistro?: Date;
+  ultimoAcceso?: Date;
+  esProfesionalMedico: boolean;
+  especialidad?: string;
+  numeroLicencia?: string;
+}
+            </pre>
+            
+            <h4>4.2.2. dato-vital.model.ts</h4>
+            <pre>
+export interface DatoVital {
+  id?: number;
+  usuarioId: number;
+  fechaRegistro?: Date;
+  tipoDato: string;
+  valor: number;
+  unidad: string;
+  dispositivoOrigen?: string;
+  notas?: string;
+}
+            </pre>
+            
+            <h4>4.2.3. alerta.model.ts</h4>
+            <pre>
+export interface Alerta {
+  id?: number;
+  usuarioId: number;
+  fechaCreacion?: Date;
+  tipoAlerta: string;
+  descripcion: string;
+  severidad: string;
+  leida?: boolean;
+  fechaLectura?: Date;
+  resuelta?: boolean;
+  fechaResolucion?: Date;
+  notasResolucion?: string;
+}
+            </pre>
+            
+            <h3>4.3. Servicios</h3>
+            <p>Clases que encapsulan la lógica de comunicación con el backend:</p>
+            
+            <h4>4.3.1. usuario.service.ts</h4>
+            <pre>
+@Injectable({
+  providedIn: 'root'
+})
+export class UsuarioService {
+  private apiUrl = `${environment.apiUrl}/usuarios`;
+
+  constructor(private http: HttpClient) { }
+
+  getUsuarios(): Observable<Usuario[]> {
+    return this.http.get<Usuario[]>(this.apiUrl);
+  }
+
+  getUsuario(id: number): Observable<Usuario> {
+    return this.http.get<Usuario>(`${this.apiUrl}/${id}`);
+  }
+
+  // Otros métodos...
+}
+            </pre>
+            
+            <h3>4.4. Módulos</h3>
+            <p>Configuración de los módulos principales de la aplicación:</p>
+            
+            <h4>4.4.1. app.module.ts</h4>
+            <pre>
+@NgModule({
+  declarations: [
+    AppComponent
+    // Otros componentes
+  ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    HttpClientModule
+    // Otros módulos
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+            </pre>
+            
+            <h3>4.5. Configuración</h3>
+            <p>Archivos de configuración del entorno Angular:</p>
+            
+            <h4>4.5.1. environment.ts</h4>
+            <pre>
+export const environment = {
+  production: false,
+  apiUrl: 'https://localhost:5048/api'
+};
+            </pre>
+        </div>
+
+        <div class="content-section">
+            <h2>5. Base de Datos</h2>
+            
+            <h3>5.1. Modelo Entidad-Relación</h3>
+            <p>El modelo de datos incluye las siguientes tablas principales:</p>
+            <ul>
+                <li><strong>USUARIOS:</strong> Almacena la información de los usuarios registrados.</li>
+                <li><strong>DATOS_VITALES:</strong> Registra los datos capturados de dispositivos wearables.</li>
+                <li><strong>ALERTAS:</strong> Guarda las alertas generadas por el sistema.</li>
+            </ul>
+            
+            <h3>5.2. Esquema de la Base de Datos</h3>
+            <p>La estructura de tablas está configurada mediante Entity Framework Core:</p>
+            <pre>
+// Tabla USUARIOS
+entity.ToTable("USUARIOS");
+entity.HasKey(e => e.Id);
+entity.Property(e => e.Id).HasColumnName("ID");
+entity.Property(e => e.Nombre).HasColumnName("NOMBRE").IsRequired().HasMaxLength(100);
+// Otras columnas...
+
+// Tabla DATOS_VITALES
+entity.ToTable("DATOS_VITALES");
+entity.HasKey(e => e.Id);
+entity.Property(e => e.Id).HasColumnName("ID");
+entity.Property(e => e.UsuarioId).HasColumnName("USUARIO_ID").IsRequired();
+// Otras columnas...
+
+// Relaciones
+entity.HasOne(d => d.Usuario)
+      .WithMany(p => p.DatosVitales)
+      .HasForeignKey(d => d.UsuarioId)
+      .OnDelete(DeleteBehavior.Cascade)
+      .HasConstraintName("FK_DATOS_VITALES_USUARIOS");
+            </pre>
+        </div>
+
+        <div class="content-section">
+            <h2>6. Algoritmos Predictivos</h2>
+            
+            <h3>6.1. Análisis de Datos</h3>
+            <p>El sistema implementa funciones analíticas en la capa de servicios (BLL):</p>
+            <ul>
+                <li>Cálculo de promedios, máximos y mínimos de indicadores de salud.</li>
+                <li>Detección de tendencias en diferentes períodos de tiempo.</li>
+                <li>Identificación de valores fuera de rangos considerados normales.</li>
+            </ul>
+            
+            <h3>6.2. Generación de Alertas</h3>
+            <p>La lógica para generación de alertas se basa en:</p>
+            <ul>
+                <li>Comparación con valores de referencia médicos.</li>
+                <li>Análisis de cambios significativos en períodos cortos.</li>
+                <li>Detección de patrones recurrentes que pueden indicar problemas.</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>7. Seguridad</h2>
+            
+            <h3>7.1. Autenticación y Autorización</h3>
+            <p>El sistema utiliza los mecanismos estándar de autenticación y autorización:</p>
+            <ul>
+                <li>Autenticación basada en tokens JWT.</li>
+                <li>Contraseñas cifradas con algoritmos seguros.</li>
+                <li>Control de acceso basado en roles (usuario común, profesional médico).</li>
+            </ul>
+            
+            <h3>7.2. Protección de Datos</h3>
+            <p>Para garantizar la privacidad y seguridad de los datos médicos:</p>
+            <ul>
+                <li>Cifrado de datos sensibles en la base de datos.</li>
+                <li>Comunicación segura mediante HTTPS.</li>
+                <li>Auditoría de accesos a información sensible.</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>8. Integración con Dispositivos Wearables</h2>
+            
+            <h3>8.1. APIs de Integración</h3>
+            <p>El sistema se integra con dispositivos wearables a través de:</p>
+            <ul>
+                <li>APIs públicas de fabricantes (Fitbit, Apple Health, Google Fit, etc.).</li>
+                <li>Integración directa mediante Bluetooth para dispositivos compatibles.</li>
+                <li>Importación manual de datos exportados.</li>
+            </ul>
+            
+            <h3>8.2. Procesamiento de Datos</h3>
+            <p>Los datos recibidos de dispositivos pasan por un proceso de:</p>
+            <ul>
+                <li>Validación y limpieza.</li>
+                <li>Normalización para compatibilidad con el modelo de datos interno.</li>
+                <li>Almacenamiento y clasificación para su posterior análisis.</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>9. Despliegue</h2>
+            
+            <h3>9.1. Requisitos del Sistema</h3>
+            <ul>
+                <li><strong>.NET SDK 7.0</strong> para el backend.</li>
+                <li><strong>Node.js (v12 o superior)</strong> y <strong>Angular CLI</strong> para el frontend.</li>
+                <li><strong>Oracle Database</strong> para el almacenamiento de datos.</li>
+                <li>Servidor web compatible con .NET (IIS, Kestrel).</li>
+            </ul>
+            
+            <h3>9.2. Pasos de Instalación</h3>
+            <h4>9.2.1. Backend</h4>
+            <pre>
+# Restaurar paquetes
+dotnet restore
+
+# Compilar solución
+dotnet build
+
+# Ejecutar API
+cd HealthPredict.API
+dotnet run
+            </pre>
+            
+            <h4>9.2.2. Frontend</h4>
+            <pre>
+# Instalar dependencias
+cd HealthPredict.Client
+npm install
+
+# Ejecutar servidor de desarrollo
+ng serve
+            </pre>
+            
+            <h4>9.2.3. Base de Datos</h4>
+            <ol>
+                <li>Crear una base de datos Oracle para la aplicación.</li>
+                <li>Configurar la cadena de conexión en el archivo appsettings.json de HealthPredict.API.</li>
+                <li>Ejecutar las migraciones de Entity Framework Core para crear el esquema de la base de datos.</li>
+            </ol>
+        </div>
+
+        <div class="content-section">
+            <h2>10. Anexos</h2>
+            
+            <h3>10.1. Referencias</h3>
+            <ul>
+                <li><a href="https://docs.microsoft.com/es-es/dotnet/">Documentación oficial de .NET</a></li>
+                <li><a href="https://angular.io/docs">Documentación oficial de Angular</a></li>
+                <li><a href="https://docs.oracle.com/en/database/">Documentación oficial de Oracle Database</a></li>
+            </ul>
+            
+            <h3>10.2. Glosario</h3>
+            <table>
+                <tr>
+                    <th>Término</th>
+                    <th>Descripción</th>
+                </tr>
+                <tr>
+                    <td>API</td>
+                    <td>Application Programming Interface - Interfaz de programación de aplicaciones</td>
+                </tr>
+                <tr>
+                    <td>CRUD</td>
+                    <td>Create, Read, Update, Delete - Operaciones básicas de persistencia</td>
+                </tr>
+                <tr>
+                    <td>ORM</td>
+                    <td>Object-Relational Mapping - Mapeo objeto-relacional (Entity Framework Core)</td>
+                </tr>
+                <tr>
+                    <td>JWT</td>
+                    <td>JSON Web Token - Estándar para crear tokens de acceso</td>
+                </tr>
+                <tr>
+                    <td>Wearable</td>
+                    <td>Dispositivo tecnológico que se utiliza en el cuerpo como accesorio</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 HealthPredict - Documentación Técnica</p>
+        </div>
+    </footer>
+</body>
+</html> 

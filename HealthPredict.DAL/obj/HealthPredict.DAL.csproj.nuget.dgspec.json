@@ -1,0 +1,132 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\Diego\\OneDrive\\Escritorio\\ProyectoPortafolio\\HealthPredict\\HealthPredict.DAL\\HealthPredict.DAL.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\Diego\\OneDrive\\Escritorio\\ProyectoPortafolio\\HealthPredict\\HealthPredict.DAL\\HealthPredict.DAL.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Diego\\OneDrive\\Escritorio\\ProyectoPortafolio\\HealthPredict\\HealthPredict.DAL\\HealthPredict.DAL.csproj",
+        "projectName": "HealthPredict.DAL",
+        "projectPath": "C:\\Users\\Diego\\OneDrive\\Escritorio\\ProyectoPortafolio\\HealthPredict\\HealthPredict.DAL\\HealthPredict.DAL.csproj",
+        "packagesPath": "C:\\Users\\Diego\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Diego\\OneDrive\\Escritorio\\ProyectoPortafolio\\HealthPredict\\HealthPredict.DAL\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\Diego\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {
+              "C:\\Users\\Diego\\OneDrive\\Escritorio\\ProyectoPortafolio\\HealthPredict\\HealthPredict.Models\\HealthPredict.Models.csproj": {
+                "projectPath": "C:\\Users\\Diego\\OneDrive\\Escritorio\\ProyectoPortafolio\\HealthPredict\\HealthPredict.Models\\HealthPredict.Models.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[7.0.16, )"
+            },
+            "Oracle.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[7.21.13, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.400\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\Diego\\OneDrive\\Escritorio\\ProyectoPortafolio\\HealthPredict\\HealthPredict.Models\\HealthPredict.Models.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Diego\\OneDrive\\Escritorio\\ProyectoPortafolio\\HealthPredict\\HealthPredict.Models\\HealthPredict.Models.csproj",
+        "projectName": "HealthPredict.Models",
+        "projectPath": "C:\\Users\\Diego\\OneDrive\\Escritorio\\ProyectoPortafolio\\HealthPredict\\HealthPredict.Models\\HealthPredict.Models.csproj",
+        "packagesPath": "C:\\Users\\Diego\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Diego\\OneDrive\\Escritorio\\ProyectoPortafolio\\HealthPredict\\HealthPredict.Models\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\Diego\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.400\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.BLL\bin\Debug\net7.0\HealthPredict.BLL.deps.json
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.BLL\bin\Debug\net7.0\HealthPredict.BLL.dll
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.BLL\bin\Debug\net7.0\HealthPredict.BLL.pdb
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.BLL\bin\Debug\net7.0\HealthPredict.DAL.dll
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.BLL\bin\Debug\net7.0\HealthPredict.Models.dll
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.BLL\bin\Debug\net7.0\HealthPredict.DAL.pdb
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.BLL\bin\Debug\net7.0\HealthPredict.Models.pdb
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.BLL\obj\Debug\net7.0\HealthPredict.BLL.csproj.AssemblyReference.cache
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.BLL\obj\Debug\net7.0\HealthPredict.BLL.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.BLL\obj\Debug\net7.0\HealthPredict.BLL.AssemblyInfoInputs.cache
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.BLL\obj\Debug\net7.0\HealthPredict.BLL.AssemblyInfo.cs
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.BLL\obj\Debug\net7.0\HealthPredict.BLL.csproj.CoreCompileInputs.cache
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.BLL\obj\Debug\net7.0\HealthPredict.BLL.csproj.CopyComplete
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.BLL\obj\Debug\net7.0\HealthPredict.BLL.dll
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.BLL\obj\Debug\net7.0\refint\HealthPredict.BLL.dll
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.BLL\obj\Debug\net7.0\HealthPredict.BLL.pdb
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.BLL\obj\Debug\net7.0\ref\HealthPredict.BLL.dll

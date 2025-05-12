@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "opDYg7Mt73jPFwuj4/q5qunmYMnO1/lyhIfAbp5pcuc=",
+  "Source": "HealthPredict.API",
+  "BasePath": "_content/HealthPredict.API",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthPredict.API", "HealthPredict.API\HealthPredict.API.csproj", "{4A657F76-E4BC-4947-A7F9-097ABB80EF8B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthPredict.DAL", "HealthPredict.DAL\HealthPredict.DAL.csproj", "{F1227F53-82F5-4F5A-904F-16A9D8868122}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthPredict.BLL", "HealthPredict.BLL\HealthPredict.BLL.csproj", "{231BDEBC-E80F-4A7D-8929-B3039D9BAD61}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthPredict.Models", "HealthPredict.Models\HealthPredict.Models.csproj", "{68D991D5-76FC-494F-B010-96DD0A11B932}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthPredict.DbSeeder", "HealthPredict.DbSeeder\HealthPredict.DbSeeder.csproj", "{5869F89D-68BE-430C-9856-9894C668A445}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4A657F76-E4BC-4947-A7F9-097ABB80EF8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A657F76-E4BC-4947-A7F9-097ABB80EF8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A657F76-E4BC-4947-A7F9-097ABB80EF8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A657F76-E4BC-4947-A7F9-097ABB80EF8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1227F53-82F5-4F5A-904F-16A9D8868122}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1227F53-82F5-4F5A-904F-16A9D8868122}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1227F53-82F5-4F5A-904F-16A9D8868122}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1227F53-82F5-4F5A-904F-16A9D8868122}.Release|Any CPU.Build.0 = Release|Any CPU
+		{231BDEBC-E80F-4A7D-8929-B3039D9BAD61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{231BDEBC-E80F-4A7D-8929-B3039D9BAD61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{231BDEBC-E80F-4A7D-8929-B3039D9BAD61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{231BDEBC-E80F-4A7D-8929-B3039D9BAD61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68D991D5-76FC-494F-B010-96DD0A11B932}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68D991D5-76FC-494F-B010-96DD0A11B932}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68D991D5-76FC-494F-B010-96DD0A11B932}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68D991D5-76FC-494F-B010-96DD0A11B932}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5869F89D-68BE-430C-9856-9894C668A445}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5869F89D-68BE-430C-9856-9894C668A445}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5869F89D-68BE-430C-9856-9894C668A445}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5869F89D-68BE-430C-9856-9894C668A445}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
