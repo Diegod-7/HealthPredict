@@ -1,0 +1,173 @@
+<div class="container mt-4">
+  <h2 class="mb-4">Dashboard de Salud</h2>
+
+  <!-- Mensaje de carga -->
+  <div *ngIf="loading" class="d-flex justify-content-center my-4">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    {{ error }}
+  </div>
+
+  <!-- Contenido principal -->
+  <div *ngIf="!loading">
+    <!-- Tarjetas de resumen -->
+    <div class="row mb-4">
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-primary text-white shadow-sm h-100">
+          <div class="card-body">
+            <h5 class="card-title">Total Alertas</h5>
+            <p class="card-text display-4">{{ obtenerResumenAlertas().total }}</p>
+          </div>
+          <div class="card-footer bg-transparent border-top-0">
+            <button class="btn btn-sm btn-outline-light w-100" (click)="verListaAlertas()">
+              Ver todas
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-danger text-white shadow-sm h-100">
+          <div class="card-body">
+            <h5 class="card-title">No leídas</h5>
+            <p class="card-text display-4">{{ obtenerResumenAlertas().noLeidas }}</p>
+          </div>
+          <div class="card-footer bg-transparent border-top-0">
+            <button class="btn btn-sm btn-outline-light w-100" (click)="verListaAlertas()">
+              Ver no leídas
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-warning text-dark shadow-sm h-100">
+          <div class="card-body">
+            <h5 class="card-title">Alta Prioridad</h5>
+            <p class="card-text display-4">{{ obtenerResumenAlertas().alta }}</p>
+          </div>
+          <div class="card-footer bg-transparent border-top-0">
+            <button class="btn btn-sm btn-outline-dark w-100" (click)="verListaAlertas()">
+              Ver alta prioridad
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-info text-white shadow-sm h-100">
+          <div class="card-body">
+            <h5 class="card-title">Distribución</h5>
+            <div class="d-flex justify-content-between mt-3">
+              <div>
+                <span class="badge bg-danger">{{ obtenerResumenAlertas().alta }}</span>
+                <span class="d-block mt-1">Alta</span>
+              </div>
+              <div>
+                <span class="badge bg-warning">{{ obtenerResumenAlertas().media }}</span>
+                <span class="d-block mt-1">Media</span>
+              </div>
+              <div>
+                <span class="badge bg-light text-dark">{{ obtenerResumenAlertas().baja }}</span>
+                <span class="d-block mt-1">Baja</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer bg-transparent border-top-0">
+            <button class="btn btn-sm btn-outline-light w-100" (click)="verListaAlertas()">
+              Ver todas
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alertas recientes -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Alertas recientes</h5>
+            <button class="btn btn-sm btn-outline-primary" (click)="verListaAlertas()">
+              Ver todas
+            </button>
+          </div>
+          <div class="card-body">
+            <div *ngIf="alertas.length === 0" class="alert alert-info">
+              No hay alertas recientes para mostrar.
+            </div>
+            <div *ngIf="alertas.length > 0">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Tipo</th>
+                      <th>Severidad</th>
+                      <th>Descripción</th>
+                      <th>Estado</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let alerta of alertas.slice(0, 5)" [ngClass]="{'table-light': !alerta.leida}">
+                      <td>{{ alerta.fechaCreacion | date:'dd/MM/yyyy' }}</td>
+                      <td>{{ alerta.tipoAlerta }}</td>
+                      <td>
+                        <span [ngClass]="getSeveridadClass(alerta.severidad)">
+                          {{ alerta.severidad | uppercase }}
+                        </span>
+                      </td>
+                      <td>{{ alerta.descripcion }}</td>
+                      <td>
+                        <span class="badge bg-success" *ngIf="alerta.resuelta">Resuelta</span>
+                        <span class="badge bg-warning" *ngIf="!alerta.resuelta && alerta.leida">Leída</span>
+                        <span class="badge bg-danger" *ngIf="!alerta.resuelta && !alerta.leida">Nueva</span>
+                      </td>
+                      <td>
+                        <button class="btn btn-sm btn-outline-primary" (click)="verAlerta(alerta.id!)">
+                          Ver
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alertas de alta prioridad -->
+    <div class="row mb-4" *ngIf="alertasAlta.length > 0">
+      <div class="col-12">
+        <div class="card shadow-sm border-danger">
+          <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">Alertas de alta prioridad</h5>
+          </div>
+          <div class="card-body">
+            <div class="list-group">
+              <a *ngFor="let alerta of alertasAlta" class="list-group-item list-group-item-action"
+                 [ngClass]="{'list-group-item-light': !alerta.leida}"
+                 (click)="verAlerta(alerta.id!)">
+                <div class="d-flex w-100 justify-content-between">
+                  <h5 class="mb-1">{{ alerta.tipoAlerta }}</h5>
+                  <small>{{ alerta.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}</small>
+                </div>
+                <p class="mb-1">{{ alerta.descripcion }}</p>
+                <small>
+                  <span class="badge bg-success" *ngIf="alerta.resuelta">Resuelta</span>
+                  <span class="badge bg-warning" *ngIf="!alerta.resuelta && alerta.leida">Leída</span>
+                  <span class="badge bg-danger" *ngIf="!alerta.resuelta && !alerta.leida">Nueva</span>
+                </small>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

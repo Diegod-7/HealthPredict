@@ -1,0 +1,117 @@
+<div class="container mt-4">
+  <h2>Mis Alertas</h2>
+
+  <!-- Filtros -->
+  <div class="card mb-4">
+    <div class="card-header bg-light">
+      <h5 class="mb-0">Filtros</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="soloNoLeidas" 
+                  [(ngModel)]="filtros.soloNoLeidas">
+            <label class="form-check-label" for="soloNoLeidas">Solo no leídas</label>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <select class="form-select" [(ngModel)]="filtros.severidad">
+            <option value="">Todas las severidades</option>
+            <option value="alta">Alta</option>
+            <option value="media">Media</option>
+            <option value="baja">Baja</option>
+          </select>
+        </div>
+        <div class="col-md-4 d-flex justify-content-end">
+          <button class="btn btn-primary me-2" (click)="aplicarFiltros()">Aplicar</button>
+          <button class="btn btn-outline-secondary" (click)="limpiarFiltros()">Limpiar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje de carga -->
+  <div *ngIf="loading" class="d-flex justify-content-center my-4">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    {{ error }}
+  </div>
+
+  <!-- Mensaje de no hay alertas -->
+  <div *ngIf="!loading && alertas.length === 0" class="alert alert-info" role="alert">
+    No hay alertas que mostrar con los filtros actuales.
+  </div>
+
+  <!-- Lista de alertas -->
+  <div *ngIf="!loading && alertas.length > 0">
+    <div class="card mb-2" *ngFor="let alerta of alertas">
+      <div class="card-header d-flex justify-content-between align-items-center"
+           [ngClass]="{'bg-light': !alerta.leida, 'bg-white': alerta.leida}">
+        <div>
+          <span [ngClass]="getSeveridadClass(alerta.severidad)" class="me-2">
+            {{ alerta.severidad | uppercase }}
+          </span>
+          <span class="fw-bold">{{ alerta.tipoAlerta }}</span>
+        </div>
+        <div>
+          <span class="badge bg-secondary me-2">
+            {{ alerta.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}
+          </span>
+          <span class="badge bg-success" *ngIf="alerta.resuelta">Resuelta</span>
+          <span class="badge bg-warning" *ngIf="!alerta.resuelta && alerta.leida">Leída</span>
+          <span class="badge bg-danger" *ngIf="!alerta.resuelta && !alerta.leida">Nueva</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="card-text">{{ alerta.descripcion }}</p>
+        
+        <div *ngIf="alerta.resuelta && alerta.notasResolucion" class="mt-2">
+          <strong>Notas de resolución:</strong>
+          <p class="mb-0">{{ alerta.notasResolucion }}</p>
+        </div>
+        
+        <div class="d-flex justify-content-end mt-3" *ngIf="!alerta.resuelta || !alerta.leida">
+          <button *ngIf="!alerta.leida" class="btn btn-sm btn-outline-primary me-2" 
+                  (click)="marcarComoLeida(alerta.id!)">
+            Marcar como leída
+          </button>
+          <button *ngIf="!alerta.resuelta" class="btn btn-sm btn-outline-success" 
+                  data-bs-toggle="modal" [attr.data-bs-target]="'#resolverModal' + alerta.id">
+            Resolver
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modales para resolver alertas -->
+  <div *ngFor="let alerta of alertas">
+    <div class="modal fade" [id]="'resolverModal' + alerta.id" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Resolver Alerta</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="notasResolucion" class="form-label">Notas de resolución:</label>
+              <textarea class="form-control" id="notasResolucion" rows="3" #notasResolucion></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-primary" (click)="resolverAlerta(alerta.id!, notasResolucion.value)" 
+                   data-bs-dismiss="modal">Resolver</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 
