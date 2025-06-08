@@ -1,0 +1,65 @@
+.stats-container {
+  padding: 5px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.stat-item {
+  background-color: #f8f9fc;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s;
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #5a5c69;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #4e73df;
+  display: flex;
+  align-items: center;
+}
+
+.stat-unit {
+  font-size: 0.8rem;
+  color: #858796;
+  margin-left: 4px;
+}
+
+.stat-info {
+  font-size: 0.7rem;
+  color: #858796;
+  margin-top: 5px;
+}
+
+i {
+  margin-left: 8px;
+  font-size: 0.9rem;
+}
+
+.text-danger {
+  color: #e74a3b !important;
+}
+
+.text-success {
+  color: #1cc88a !important;
+}
+
+.text-info {
+  color: #36b9cc !important;
+} 

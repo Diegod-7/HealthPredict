@@ -1,0 +1,39 @@
+<div class="stats-container">
+  <div *ngIf="!datos" class="text-center p-3">
+    <p>No hay datos disponibles</p>
+  </div>
+
+  <div *ngIf="datos" class="stats-grid">
+    <div class="stat-item">
+      <div class="stat-label">Último valor</div>
+      <div class="stat-value">
+        {{ ultimoValor | number:'1.1-2' }} <span class="stat-unit">{{ unidad }}</span>
+        <i *ngIf="ultimoValor" [class]="obtenerIconoTendencia()" title="Tendencia"></i>
+      </div>
+      <div class="stat-info" *ngIf="fecha">
+        {{ fecha | date:'dd/MM/yyyy HH:mm' }}
+      </div>
+    </div>
+
+    <div class="stat-item">
+      <div class="stat-label">Promedio</div>
+      <div class="stat-value">
+        {{ promedio | number:'1.1-2' }} <span class="stat-unit">{{ unidad }}</span>
+      </div>
+    </div>
+
+    <div class="stat-item">
+      <div class="stat-label">Mínimo</div>
+      <div class="stat-value">
+        {{ minimo | number:'1.1-2' }} <span class="stat-unit">{{ unidad }}</span>
+      </div>
+    </div>
+
+    <div class="stat-item">
+      <div class="stat-label">Máximo</div>
+      <div class="stat-value">
+        {{ maximo | number:'1.1-2' }} <span class="stat-unit">{{ unidad }}</span>
+      </div>
+    </div>
+  </div>
+</div> 
