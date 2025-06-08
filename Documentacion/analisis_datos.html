@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación: Análisis de Datos de Watch Band</title>
+    <link rel="stylesheet" href="styles.css">
+    <meta name="description" content="Documentación detallada sobre el análisis de datos de frecuencia cardíaca, presión arterial y ritmo cardíaco obtenidos de una pulsera inteligente">
+</head>
+<body>
+    <h1>Análisis de Datos de Watch Band</h1>
+
+    <div class="section">
+        <h2>1. Introducción</h2>
+        <div class="subsection">
+            <p>Esta documentación describe cómo analizar datos de frecuencia cardíaca, presión arterial y ritmo cardíaco obtenidos de una pulsera inteligente (<i>watch band</i>), almacenados en formato JSON.</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>2. Detección de Anomalías</h2>
+        <div class="subsection">
+            <div class="metric">
+                <h3>2.1 Métricas Principales</h3>
+                <ul>
+                    <li><b>Frecuencia cardíaca:</b> Identificar valores inusuales (demasiado altos o bajos para el usuario).</li>
+                    <li><b>Presión arterial:</b> Detectar picos o caídas repentinas.</li>
+                    <li><b>Ritmo cardíaco irregular:</b> Buscar variaciones bruscas o patrones anormales.</li>
+                </ul>
+            </div>
+
+            <div class="metric">
+                <h3>2.2 Técnicas Recomendadas</h3>
+                <ul>
+                    <li>Regla de 3 desviaciones estándar (outliers estadísticos).</li>
+                    <li>Algoritmos de machine learning (<i>Isolation Forest</i>, <i>DBSCAN</i>, etc.).</li>
+                    <li>Detección basada en reglas (por ejemplo, FC &gt; 180 o &lt; 40).</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>3. Análisis de Tendencias</h2>
+        <div class="subsection">
+            <div class="metric">
+                <h3>3.1 Métricas Temporales</h3>
+                <ul>
+                    <li>Promedios diarios, semanales o mensuales de cada variable.</li>
+                    <li>Visualización de series temporales para observar cambios a lo largo del tiempo.</li>
+                    <li>Correlación entre variables (por ejemplo, relación entre frecuencia cardíaca y presión arterial).</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>4. Otros Análisis Interesantes</h2>
+        <div class="subsection">
+            <div class="metric">
+                <h3>4.1 Métricas Avanzadas</h3>
+                <ul>
+                    <li><b>Variabilidad de la frecuencia cardíaca (HRV):</b> Indicador de estrés y salud cardiovascular.</li>
+                    <li><b>Efecto de la actividad física:</b> Analizar cómo la actividad afecta los signos vitales (si se dispone de datos de pasos o ejercicio).</li>
+                    <li><b>Alertas personalizadas:</b> Crear reglas para notificar al usuario ante patrones peligrosos.</li>
+                    <li><b>Comparación con valores de referencia:</b> Contrastar los datos del usuario con rangos normales según edad y género.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>5. Siguiente Paso</h2>
+        <div class="subsection">
+            <div class="metric">
+                <h3>5.1 Implementación</h3>
+                <p>Para comenzar, se recomienda preparar un archivo JSON de ejemplo y utilizar herramientas de análisis de datos (como Python, R o similares) para cargar, visualizar y analizar la información.</p>
+                <p>¿Necesitas un ejemplo de código para empezar? ¡Solicítalo!</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
