@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: healthpredict-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    region: oregon
+    plan: free
+    branch: main
+    healthCheckPath: /swagger
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ORACLE_CONNECTION_STRING
+        fromDatabase:
+          name: healthpredict-db
+          property: connectionString
+    # Variables de entorno que debes configurar manualmente en Render
+    # - ORACLE_CONNECTION_STRING: tu string de conexión de Oracle
+
+databases:
+  - name: healthpredict-db
+    databaseName: healthpredict
+    user: healthpredict_user
+    region: oregon
+    plan: free 

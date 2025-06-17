@@ -1,0 +1,15 @@
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.DAL\bin\Release\net7.0\HealthPredict.DAL.deps.json
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.DAL\bin\Release\net7.0\HealthPredict.DAL.dll
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.DAL\bin\Release\net7.0\HealthPredict.DAL.pdb
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.DAL\bin\Release\net7.0\HealthPredict.Models.dll
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.DAL\bin\Release\net7.0\HealthPredict.Models.pdb
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.DAL\obj\Release\net7.0\HealthPredict.DAL.csproj.AssemblyReference.cache
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.DAL\obj\Release\net7.0\HealthPredict.DAL.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.DAL\obj\Release\net7.0\HealthPredict.DAL.AssemblyInfoInputs.cache
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.DAL\obj\Release\net7.0\HealthPredict.DAL.AssemblyInfo.cs
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.DAL\obj\Release\net7.0\HealthPredict.DAL.csproj.CoreCompileInputs.cache
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.DAL\obj\Release\net7.0\HealthPredict.DAL.csproj.CopyComplete
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.DAL\obj\Release\net7.0\HealthPredict.DAL.dll
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.DAL\obj\Release\net7.0\refint\HealthPredict.DAL.dll
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.DAL\obj\Release\net7.0\HealthPredict.DAL.pdb
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.DAL\obj\Release\net7.0\ref\HealthPredict.DAL.dll

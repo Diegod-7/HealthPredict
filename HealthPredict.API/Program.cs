@@ -79,14 +79,33 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Configurar para escuchar en el puerto que Render asigne
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+app.Urls.Add($"http://0.0.0.0:{port}");
+
 // Configuración del pipeline de solicitudes HTTP
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+else
+{
+    // En producción también habilitamos Swagger para testing
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "HealthPredict API V1");
+        c.RoutePrefix = "swagger";
+    });
+}
 
-app.UseHttpsRedirection();
+// No usar HTTPS redirect en Render (ellos manejan SSL)
+if (!app.Environment.IsProduction())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseCors("AllowAngularApp");
 app.UseAuthorization();
 app.MapControllers();
