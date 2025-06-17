@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Esta aplicación necesita acceso a tus datos de salud para sincronizarlos con HealthPredict y brindarte análisis personalizados de tu estado de salud.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Esta aplicación puede actualizar algunos datos de salud cuando sea necesario para mantener la sincronización.</string>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>healthkit</string>
+	</array>
+</dict>
+</plist> 

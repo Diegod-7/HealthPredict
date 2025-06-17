@@ -62,6 +62,65 @@ namespace HealthPredict.API.Controllers
             return CreatedAtAction(nameof(GetDatoVital), new { id = createdDatoVital.Id }, createdDatoVital);
         }
 
+        // POST: api/DatosVitales/Sync/HealthKit
+        [HttpPost("Sync/HealthKit")]
+        public async Task<ActionResult> SyncHealthKitData([FromBody] List<HealthKitDataRequest> healthKitData)
+        {
+            try
+            {
+                var datosVitales = new List<DatoVital>();
+                
+                foreach (var item in healthKitData)
+                {
+                    var datoVital = new DatoVital
+                    {
+                        UsuarioId = item.UsuarioId,
+                        FechaRegistro = item.FechaRegistro,
+                        TipoDato = MapHealthKitType(item.TipoHealthKit),
+                        Valor = item.Valor,
+                        Unidad = item.Unidad,
+                        DispositivoOrigen = "Apple Health",
+                        Notas = $"Sincronizado desde HealthKit - {item.TipoHealthKit}"
+                    };
+                    
+                    datosVitales.Add(datoVital);
+                }
+
+                var result = await _datoVitalService.CreateDatosVitalesEnLoteAsync(datosVitales);
+                
+                // Verificar alertas para datos sincronizados
+                foreach (var dato in result)
+                {
+                    bool fueraDeRango = await _datoVitalService.VerificarValorFueraDeRango(dato);
+                    if (fueraDeRango)
+                    {
+                        await _alertaService.GenerarAlertaPorDatoVitalAsync(
+                            dato, 
+                            "valor_anormal_healthkit", 
+                            "media");
+                    }
+                }
+
+                return Ok(new { 
+                    mensaje = "Datos sincronizados exitosamente", 
+                    cantidadProcesada = result.Count,
+                    alertasGeneradas = result.Count(d => _datoVitalService.VerificarValorFueraDeRango(d).Result)
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = "Error al sincronizar datos de HealthKit", detalle = ex.Message });
+            }
+        }
+
+        // GET: api/DatosVitales/LastSync/{usuarioId}
+        [HttpGet("LastSync/{usuarioId}")]
+        public async Task<ActionResult<DateTime?>> GetLastSyncDate(int usuarioId)
+        {
+            var lastSync = await _datoVitalService.GetUltimaFechaSincronizacionAsync(usuarioId);
+            return Ok(lastSync);
+        }
+
         // PUT: api/DatosVitales/5
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateDatoVital(int id, DatoVital datoVital)
@@ -99,5 +158,34 @@ namespace HealthPredict.API.Controllers
             var estadisticas = await _datoVitalService.GetEstadisticasAsync(usuarioId, tipoDato, fechaInicio, fechaFin);
             return Ok(estadisticas);
         }
+
+        private string MapHealthKitType(string healthKitType)
+        {
+            return healthKitType switch
+            {
+                "HKQuantityTypeIdentifierHeartRate" => "frecuencia_cardiaca",
+                "HKQuantityTypeIdentifierBloodPressureSystolic" => "presion_sistolica",
+                "HKQuantityTypeIdentifierBloodPressureDiastolic" => "presion_diastolica",
+                "HKQuantityTypeIdentifierBodyTemperature" => "temperatura_corporal",
+                "HKQuantityTypeIdentifierOxygenSaturation" => "saturacion_oxigeno",
+                "HKQuantityTypeIdentifierStepCount" => "pasos",
+                "HKQuantityTypeIdentifierDistanceWalkingRunning" => "distancia_caminada",
+                "HKQuantityTypeIdentifierActiveEnergyBurned" => "calorias_activas",
+                "HKQuantityTypeIdentifierBodyMass" => "peso",
+                "HKQuantityTypeIdentifierHeight" => "altura",
+                "HKQuantityTypeIdentifierBodyMassIndex" => "indice_masa_corporal",
+                "HKQuantityTypeIdentifierRespiratoryRate" => "frecuencia_respiratoria",
+                _ => healthKitType.ToLower()
+            };
+        }
+    }
+
+    public class HealthKitDataRequest
+    {
+        public int UsuarioId { get; set; }
+        public DateTime FechaRegistro { get; set; }
+        public string TipoHealthKit { get; set; }
+        public decimal Valor { get; set; }
+        public string Unidad { get; set; }
     }
 } 

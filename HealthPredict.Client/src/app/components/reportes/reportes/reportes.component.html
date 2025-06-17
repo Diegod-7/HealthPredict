@@ -1,0 +1,91 @@
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Generación de Reportes</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-4">
+                        Genera un reporte completo de tus datos vitales para descargar en formato PDF.
+                        Puedes seleccionar un tipo específico de dato vital o generar un reporte completo.
+                    </p>
+
+                    <!-- Alerta de error -->
+                    <div *ngIf="showError" class="alert alert-danger mb-4">
+                        <i class="fa fa-exclamation-circle mr-2"></i> {{ errorMessage }}
+                    </div>
+
+                    <form [formGroup]="reporteForm" (ngSubmit)="generarReporte()">
+                        <div class="form-group mb-4">
+                            <label for="tipoDato">Tipo de Dato Vital (opcional)</label>
+                            <select class="form-control" id="tipoDato" formControlName="tipoDato">
+                                <option value="">Todos los datos vitales</option>
+                                <option *ngFor="let tipo of tiposDatos" [value]="tipo">{{ tipo }}</option>
+                            </select>
+                            <small class="form-text text-muted">
+                                Si no seleccionas ningún tipo, se generará un reporte con todos tus datos vitales.
+                            </small>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" [disabled]="loading">
+                            <span *ngIf="loading" class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
+                            {{ loading ? 'Generando reporte...' : 'Generar Reporte PDF' }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Vista previa del Reporte</h6>
+                </div>
+                <div class="card-body">
+                    <div class="report-preview p-4 border rounded bg-light">
+                        <div class="text-center mb-4">
+                            <h2 class="text-primary">HealthPredict</h2>
+                            <h4>Reporte de Datos Vitales</h4>
+                            <p class="text-muted">Generado el {{ today | date: 'dd/MM/yyyy HH:mm' }}</p>
+                        </div>
+
+                        <div class="mb-4 p-3 border rounded">
+                            <h5 class="text-primary">Información del Paciente</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>ID:</strong> {{ usuarioId }}</p>
+                                    <p><strong>Nombre:</strong> Usuario de prueba</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Fecha:</strong> {{ today | date: 'dd/MM/yyyy' }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="text-primary">Resumen de Datos</h5>
+                            <p class="text-muted">Esta es una vista previa simplificada del reporte. El PDF generado contendrá información detallada de tus datos vitales, gráficos y análisis estadísticos.</p>
+                            
+                            <div class="row mt-3">
+                                <div class="col-md-3 mb-3" *ngFor="let tipo of tiposDatos">
+                                    <div class="p-3 border rounded text-center">
+                                        <h6>{{ tipo }}</h6>
+                                        <div class="text-primary font-weight-bold">Incluido</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fa fa-info-circle mr-2"></i>
+                            El reporte PDF generado incluirá gráficos detallados, historial completo y análisis estadístico de tus datos vitales.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

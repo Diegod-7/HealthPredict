@@ -12,9 +12,11 @@
 
   <div *ngIf="!cargando && !error" style="height: 300px;">
     <canvas baseChart
-      [data]="lineChartData"
+      [datasets]="lineChartData"
+      [labels]="lineChartLabels"
       [options]="lineChartOptions"
-      [type]="'line'">
+      [chartType]="lineChartType"
+      [legend]="lineChartLegend">
     </canvas>
   </div>
 </div> 

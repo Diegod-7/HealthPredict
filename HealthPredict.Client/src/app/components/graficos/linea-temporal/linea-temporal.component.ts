@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { ChartConfiguration, ChartOptions } from 'chart.js';
+import { ChartType } from '@rinminase/ng-charts';
 import { GraficosService } from '../../../services/graficos.service';
 
 @Component({
@@ -11,41 +11,31 @@ export class LineaTemporalComponent implements OnInit, OnChanges {
   @Input() usuarioId!: number;
   @Input() tipoDato!: string;
   
-  public lineChartData: ChartConfiguration<'line'>['data'] = {
-    labels: [],
-    datasets: [
-      {
-        data: [],
-        label: '',
-        fill: false,
-        tension: 0.2,
-        borderColor: 'rgba(78, 115, 223, 1)',
-        backgroundColor: 'rgba(78, 115, 223, 0.2)',
-        pointBackgroundColor: 'rgba(78, 115, 223, 1)',
-        pointBorderColor: '#fff',
-        pointHoverBackgroundColor: '#fff',
-        pointHoverBorderColor: 'rgba(78, 115, 223, 1)'
-      }
-    ]
-  };
-  
-  public lineChartOptions: ChartOptions<'line'> = {
+  public lineChartData: any[] = [];
+  public lineChartLabels: string[] = [];
+  public lineChartOptions: any = {
     responsive: true,
     maintainAspectRatio: false,
     scales: {
-      x: {
+      xAxes: [{
         ticks: {
           maxRotation: 45,
           minRotation: 45
         }
-      }
+      }],
+      yAxes: [{
+        ticks: {
+          beginAtZero: false
+        }
+      }]
     },
-    plugins: {
-      legend: {
-        display: true
-      }
+    legend: {
+      display: true
     }
   };
+
+  public lineChartType: ChartType = 'line';
+  public lineChartLegend: boolean = true;
 
   cargando: boolean = false;
   error: string | null = null;
@@ -77,12 +67,18 @@ export class LineaTemporalComponent implements OnInit, OnChanges {
           this.unidad = datos[0].unidad;
           
           // Configurar las etiquetas y datos para el gráfico
-          this.lineChartData.labels = datos.map(d => new Date(d.fecha).toLocaleDateString());
-          this.lineChartData.datasets[0].data = datos.map(d => d.valor);
-          this.lineChartData.datasets[0].label = `${this.tipoDato} (${this.unidad})`;
-          
-          // Actualizar el objeto completo para que Chart.js detecte los cambios
-          this.lineChartData = { ...this.lineChartData };
+          this.lineChartLabels = datos.map(d => new Date(d.fecha).toLocaleDateString());
+          this.lineChartData = [{
+            data: datos.map(d => d.valor),
+            label: `${this.tipoDato} (${this.unidad})`,
+            fill: false,
+            borderColor: 'rgba(78, 115, 223, 1)',
+            backgroundColor: 'rgba(78, 115, 223, 0.2)',
+            pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgba(78, 115, 223, 1)'
+          }];
         }
         this.cargando = false;
       },

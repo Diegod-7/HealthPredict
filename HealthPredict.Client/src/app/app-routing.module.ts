@@ -11,6 +11,10 @@ const routes: Routes = [
   { path: 'alertas', component: AlertasListComponent },
   { path: 'alertas/:id', component: AlertaDetalleComponent },
   { path: 'graficos', component: GraficosComponent },
+  {
+    path: 'reportes',
+    loadChildren: () => import('./components/reportes/reportes.module').then(m => m.ReportesModule)
+  },
   { path: '**', redirectTo: '/dashboard' }
 ];
 
