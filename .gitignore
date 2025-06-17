@@ -1,0 +1,13 @@
+# Carpeta de historial de VS Code
+.history/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Carpetas de configuración de IDE
+.vscode/
+.vs/
+
+# Logs
+*.log 
