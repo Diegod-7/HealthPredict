@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://localhost:44336/api'
+  apiUrl: 'https://healthpredict-l1hu.onrender.com/api'
 }; 

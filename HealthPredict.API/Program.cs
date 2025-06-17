@@ -8,6 +8,7 @@ using DinkToPdf.Contracts;
 using HealthPredict.API.Services;
 using HealthPredict.API;
 using System.IO;
+using System.Collections;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,8 +16,36 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 // Configuración de la base de datos Oracle
+var connectionString = Environment.GetEnvironmentVariable("ORACLE_CONNECTION_STRING") 
+                      ?? builder.Configuration.GetConnectionString("OracleConnection");
+
+Console.WriteLine($"🔍 Connection String encontrado: {!string.IsNullOrEmpty(connectionString)}");
+Console.WriteLine($"🔍 ASPNETCORE_ENVIRONMENT: {Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}");
+
+if (string.IsNullOrEmpty(connectionString))
+{
+    Console.WriteLine("❌ ERROR: No se encontró el string de conexión de Oracle");
+    Console.WriteLine("Variables de entorno disponibles:");
+    foreach (DictionaryEntry env in Environment.GetEnvironmentVariables())
+    {
+        var key = env.Key.ToString();
+        if (key.Contains("ORACLE") || key.Contains("CONNECTION") || key.Contains("DATABASE"))
+        {
+            Console.WriteLine($"   {key}: {env.Value}");
+        }
+    }
+    
+    // Usar una conexión por defecto para evitar crash
+    connectionString = "Data Source=localhost:1521/XE;User Id=hr;Password=password;";
+    Console.WriteLine("⚠️ Usando conexión por defecto (la app funcionará parcialmente)");
+}
+else
+{
+    Console.WriteLine($"✅ Connection String configurado correctamente");
+}
+
 builder.Services.AddDbContext<HealthPredictContext>(options => 
-    options.UseOracle(builder.Configuration.GetConnectionString("OracleConnection"),
+    options.UseOracle(connectionString,
     oracleOptions => oracleOptions.UseOracleSQLCompatibility("11")));
 
 // Configurar DinkToPdf
