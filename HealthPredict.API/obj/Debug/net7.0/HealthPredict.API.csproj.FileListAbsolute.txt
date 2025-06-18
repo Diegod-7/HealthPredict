@@ -1,5 +1,6 @@
 C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.API\bin\Debug\net7.0\appsettings.Development.json
 C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.API\bin\Debug\net7.0\appsettings.json
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.API\bin\Debug\net7.0\appsettings.Production.json
 C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.API\bin\Debug\net7.0\HealthPredict.API.exe
 C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.API\bin\Debug\net7.0\HealthPredict.API.deps.json
 C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.API\bin\Debug\net7.0\HealthPredict.API.runtimeconfig.json
@@ -67,4 +68,3 @@ C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredic
 C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.API\obj\Debug\net7.0\HealthPredict.API.pdb
 C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.API\obj\Debug\net7.0\HealthPredict.API.genruntimeconfig.cache
 C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.API\obj\Debug\net7.0\ref\HealthPredict.API.dll
-C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.API\bin\Debug\net7.0\appsettings.Production.json

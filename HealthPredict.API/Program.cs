@@ -42,11 +42,26 @@ if (string.IsNullOrEmpty(connectionString))
 else
 {
     Console.WriteLine($"✅ Connection String configurado correctamente");
+    // Mostrar solo los primeros caracteres por seguridad
+    Console.WriteLine($"🔗 Connection String: {connectionString.Substring(0, Math.Min(50, connectionString.Length))}...");
 }
 
 builder.Services.AddDbContext<HealthPredictContext>(options => 
-    options.UseOracle(connectionString,
-    oracleOptions => oracleOptions.UseOracleSQLCompatibility("11")));
+{
+    options.UseOracle(connectionString, oracleOptions => 
+    {
+        oracleOptions.UseOracleSQLCompatibility("11");
+        // Configurar timeout más largo para Oracle Cloud
+        oracleOptions.CommandTimeout(60);
+    });
+    
+    // Configurar logging para Oracle en desarrollo
+    if (builder.Environment.IsDevelopment())
+    {
+        options.EnableSensitiveDataLogging();
+        options.LogTo(Console.WriteLine, LogLevel.Information);
+    }
+});
 
 // Configurar DinkToPdf
 try 
