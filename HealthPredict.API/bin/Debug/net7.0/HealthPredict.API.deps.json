@@ -15,6 +15,7 @@
           "Microsoft.AspNetCore.OpenApi": "7.0.16",
           "Microsoft.EntityFrameworkCore.Design": "7.0.18",
           "Microsoft.EntityFrameworkCore.Tools": "9.0.4",
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "7.0.18",
           "Oracle.EntityFrameworkCore": "7.21.13",
           "Swashbuckle.AspNetCore": "6.5.0"
         },
@@ -253,6 +254,31 @@
           "System.Threading.Timer": "4.0.1",
           "System.Xml.ReaderWriter": "4.0.11",
           "System.Xml.XDocument": "4.0.11"
+        }
+      },
+      "Npgsql/7.0.7": {
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "7.0.0"
+        },
+        "runtime": {
+          "lib/net7.0/Npgsql.dll": {
+            "assemblyVersion": "7.0.7.0",
+            "fileVersion": "7.0.7.0"
+          }
+        }
+      },
+      "Npgsql.EntityFrameworkCore.PostgreSQL/7.0.18": {
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore": "7.0.18",
+          "Microsoft.EntityFrameworkCore.Abstractions": "7.0.18",
+          "Microsoft.EntityFrameworkCore.Relational": "7.0.18",
+          "Npgsql": "7.0.7"
+        },
+        "runtime": {
+          "lib/net7.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll": {
+            "assemblyVersion": "7.0.18.0",
+            "fileVersion": "7.0.18.0"
+          }
         }
       },
       "Oracle.EntityFrameworkCore/7.21.13": {
@@ -1090,6 +1116,7 @@
         "dependencies": {
           "HealthPredict.Models": "1.0.0",
           "Microsoft.EntityFrameworkCore": "7.0.18",
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "7.0.18",
           "Oracle.EntityFrameworkCore": "7.21.13"
         },
         "runtime": {
@@ -1297,6 +1324,20 @@
       "sha512": "sha512-ypsCvIdCZ4IoYASJHt6tF2fMo7N30NLgV1EbmC+snO490OMl9FvVxmumw14rhReWU3j3g7BYudG6YCrchwHJlA==",
       "path": "netstandard.library/1.6.0",
       "hashPath": "netstandard.library.1.6.0.nupkg.sha512"
+    },
+    "Npgsql/7.0.7": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-A3BjyNebHjw/MahM6n3VnKbxrj/hQnMROEkUNUTjhUVv7yvcGnfBgw/FszahT9uCR23AVD2N/0Tvw1aHgxr9Gg==",
+      "path": "npgsql/7.0.7",
+      "hashPath": "npgsql.7.0.7.nupkg.sha512"
+    },
+    "Npgsql.EntityFrameworkCore.PostgreSQL/7.0.18": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-W+mFtJ1D4kSsCIBMScaq3tq8jdoR0Healb6knhSKqnlIoGGQwkHltHMsFeWacieLQPA+e4UrIgucfDpRpRXQRA==",
+      "path": "npgsql.entityframeworkcore.postgresql/7.0.18",
+      "hashPath": "npgsql.entityframeworkcore.postgresql.7.0.18.nupkg.sha512"
     },
     "Oracle.EntityFrameworkCore/7.21.13": {
       "type": "package",

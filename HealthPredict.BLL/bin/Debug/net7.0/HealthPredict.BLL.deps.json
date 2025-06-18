@@ -15,39 +15,39 @@
           "HealthPredict.BLL.dll": {}
         }
       },
-      "Microsoft.EntityFrameworkCore/7.0.16": {
+      "Microsoft.EntityFrameworkCore/7.0.18": {
         "dependencies": {
-          "Microsoft.EntityFrameworkCore.Abstractions": "7.0.16",
-          "Microsoft.EntityFrameworkCore.Analyzers": "7.0.16",
+          "Microsoft.EntityFrameworkCore.Abstractions": "7.0.18",
+          "Microsoft.EntityFrameworkCore.Analyzers": "7.0.18",
           "Microsoft.Extensions.Caching.Memory": "7.0.0",
           "Microsoft.Extensions.DependencyInjection": "7.0.0",
           "Microsoft.Extensions.Logging": "7.0.0"
         },
         "runtime": {
           "lib/net6.0/Microsoft.EntityFrameworkCore.dll": {
-            "assemblyVersion": "7.0.16.0",
-            "fileVersion": "7.0.1624.6616"
+            "assemblyVersion": "7.0.18.0",
+            "fileVersion": "7.0.1824.16810"
           }
         }
       },
-      "Microsoft.EntityFrameworkCore.Abstractions/7.0.16": {
+      "Microsoft.EntityFrameworkCore.Abstractions/7.0.18": {
         "runtime": {
           "lib/net6.0/Microsoft.EntityFrameworkCore.Abstractions.dll": {
-            "assemblyVersion": "7.0.16.0",
-            "fileVersion": "7.0.1624.6616"
+            "assemblyVersion": "7.0.18.0",
+            "fileVersion": "7.0.1824.16810"
           }
         }
       },
-      "Microsoft.EntityFrameworkCore.Analyzers/7.0.16": {},
-      "Microsoft.EntityFrameworkCore.Relational/7.0.3": {
+      "Microsoft.EntityFrameworkCore.Analyzers/7.0.18": {},
+      "Microsoft.EntityFrameworkCore.Relational/7.0.18": {
         "dependencies": {
-          "Microsoft.EntityFrameworkCore": "7.0.16",
+          "Microsoft.EntityFrameworkCore": "7.0.18",
           "Microsoft.Extensions.Configuration.Abstractions": "7.0.0"
         },
         "runtime": {
           "lib/net6.0/Microsoft.EntityFrameworkCore.Relational.dll": {
-            "assemblyVersion": "7.0.3.0",
-            "fileVersion": "7.0.323.6302"
+            "assemblyVersion": "7.0.18.0",
+            "fileVersion": "7.0.1824.16810"
           }
         }
       },
@@ -165,9 +165,34 @@
           }
         }
       },
+      "Npgsql/7.0.7": {
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "7.0.0"
+        },
+        "runtime": {
+          "lib/net7.0/Npgsql.dll": {
+            "assemblyVersion": "7.0.7.0",
+            "fileVersion": "7.0.7.0"
+          }
+        }
+      },
+      "Npgsql.EntityFrameworkCore.PostgreSQL/7.0.18": {
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore": "7.0.18",
+          "Microsoft.EntityFrameworkCore.Abstractions": "7.0.18",
+          "Microsoft.EntityFrameworkCore.Relational": "7.0.18",
+          "Npgsql": "7.0.7"
+        },
+        "runtime": {
+          "lib/net7.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll": {
+            "assemblyVersion": "7.0.18.0",
+            "fileVersion": "7.0.18.0"
+          }
+        }
+      },
       "Oracle.EntityFrameworkCore/7.21.13": {
         "dependencies": {
-          "Microsoft.EntityFrameworkCore.Relational": "7.0.3",
+          "Microsoft.EntityFrameworkCore.Relational": "7.0.18",
           "Oracle.ManagedDataAccess.Core": "3.21.130"
         },
         "runtime": {
@@ -345,7 +370,8 @@
       "HealthPredict.DAL/1.0.0": {
         "dependencies": {
           "HealthPredict.Models": "1.0.0",
-          "Microsoft.EntityFrameworkCore": "7.0.16",
+          "Microsoft.EntityFrameworkCore": "7.0.18",
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "7.0.18",
           "Oracle.EntityFrameworkCore": "7.21.13"
         },
         "runtime": {
@@ -365,33 +391,33 @@
       "serviceable": false,
       "sha512": ""
     },
-    "Microsoft.EntityFrameworkCore/7.0.16": {
+    "Microsoft.EntityFrameworkCore/7.0.18": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-SbMHFQG7iXgBTUFv5XxVMwpRqDKah4qTraDAGUv4gkaudFAOSuNfNRfCXY282hij79P1oxg/M9Wni+8GXavxQQ==",
-      "path": "microsoft.entityframeworkcore/7.0.16",
-      "hashPath": "microsoft.entityframeworkcore.7.0.16.nupkg.sha512"
+      "sha512": "sha512-zk4JC8m9T55dwtqBnnXar1jtI7q4bZuSo3PI8/Iq7QbVk0D2Yrvx0mZJb/5tj8O+ghwT56XzDuN3641iumXqmg==",
+      "path": "microsoft.entityframeworkcore/7.0.18",
+      "hashPath": "microsoft.entityframeworkcore.7.0.18.nupkg.sha512"
     },
-    "Microsoft.EntityFrameworkCore.Abstractions/7.0.16": {
+    "Microsoft.EntityFrameworkCore.Abstractions/7.0.18": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-emuQo430RBfwZSxwTYKu0/+ohRixXaRNi3njEbzcnaFqc94oU6afcx5KYtk5/lrBQn58Oo0CUmDRhMeFQI4Kgg==",
-      "path": "microsoft.entityframeworkcore.abstractions/7.0.16",
-      "hashPath": "microsoft.entityframeworkcore.abstractions.7.0.16.nupkg.sha512"
+      "sha512": "sha512-KCEaYiYM6bVGKo/dLRDkXn1zZ1Vn6f4uG0nb2iis/jCju16hUOX/GAOLx1FhD2cIQcHRvtmYFZnm5/anHFdhtg==",
+      "path": "microsoft.entityframeworkcore.abstractions/7.0.18",
+      "hashPath": "microsoft.entityframeworkcore.abstractions.7.0.18.nupkg.sha512"
     },
-    "Microsoft.EntityFrameworkCore.Analyzers/7.0.16": {
+    "Microsoft.EntityFrameworkCore.Analyzers/7.0.18": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-DO8M/90nqgq7fFoR4SIty9thhK22RBIwxoJxPIwrATy9FV1QKGPUeG9iMnz1yHv5/NxZWr8xF44oFAsrgcHgXg==",
-      "path": "microsoft.entityframeworkcore.analyzers/7.0.16",
-      "hashPath": "microsoft.entityframeworkcore.analyzers.7.0.16.nupkg.sha512"
+      "sha512": "sha512-qD7GuyGVQvndDJdYbv5UTuxJeeH/cVS1VBz3ZY72yCYKnSEx9hpiokCji1bgy9cHA1rPNjI7OA7ZrDOeojMtOA==",
+      "path": "microsoft.entityframeworkcore.analyzers/7.0.18",
+      "hashPath": "microsoft.entityframeworkcore.analyzers.7.0.18.nupkg.sha512"
     },
-    "Microsoft.EntityFrameworkCore.Relational/7.0.3": {
+    "Microsoft.EntityFrameworkCore.Relational/7.0.18": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-RxNNjtTrxsMtdBtgoXGRSy8uCXaBHaVzIonTeo7+Ys+N0yEWwhf2E74cxneyunMi13Ezlld10ecCHlDubEU/Pw==",
-      "path": "microsoft.entityframeworkcore.relational/7.0.3",
-      "hashPath": "microsoft.entityframeworkcore.relational.7.0.3.nupkg.sha512"
+      "sha512": "sha512-19T8HjEkqyvuPf6C3WPM1B0h10/ezf/+KHPFQxp8ODHN3YKjV/5tKyuZyjRULa3EcfTW4TiaOqPIfs5WSVfwYw==",
+      "path": "microsoft.entityframeworkcore.relational/7.0.18",
+      "hashPath": "microsoft.entityframeworkcore.relational.7.0.18.nupkg.sha512"
     },
     "Microsoft.Extensions.Caching.Abstractions/7.0.0": {
       "type": "package",
@@ -462,6 +488,20 @@
       "sha512": "sha512-hqTM5628jSsQiv+HGpiq3WKBl2c8v1KZfby2J6Pr7pEPlK9waPdgEO6b8A/+/xn/yZ9ulv8HuqK71ONy2tg67A==",
       "path": "microsoft.win32.systemevents/6.0.0",
       "hashPath": "microsoft.win32.systemevents.6.0.0.nupkg.sha512"
+    },
+    "Npgsql/7.0.7": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-A3BjyNebHjw/MahM6n3VnKbxrj/hQnMROEkUNUTjhUVv7yvcGnfBgw/FszahT9uCR23AVD2N/0Tvw1aHgxr9Gg==",
+      "path": "npgsql/7.0.7",
+      "hashPath": "npgsql.7.0.7.nupkg.sha512"
+    },
+    "Npgsql.EntityFrameworkCore.PostgreSQL/7.0.18": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-W+mFtJ1D4kSsCIBMScaq3tq8jdoR0Healb6knhSKqnlIoGGQwkHltHMsFeWacieLQPA+e4UrIgucfDpRpRXQRA==",
+      "path": "npgsql.entityframeworkcore.postgresql/7.0.18",
+      "hashPath": "npgsql.entityframeworkcore.postgresql.7.0.18.nupkg.sha512"
     },
     "Oracle.EntityFrameworkCore/7.21.13": {
       "type": "package",

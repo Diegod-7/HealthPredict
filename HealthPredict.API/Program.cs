@@ -15,47 +15,46 @@ var builder = WebApplication.CreateBuilder(args);
 // Configuración de servicios
 builder.Services.AddControllers();
 
-// Configuración de la base de datos Oracle
-var connectionString = Environment.GetEnvironmentVariable("ORACLE_CONNECTION_STRING") 
-                      ?? builder.Configuration.GetConnectionString("OracleConnection");
+// Configuración de la base de datos PostgreSQL
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") 
+                      ?? builder.Configuration.GetConnectionString("PostgreSQLConnection");
 
-Console.WriteLine($"🔍 Connection String encontrado: {!string.IsNullOrEmpty(connectionString)}");
+Console.WriteLine($"🔍 PostgreSQL Connection String encontrado: {!string.IsNullOrEmpty(connectionString)}");
 Console.WriteLine($"🔍 ASPNETCORE_ENVIRONMENT: {Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}");
 
 if (string.IsNullOrEmpty(connectionString))
 {
-    Console.WriteLine("❌ ERROR: No se encontró el string de conexión de Oracle");
+    Console.WriteLine("❌ ERROR: No se encontró el string de conexión de PostgreSQL");
     Console.WriteLine("Variables de entorno disponibles:");
     foreach (DictionaryEntry env in Environment.GetEnvironmentVariables())
     {
         var key = env.Key.ToString();
-        if (key.Contains("ORACLE") || key.Contains("CONNECTION") || key.Contains("DATABASE"))
+        if (key.Contains("DATABASE") || key.Contains("CONNECTION") || key.Contains("POSTGRES"))
         {
             Console.WriteLine($"   {key}: {env.Value}");
         }
     }
     
     // Usar una conexión por defecto para evitar crash
-    connectionString = "Data Source=localhost:1521/XE;User Id=hr;Password=password;";
+    connectionString = "Host=localhost;Database=healthpredict;Username=postgres;Password=password";
     Console.WriteLine("⚠️ Usando conexión por defecto (la app funcionará parcialmente)");
 }
 else
 {
-    Console.WriteLine($"✅ Connection String configurado correctamente");
+    Console.WriteLine($"✅ PostgreSQL Connection String configurado correctamente");
     // Mostrar solo los primeros caracteres por seguridad
     Console.WriteLine($"🔗 Connection String: {connectionString.Substring(0, Math.Min(50, connectionString.Length))}...");
 }
 
 builder.Services.AddDbContext<HealthPredictContext>(options => 
 {
-    options.UseOracle(connectionString, oracleOptions => 
+    options.UseNpgsql(connectionString, npgsqlOptions => 
     {
-        oracleOptions.UseOracleSQLCompatibility("11");
-        // Configurar timeout más largo para Oracle Cloud
-        oracleOptions.CommandTimeout(60);
+        // Configurar timeout más largo para conexiones remotas
+        npgsqlOptions.CommandTimeout(60);
     });
     
-    // Configurar logging para Oracle en desarrollo
+    // Configurar logging para PostgreSQL en desarrollo
     if (builder.Environment.IsDevelopment())
     {
         options.EnableSensitiveDataLogging();

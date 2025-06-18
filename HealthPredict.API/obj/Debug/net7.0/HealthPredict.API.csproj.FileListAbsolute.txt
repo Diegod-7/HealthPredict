@@ -17,6 +17,8 @@ C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredic
 C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.API\bin\Debug\net7.0\Microsoft.OpenApi.dll
 C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.API\bin\Debug\net7.0\Microsoft.Win32.SystemEvents.dll
 C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.API\bin\Debug\net7.0\Mono.TextTemplating.dll
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.API\bin\Debug\net7.0\Npgsql.dll
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.API\bin\Debug\net7.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
 C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.API\bin\Debug\net7.0\Oracle.EntityFrameworkCore.dll
 C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.API\bin\Debug\net7.0\Oracle.ManagedDataAccess.dll
 C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.API\bin\Debug\net7.0\Swashbuckle.AspNetCore.Swagger.dll

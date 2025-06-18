@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Oracle.EntityFrameworkCore.Metadata;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace HealthPredict.DAL.Migrations
 {
     [DbContext(typeof(HealthPredictContext))]
-    [Migration("20250510162341_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250618012259_InitialPostgreSQL")]
+    partial class InitialPostgreSQL
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,64 +21,64 @@ namespace HealthPredict.DAL.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "7.0.18")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            OracleModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("HealthPredict.Models.Alerta", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(10)")
+                        .HasColumnType("integer")
                         .HasColumnName("ID");
 
-                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Descripcion")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("NVARCHAR2(500)")
+                        .HasColumnType("character varying(500)")
                         .HasColumnName("DESCRIPCION");
 
                     b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("TIMESTAMP(7)")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("FECHA_CREACION");
 
                     b.Property<DateTime?>("FechaLectura")
-                        .HasColumnType("TIMESTAMP(7)")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("FECHA_LECTURA");
 
                     b.Property<DateTime?>("FechaResolucion")
-                        .HasColumnType("TIMESTAMP(7)")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("FECHA_RESOLUCION");
 
                     b.Property<bool>("Leida")
-                        .HasColumnType("NUMBER(1)")
+                        .HasColumnType("boolean")
                         .HasColumnName("LEIDA");
 
                     b.Property<string>("NotasResolucion")
                         .HasMaxLength(500)
-                        .HasColumnType("NVARCHAR2(500)")
+                        .HasColumnType("character varying(500)")
                         .HasColumnName("NOTAS_RESOLUCION");
 
                     b.Property<bool>("Resuelta")
-                        .HasColumnType("NUMBER(1)")
+                        .HasColumnType("boolean")
                         .HasColumnName("RESUELTA");
 
                     b.Property<string>("Severidad")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("NVARCHAR2(20)")
+                        .HasColumnType("character varying(20)")
                         .HasColumnName("SEVERIDAD");
 
                     b.Property<string>("TipoAlerta")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("NVARCHAR2(50)")
+                        .HasColumnType("character varying(50)")
                         .HasColumnName("TIPO_ALERTA");
 
                     b.Property<int>("UsuarioId")
-                        .HasColumnType("NUMBER(10)")
+                        .HasColumnType("integer")
                         .HasColumnName("USUARIO_ID");
 
                     b.HasKey("Id");
@@ -92,43 +92,43 @@ namespace HealthPredict.DAL.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(10)")
+                        .HasColumnType("integer")
                         .HasColumnName("ID");
 
-                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("DispositivoOrigen")
                         .HasMaxLength(100)
-                        .HasColumnType("NVARCHAR2(100)")
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("DISPOSITIVO_ORIGEN");
 
                     b.Property<DateTime>("FechaRegistro")
-                        .HasColumnType("TIMESTAMP(7)")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("FECHA_REGISTRO");
 
                     b.Property<string>("Notas")
                         .HasMaxLength(500)
-                        .HasColumnType("NVARCHAR2(500)")
+                        .HasColumnType("character varying(500)")
                         .HasColumnName("NOTAS");
 
                     b.Property<string>("TipoDato")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("NVARCHAR2(50)")
+                        .HasColumnType("character varying(50)")
                         .HasColumnName("TIPO_DATO");
 
                     b.Property<string>("Unidad")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("NVARCHAR2(20)")
+                        .HasColumnType("character varying(20)")
                         .HasColumnName("UNIDAD");
 
                     b.Property<int>("UsuarioId")
-                        .HasColumnType("NUMBER(10)")
+                        .HasColumnType("integer")
                         .HasColumnName("USUARIO_ID");
 
                     b.Property<decimal>("Valor")
-                        .HasColumnType("DECIMAL(18, 2)")
+                        .HasColumnType("numeric")
                         .HasColumnName("VALOR");
 
                     b.HasKey("Id");
@@ -142,73 +142,73 @@ namespace HealthPredict.DAL.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(10)")
+                        .HasColumnType("integer")
                         .HasColumnName("ID");
 
-                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Altura")
-                        .HasColumnType("DECIMAL(18, 2)")
+                        .HasColumnType("numeric")
                         .HasColumnName("ALTURA");
 
                     b.Property<string>("Apellido")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("NVARCHAR2(100)")
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("APELLIDO");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("NVARCHAR2(100)")
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("EMAIL");
 
                     b.Property<bool>("EsProfesionalMedico")
-                        .HasColumnType("NUMBER(1)")
+                        .HasColumnType("boolean")
                         .HasColumnName("ES_PROFESIONAL_MEDICO");
 
                     b.Property<string>("Especialidad")
                         .HasMaxLength(100)
-                        .HasColumnType("NVARCHAR2(100)")
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("ESPECIALIDAD");
 
                     b.Property<DateTime>("FechaNacimiento")
-                        .HasColumnType("TIMESTAMP(7)")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("FECHA_NACIMIENTO");
 
                     b.Property<DateTime>("FechaRegistro")
-                        .HasColumnType("TIMESTAMP(7)")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("FECHA_REGISTRO");
 
                     b.Property<string>("Genero")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("NVARCHAR2(20)")
+                        .HasColumnType("character varying(20)")
                         .HasColumnName("GENERO");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("NVARCHAR2(100)")
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("NOMBRE");
 
                     b.Property<string>("NumeroLicencia")
                         .HasMaxLength(50)
-                        .HasColumnType("NVARCHAR2(50)")
+                        .HasColumnType("character varying(50)")
                         .HasColumnName("NUMERO_LICENCIA");
 
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("NVARCHAR2(100)")
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("PASSWORD");
 
                     b.Property<decimal>("Peso")
-                        .HasColumnType("DECIMAL(18, 2)")
+                        .HasColumnType("numeric")
                         .HasColumnName("PESO");
 
                     b.Property<DateTime>("UltimoAcceso")
-                        .HasColumnType("TIMESTAMP(7)")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("ULTIMO_ACCESO");
 
                     b.HasKey("Id");
