@@ -17,6 +17,14 @@ namespace HealthPredict.BLL
             _context = context;
         }
 
+        public async Task<List<Alerta>> GetAllAlertasAsync()
+        {
+            return await _context.Alertas
+                .Include(a => a.Usuario)
+                .OrderByDescending(a => a.FechaCreacion)
+                .ToListAsync();
+        }
+
         public async Task<List<Alerta>> GetAlertasByUsuarioAsync(int usuarioId)
         {
             return await _context.Alertas

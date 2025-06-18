@@ -17,6 +17,14 @@ namespace HealthPredict.API.Controllers
             _alertaService = alertaService;
         }
 
+        // GET: api/Alertas
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Alerta>>> GetAllAlertas()
+        {
+            var alertas = await _alertaService.GetAllAlertasAsync();
+            return Ok(alertas);
+        }
+
         // GET: api/Alertas/Usuario/5
         [HttpGet("Usuario/{usuarioId}")]
         public async Task<ActionResult<IEnumerable<Alerta>>> GetAlertasByUsuario(int usuarioId)

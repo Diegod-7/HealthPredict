@@ -17,6 +17,14 @@ namespace HealthPredict.BLL
             _context = context;
         }
 
+        public async Task<List<DatoVital>> GetAllDatosVitalesAsync()
+        {
+            return await _context.DatosVitales
+                .Include(d => d.Usuario)
+                .OrderByDescending(d => d.FechaRegistro)
+                .ToListAsync();
+        }
+
         public async Task<List<DatoVital>> GetDatosVitalesByUsuarioAsync(int usuarioId)
         {
             return await _context.DatosVitales

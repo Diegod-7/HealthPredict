@@ -1,7 +1,7 @@
 import Foundation
 
 class APIService: ObservableObject {
-    private let baseURL = "https://tu-api-healthpredict.com/api" // Cambiar por tu URL real
+    private let baseURL = "https://healthpredict-l1hu.onrender.com/api" // ✅ Configurado para producción
     private let session = URLSession.shared
     
     @Published var isConnected = false

@@ -20,6 +20,14 @@ namespace HealthPredict.API.Controllers
             _alertaService = alertaService;
         }
 
+        // GET: api/DatosVitales
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<DatoVital>>> GetAllDatosVitales()
+        {
+            var datosVitales = await _datoVitalService.GetAllDatosVitalesAsync();
+            return Ok(datosVitales);
+        }
+
         // GET: api/DatosVitales/Usuario/5
         [HttpGet("Usuario/{usuarioId}")]
         public async Task<ActionResult<IEnumerable<DatoVital>>> GetDatosVitalesByUsuario(int usuarioId)
