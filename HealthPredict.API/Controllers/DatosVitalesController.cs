@@ -76,10 +76,47 @@ namespace HealthPredict.API.Controllers
         {
             try
             {
-                var datosVitales = new List<DatoVital>();
+                // LOGGING DETALLADO - Para debugging Android
+                Console.WriteLine($"🔍 [ANDROID DEBUG] Recibiendo datos de sincronización...");
+                Console.WriteLine($"🔍 [ANDROID DEBUG] Cantidad de datos recibidos: {healthKitData?.Count ?? 0}");
                 
-                foreach (var item in healthKitData)
+                if (healthKitData == null || !healthKitData.Any())
                 {
+                    Console.WriteLine($"❌ [ANDROID DEBUG] No se recibieron datos para sincronizar");
+                    return BadRequest(new { 
+                        error = "No se recibieron datos para sincronizar", 
+                        detalle = "La lista de datos está vacía o es null",
+                        timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    });
+                }
+
+                var datosVitales = new List<DatoVital>();
+                var erroresValidacion = new List<string>();
+                
+                for (int i = 0; i < healthKitData.Count; i++)
+                {
+                    var item = healthKitData[i];
+                    Console.WriteLine($"🔍 [ANDROID DEBUG] Procesando dato {i + 1}: Usuario={item.UsuarioId}, Tipo={item.TipoHealthKit}, Valor={item.Valor}");
+                    
+                    // Validaciones detalladas
+                    if (item.UsuarioId <= 0)
+                    {
+                        erroresValidacion.Add($"Dato {i + 1}: UsuarioId inválido ({item.UsuarioId})");
+                        continue;
+                    }
+                    
+                    if (string.IsNullOrEmpty(item.TipoHealthKit))
+                    {
+                        erroresValidacion.Add($"Dato {i + 1}: TipoHealthKit vacío");
+                        continue;
+                    }
+                    
+                    if (string.IsNullOrEmpty(item.Unidad))
+                    {
+                        erroresValidacion.Add($"Dato {i + 1}: Unidad vacía");
+                        continue;
+                    }
+
                     var datoVital = new DatoVital
                     {
                         UsuarioId = item.UsuarioId,
@@ -87,16 +124,38 @@ namespace HealthPredict.API.Controllers
                         TipoDato = MapHealthKitType(item.TipoHealthKit),
                         Valor = item.Valor,
                         Unidad = item.Unidad,
-                        DispositivoOrigen = "Apple Health",
-                        Notas = $"Sincronizado desde HealthKit - {item.TipoHealthKit}"
+                        DispositivoOrigen = "Android Health",
+                        Notas = $"Sincronizado desde Android - {item.TipoHealthKit}"
                     };
                     
                     datosVitales.Add(datoVital);
                 }
 
+                if (erroresValidacion.Any())
+                {
+                    Console.WriteLine($"❌ [ANDROID DEBUG] Errores de validación encontrados: {string.Join(", ", erroresValidacion)}");
+                    return BadRequest(new { 
+                        error = "Errores de validación en los datos", 
+                        detalle = erroresValidacion,
+                        timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    });
+                }
+
+                if (!datosVitales.Any())
+                {
+                    Console.WriteLine($"❌ [ANDROID DEBUG] No hay datos válidos para procesar");
+                    return BadRequest(new { 
+                        error = "No hay datos válidos para procesar", 
+                        detalle = "Todos los datos fallaron la validación",
+                        timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                    });
+                }
+
+                Console.WriteLine($"✅ [ANDROID DEBUG] Guardando {datosVitales.Count} datos válidos en la base de datos...");
                 var result = await _datoVitalService.CreateDatosVitalesEnLoteAsync(datosVitales);
                 
                 // Verificar alertas para datos sincronizados
+                int alertasGeneradas = 0;
                 foreach (var dato in result)
                 {
                     bool fueraDeRango = await _datoVitalService.VerificarValorFueraDeRango(dato);
@@ -104,20 +163,33 @@ namespace HealthPredict.API.Controllers
                     {
                         await _alertaService.GenerarAlertaPorDatoVitalAsync(
                             dato, 
-                            "valor_anormal_healthkit", 
+                            "valor_anormal_android", 
                             "media");
+                        alertasGeneradas++;
                     }
                 }
 
+                Console.WriteLine($"✅ [ANDROID DEBUG] Sincronización completada: {result.Count} datos guardados, {alertasGeneradas} alertas generadas");
+
                 return Ok(new { 
-                    mensaje = "Datos sincronizados exitosamente", 
+                    mensaje = "Datos sincronizados exitosamente desde Android", 
+                    cantidadRecibida = healthKitData.Count,
                     cantidadProcesada = result.Count,
-                    alertasGeneradas = result.Count(d => _datoVitalService.VerificarValorFueraDeRango(d).Result)
+                    alertasGeneradas = alertasGeneradas,
+                    timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                 });
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = "Error al sincronizar datos de HealthKit", detalle = ex.Message });
+                Console.WriteLine($"❌ [ANDROID DEBUG] Error en sincronización: {ex.Message}");
+                Console.WriteLine($"❌ [ANDROID DEBUG] Stack trace: {ex.StackTrace}");
+                
+                return BadRequest(new { 
+                    error = "Error interno al sincronizar datos", 
+                    detalle = ex.Message,
+                    stackTrace = ex.StackTrace,
+                    timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                });
             }
         }
 
