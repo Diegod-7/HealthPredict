@@ -282,88 +282,80 @@ namespace HealthPredict.API.Controllers
                 {
                     Nombre = "Carlos",
                     Apellido = "Rodriguez",
-                    NombreCompleto = "Carlos Rodriguez",
                     Email = "jefe@healthpredict.com",
                     Password = "admin123",
-                    Telefono = "+56 9 8888 8888",
                     FechaNacimiento = new DateTime(1980, 5, 15),
                     Genero = "Masculino",
                     Altura = 175,
                     Peso = 80,
-                    TipoSangre = "O+",
                     Rol = "Jefe",
                     Departamento = "Administración",
                     Cargo = "Gerente General",
                     JefeId = null,
                     EsActivo = true,
                     FechaRegistro = DateTime.Now,
-                    UltimoAcceso = DateTime.Now
+                    UltimoAcceso = DateTime.Now,
+                    EsProfesionalMedico = false
                 };
 
                 var diego = new Usuario
                 {
                     Nombre = "Diego",
                     Apellido = "Diaz",
-                    NombreCompleto = "Diego Diaz",
                     Email = "diego.diaz@healthpredict.com",
                     Password = "diego123",
-                    Telefono = "+56 9 1111 1111",
                     FechaNacimiento = new DateTime(1995, 3, 10),
                     Genero = "Masculino",
                     Altura = 180,
                     Peso = 75,
-                    TipoSangre = "A+",
                     Rol = "Trabajador",
                     Departamento = "Desarrollo",
                     Cargo = "Desarrollador Senior",
                     JefeId = 1, // Se asignará después
                     EsActivo = true,
                     FechaRegistro = DateTime.Now,
-                    UltimoAcceso = DateTime.Now
+                    UltimoAcceso = DateTime.Now,
+                    EsProfesionalMedico = false
                 };
 
                 var matias = new Usuario
                 {
                     Nombre = "Matias",
                     Apellido = "Maripangue",
-                    NombreCompleto = "Matias Maripangue",
                     Email = "matias.maripangue@healthpredict.com",
                     Password = "matias123",
-                    Telefono = "+56 9 2222 2222",
                     FechaNacimiento = new DateTime(1992, 8, 22),
                     Genero = "Masculino",
                     Altura = 170,
                     Peso = 68,
-                    TipoSangre = "B+",
                     Rol = "Trabajador",
                     Departamento = "Desarrollo",
                     Cargo = "Desarrollador",
                     JefeId = 1, // Se asignará después
                     EsActivo = true,
                     FechaRegistro = DateTime.Now,
-                    UltimoAcceso = DateTime.Now
+                    UltimoAcceso = DateTime.Now,
+                    EsProfesionalMedico = false
                 };
 
                 var iahn = new Usuario
                 {
                     Nombre = "Iahn",
                     Apellido = "Vera",
-                    NombreCompleto = "Iahn Vera",
                     Email = "iahn.vera@healthpredict.com",
                     Password = "iahn123",
-                    Telefono = "+56 9 3333 3333",
                     FechaNacimiento = new DateTime(1993, 12, 5),
                     Genero = "Masculino",
                     Altura = 178,
                     Peso = 72,
-                    TipoSangre = "AB+",
                     Rol = "Trabajador",
                     Departamento = "Desarrollo",
                     Cargo = "Desarrollador",
                     JefeId = 1, // Se asignará después
                     EsActivo = true,
                     FechaRegistro = DateTime.Now,
-                    UltimoAcceso = DateTime.Now
+                    UltimoAcceso = DateTime.Now,
+                    EsProfesionalMedico = false
                 };
 
                 // Crear el jefe primero
