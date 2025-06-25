@@ -65,31 +65,35 @@
       </form>
     </div>
 
-    <!-- Usuarios de prueba -->
-    <div class="quick-login">
-      <h3>🚀 Login Rápido (Desarrollo)</h3>
-      <p>Haz clic en cualquier usuario para iniciar sesión automáticamente:</p>
-      
-      <div class="users-grid">
-        <div 
-          *ngFor="let usuario of usuariosPredefinidos" 
-          class="user-card"
-          (click)="loginRapido(usuario)"
-          [class.disabled]="isLoading">
-          
-          <div class="user-info">
-            <h4>{{ usuario.nombre }}</h4>
-            <p>{{ usuario.email }}</p>
-          </div>
-          
-          <div class="user-role">
-            <span class="role-badge" 
-                  [class.jefe]="usuario.email.includes('jefe')"
-                  [class.trabajador]="!usuario.email.includes('jefe')">
-              {{ usuario.email.includes('jefe') ? '👔 Jefe' : '👨‍💻 Trabajador' }}
-            </span>
-          </div>
+    <!-- Sección de usuarios de prueba -->
+    <div class="test-users-section">
+      <h5>👥 Usuarios de Prueba Disponibles:</h5>
+      <div class="user-cards">
+        <div class="user-card jefe" (click)="loginRapido('carlos.rodriguez@example.com', 'password123')">
+          <div class="user-role">👔 JEFE</div>
+          <div class="user-name">Carlos Rodríguez</div>
+          <div class="user-email">carlos.rodriguez&#64;example.com</div>
+          <small>Contraseña: password123</small>
         </div>
+
+        <div class="user-card trabajador" (click)="loginRapido('juan.perez@example.com', 'password123')">
+          <div class="user-role">👨‍💻 TRABAJADOR</div>
+          <div class="user-name">Juan Pérez</div>
+          <div class="user-email">juan.perez&#64;example.com</div>
+          <small>Contraseña: password123</small>
+        </div>
+
+        <div class="user-card trabajador" (click)="loginRapido('maria.gonzalez@example.com', 'password123')">
+          <div class="user-role">👩‍💻 TRABAJADOR</div>
+          <div class="user-name">María González</div>
+          <div class="user-email">maria.gonzalez&#64;example.com</div>
+          <small>Contraseña: password123</small>
+        </div>
+      </div>
+      
+      <div class="info-note">
+        <i class="info-icon">ℹ️</i>
+        <span>Haz clic en cualquier tarjeta para login rápido o ingresa las credenciales manualmente</span>
       </div>
     </div>
 

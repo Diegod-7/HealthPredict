@@ -386,6 +386,41 @@ namespace HealthPredict.API.Controllers
                 return StatusCode(500, $"Error al inicializar datos: {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// Actualiza el rol de un usuario
+        /// </summary>
+        /// <param name="usuarioId">ID del usuario</param>
+        /// <param name="nuevoRol">Nuevo rol del usuario</param>
+        /// <returns>Usuario actualizado</returns>
+        [HttpPut("{usuarioId}/rol")]
+        public async Task<IActionResult> ActualizarRol(int usuarioId, [FromBody] string nuevoRol)
+        {
+            try
+            {
+                var usuario = await _usuarioService.GetUsuarioByIdAsync(usuarioId);
+                if (usuario == null)
+                {
+                    return NotFound("Usuario no encontrado");
+                }
+
+                usuario.Rol = nuevoRol;
+                
+                // Si es jefe, limpiar jefeId
+                if (nuevoRol == "Jefe")
+                {
+                    usuario.JefeId = null;
+                }
+
+                await _usuarioService.UpdateUsuarioAsync(usuario);
+                
+                return Ok(new { mensaje = $"Rol actualizado a {nuevoRol} exitosamente", usuario });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al actualizar rol: {ex.Message}");
+            }
+        }
     }
 
     public class LoginModel
