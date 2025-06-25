@@ -88,9 +88,8 @@ export class UsuarioService {
   /**
    * Verifica si un usuario puede acceder a los datos de otro
    */
-  verificarAccesoADatos(usuarioSolicitante: number, usuarioObjetivo: number): Observable<{puedeAcceder: boolean}> {
-    console.log('🌐 [REAL DATA] Verificando acceso de usuario', usuarioSolicitante, 'a datos de', usuarioObjetivo);
-    return this.http.get<{puedeAcceder: boolean}>(`${this.apiUrl}/VerificarAcceso/${usuarioSolicitante}/${usuarioObjetivo}`);
+  verificarAcceso(usuarioSolicitante: number, usuarioObjetivo: number): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/VerificarAcceso/${usuarioSolicitante}/${usuarioObjetivo}`);
   }
 
   // ✅ MÉTODOS AUXILIARES PARA EL FRONTEND
@@ -136,5 +135,12 @@ export class UsuarioService {
    */
   logout(): void {
     localStorage.removeItem('currentUser');
+  }
+
+  /**
+   * Inicializa los datos de usuarios si no existen (método temporal)
+   */
+  inicializarDatos(): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/inicializar-datos`, {});
   }
 }

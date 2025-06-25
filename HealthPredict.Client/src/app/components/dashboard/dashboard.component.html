@@ -1,5 +1,25 @@
 <div class="container mt-4">
-  <h2 class="mb-4">Dashboard de Salud</h2>
+  <!-- ✅ HEADER DEL USUARIO TRABAJADOR -->
+  <div class="dashboard-header mb-4">
+    <div class="d-flex justify-content-between align-items-center bg-white p-4 rounded shadow-sm">
+      <div class="user-info">
+        <h2 class="mb-1">👨‍💻 Dashboard Personal - {{ usuarioActual?.nombreCompleto }}</h2>
+        <p class="text-muted mb-0">
+          Rol: <span class="badge bg-info">{{ usuarioActual?.rol }}</span> | 
+          Cargo: {{ usuarioActual?.cargo }} | 
+          Departamento: {{ usuarioActual?.departamento }}
+        </p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-outline-secondary me-2" (click)="recargarDatos()" [disabled]="loading">
+          🔄 Recargar
+        </button>
+        <button class="btn btn-outline-danger" (click)="logout()">
+          🚪 Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Mensaje de carga -->
   <div *ngIf="loading" class="d-flex justify-content-center my-4">
@@ -11,6 +31,7 @@
   <!-- Mensaje de error -->
   <div *ngIf="error" class="alert alert-danger" role="alert">
     {{ error }}
+    <button class="btn btn-sm btn-primary ms-3" (click)="recargarDatos()">Reintentar</button>
   </div>
 
   <!-- Contenido principal -->
@@ -89,7 +110,7 @@
       <div class="col-12">
         <div class="card shadow-sm">
           <div class="card-header bg-light d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Alertas recientes</h5>
+            <h5 class="mb-0">Mis Alertas Recientes</h5>
             <button class="btn btn-sm btn-outline-primary" (click)="verListaAlertas()">
               Ver todas
             </button>
@@ -146,7 +167,7 @@
       <div class="col-12">
         <div class="card shadow-sm border-danger">
           <div class="card-header bg-danger text-white">
-            <h5 class="mb-0">Alertas de alta prioridad</h5>
+            <h5 class="mb-0">Mis Alertas de Alta Prioridad</h5>
           </div>
           <div class="card-body">
             <div class="list-group">

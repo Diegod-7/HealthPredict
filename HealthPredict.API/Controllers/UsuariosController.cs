@@ -3,6 +3,7 @@ using HealthPredict.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HealthPredict.API.Controllers
@@ -255,11 +256,142 @@ namespace HealthPredict.API.Controllers
             try
             {
                 var puedeAcceder = await _usuarioService.PuedeAccederADatosAsync(usuarioSolicitante, usuarioObjetivo);
-                return Ok(new { PuedeAcceder = puedeAcceder });
+                return Ok(puedeAcceder);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+
+        // ✅ ENDPOINT TEMPORAL PARA INICIALIZAR DATOS
+        [HttpPost("inicializar-datos")]
+        public async Task<ActionResult> InicializarDatos()
+        {
+            try
+            {
+                // Verificar si ya existen usuarios
+                var usuariosExistentes = await _usuarioService.GetUsuariosAsync();
+                if (usuariosExistentes.Any())
+                {
+                    return Ok(new { mensaje = "Los usuarios ya están inicializados", total = usuariosExistentes.Count() });
+                }
+
+                // Crear usuarios de prueba
+                var jefe = new Usuario
+                {
+                    Nombre = "Carlos",
+                    Apellido = "Rodriguez",
+                    NombreCompleto = "Carlos Rodriguez",
+                    Email = "jefe@healthpredict.com",
+                    Password = "admin123",
+                    Telefono = "+56 9 8888 8888",
+                    FechaNacimiento = new DateTime(1980, 5, 15),
+                    Genero = "Masculino",
+                    Altura = 175,
+                    Peso = 80,
+                    TipoSangre = "O+",
+                    Rol = "Jefe",
+                    Departamento = "Administración",
+                    Cargo = "Gerente General",
+                    JefeId = null,
+                    EsActivo = true,
+                    FechaRegistro = DateTime.Now,
+                    UltimoAcceso = DateTime.Now
+                };
+
+                var diego = new Usuario
+                {
+                    Nombre = "Diego",
+                    Apellido = "Diaz",
+                    NombreCompleto = "Diego Diaz",
+                    Email = "diego.diaz@healthpredict.com",
+                    Password = "diego123",
+                    Telefono = "+56 9 1111 1111",
+                    FechaNacimiento = new DateTime(1995, 3, 10),
+                    Genero = "Masculino",
+                    Altura = 180,
+                    Peso = 75,
+                    TipoSangre = "A+",
+                    Rol = "Trabajador",
+                    Departamento = "Desarrollo",
+                    Cargo = "Desarrollador Senior",
+                    JefeId = 1, // Se asignará después
+                    EsActivo = true,
+                    FechaRegistro = DateTime.Now,
+                    UltimoAcceso = DateTime.Now
+                };
+
+                var matias = new Usuario
+                {
+                    Nombre = "Matias",
+                    Apellido = "Maripangue",
+                    NombreCompleto = "Matias Maripangue",
+                    Email = "matias.maripangue@healthpredict.com",
+                    Password = "matias123",
+                    Telefono = "+56 9 2222 2222",
+                    FechaNacimiento = new DateTime(1992, 8, 22),
+                    Genero = "Masculino",
+                    Altura = 170,
+                    Peso = 68,
+                    TipoSangre = "B+",
+                    Rol = "Trabajador",
+                    Departamento = "Desarrollo",
+                    Cargo = "Desarrollador",
+                    JefeId = 1, // Se asignará después
+                    EsActivo = true,
+                    FechaRegistro = DateTime.Now,
+                    UltimoAcceso = DateTime.Now
+                };
+
+                var iahn = new Usuario
+                {
+                    Nombre = "Iahn",
+                    Apellido = "Vera",
+                    NombreCompleto = "Iahn Vera",
+                    Email = "iahn.vera@healthpredict.com",
+                    Password = "iahn123",
+                    Telefono = "+56 9 3333 3333",
+                    FechaNacimiento = new DateTime(1993, 12, 5),
+                    Genero = "Masculino",
+                    Altura = 178,
+                    Peso = 72,
+                    TipoSangre = "AB+",
+                    Rol = "Trabajador",
+                    Departamento = "Desarrollo",
+                    Cargo = "Desarrollador",
+                    JefeId = 1, // Se asignará después
+                    EsActivo = true,
+                    FechaRegistro = DateTime.Now,
+                    UltimoAcceso = DateTime.Now
+                };
+
+                // Crear el jefe primero
+                var jefeCreado = await _usuarioService.CreateUsuarioAsync(jefe);
+                
+                // Actualizar el JefeId para los trabajadores
+                diego.JefeId = jefeCreado.Id;
+                matias.JefeId = jefeCreado.Id;
+                iahn.JefeId = jefeCreado.Id;
+
+                // Crear los trabajadores
+                await _usuarioService.CreateUsuarioAsync(diego);
+                await _usuarioService.CreateUsuarioAsync(matias);
+                await _usuarioService.CreateUsuarioAsync(iahn);
+
+                return Ok(new { 
+                    mensaje = "Usuarios inicializados correctamente",
+                    usuarios = new[] {
+                        new { email = "jefe@healthpredict.com", password = "admin123", rol = "Jefe" },
+                        new { email = "diego.diaz@healthpredict.com", password = "diego123", rol = "Trabajador" },
+                        new { email = "matias.maripangue@healthpredict.com", password = "matias123", rol = "Trabajador" },
+                        new { email = "iahn.vera@healthpredict.com", password = "iahn123", rol = "Trabajador" }
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al inicializar datos: {ex.Message}");
             }
         }
     }

@@ -40,7 +40,7 @@ export class LoginComponent implements OnInit {
   }
 
   /**
-   * Procesa el login del usuario
+   * Realiza el login del usuario
    */
   onLogin(): void {
     if (!this.email || !this.password) {
@@ -50,27 +50,73 @@ export class LoginComponent implements OnInit {
 
     this.isLoading = true;
     this.errorMessage = '';
+    
+    console.log('🔐 Intentando login para:', this.email);
 
     this.usuarioService.authenticate(this.email, this.password).subscribe({
-      next: (usuario: Usuario) => {
+      next: (usuario) => {
         console.log('✅ Login exitoso:', usuario);
-        
-        // Calcular propiedades adicionales
-        usuario.nombreCompleto = this.usuarioService.getNombreCompleto(usuario);
-        usuario.esJefe = this.usuarioService.esJefe(usuario);
-        usuario.esTrabajador = this.usuarioService.esTrabajador(usuario);
-        
-        // Guardar usuario en localStorage
-        this.usuarioService.setCurrentUser(usuario);
-        
-        // Redirigir según el rol
-        this.redirectToDashboard(usuario);
-        
-        this.isLoading = false;
+        this.handleSuccessfulLogin(usuario);
       },
       error: (error) => {
         console.error('❌ Error en login:', error);
-        this.errorMessage = 'Credenciales inválidas. Por favor, verifica tu email y contraseña.';
+        
+        // Si es error 401, intentar inicializar datos primero
+        if (error.status === 401) {
+          console.log('🔄 Intentando inicializar datos de usuarios...');
+          this.tryInitializeData(this.email, this.password);
+        } else {
+          this.errorMessage = 'Error de conexión. Verifica tu conexión a internet.';
+          this.isLoading = false;
+        }
+      }
+    });
+  }
+
+  /**
+   * Maneja un login exitoso
+   */
+  private handleSuccessfulLogin(usuario: Usuario): void {
+    // Calcular propiedades adicionales
+    usuario.nombreCompleto = this.usuarioService.getNombreCompleto(usuario);
+    usuario.esJefe = this.usuarioService.esJefe(usuario);
+    usuario.esTrabajador = this.usuarioService.esTrabajador(usuario);
+    
+    // Guardar usuario en localStorage
+    this.usuarioService.setCurrentUser(usuario);
+    
+    // Redirigir según el rol
+    this.redirectToDashboard(usuario);
+    
+    this.isLoading = false;
+  }
+
+  /**
+   * Intenta inicializar los datos de usuarios y luego hacer login
+   */
+  private tryInitializeData(email: string, password: string): void {
+    this.usuarioService.inicializarDatos().subscribe({
+      next: (response) => {
+        console.log('✅ Datos inicializados:', response);
+        
+        // Intentar login nuevamente después de inicializar
+        setTimeout(() => {
+          this.usuarioService.authenticate(email, password).subscribe({
+            next: (usuario) => {
+              console.log('✅ Login exitoso después de inicializar:', usuario);
+              this.handleSuccessfulLogin(usuario);
+            },
+            error: (retryError) => {
+              console.error('❌ Error en segundo intento:', retryError);
+              this.errorMessage = 'Credenciales incorrectas. Verifica tu email y contraseña.';
+              this.isLoading = false;
+            }
+          });
+        }, 1000); // Esperar 1 segundo para que se procesen los datos
+      },
+      error: (initError) => {
+        console.error('❌ Error al inicializar datos:', initError);
+        this.errorMessage = 'Credenciales incorrectas. Verifica tu email y contraseña.';
         this.isLoading = false;
       }
     });

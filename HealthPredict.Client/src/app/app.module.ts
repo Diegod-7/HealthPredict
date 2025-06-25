@@ -15,6 +15,10 @@ import { LineaTemporalComponent } from './components/graficos/linea-temporal/lin
 import { ResumenEstadisticasComponent } from './components/graficos/resumen-estadisticas/resumen-estadisticas.component';
 import { ComparativaMensualComponent } from './components/graficos/comparativa-mensual/comparativa-mensual.component';
 
+// ✅ NUEVOS COMPONENTES DEL SISTEMA DE PERFILAMIENTO
+import { LoginComponent } from './components/login/login.component';
+import { DashboardJefeComponent } from './components/dashboard-jefe/dashboard-jefe.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -24,7 +28,10 @@ import { ComparativaMensualComponent } from './components/graficos/comparativa-m
     GraficosComponent,
     LineaTemporalComponent,
     ResumenEstadisticasComponent,
-    ComparativaMensualComponent
+    ComparativaMensualComponent,
+    // ✅ COMPONENTES DEL SISTEMA DE PERFILAMIENTO
+    LoginComponent,
+    DashboardJefeComponent
   ],
   imports: [
     BrowserModule,
