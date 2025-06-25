@@ -18,7 +18,7 @@ export class AuthGuard implements CanActivate {
     
     if (currentUser) {
       // Verificar si es Carlos Rodríguez y promocionarlo temporalmente a jefe
-      if (currentUser.email === 'carlos.rodriguez@example.com' && currentUser.rol !== 'Jefe') {
+      if (currentUser.email === 'carlos.rodriguez@healthpredict.com' && currentUser.rol !== 'Jefe') {
         console.log('👔 Promoviendo a Carlos Rodríguez como jefe en guard');
         currentUser.rol = 'Jefe';
         currentUser.esJefe = true;
@@ -30,7 +30,7 @@ export class AuthGuard implements CanActivate {
       const url = state.url;
       
       if (url.includes('/dashboard-jefe')) {
-        if (!currentUser.esJefe && currentUser.email !== 'carlos.rodriguez@example.com') {
+        if (!currentUser.esJefe && currentUser.email !== 'carlos.rodriguez@healthpredict.com') {
           console.log('❌ Acceso denegado a dashboard jefe');
           this.router.navigate(['/dashboard']);
           return false;

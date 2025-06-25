@@ -63,7 +63,7 @@ export class DashboardJefeComponent implements OnInit {
     }
 
     // Verificar si es Carlos Rodríguez y hacerlo jefe temporalmente
-    if (this.usuarioActual.email === 'carlos.rodriguez@example.com') {
+    if (this.usuarioActual.email === 'carlos.rodriguez@healthpredict.com') {
       console.log('👔 Promoviendo a Carlos Rodríguez como jefe temporal');
       this.usuarioActual.rol = 'Jefe';
       this.usuarioActual.esJefe = true;
@@ -88,7 +88,7 @@ export class DashboardJefeComponent implements OnInit {
         
         if (error.status === 400 && error.error === 'El usuario especificado no es un jefe') {
           // Si es Carlos Rodríguez, crear datos simulados para el dashboard del jefe
-          if (this.usuarioActual?.email === 'carlos.rodriguez@example.com') {
+          if (this.usuarioActual?.email === 'carlos.rodriguez@healthpredict.com') {
             console.log('📊 Creando dashboard simulado para Carlos como jefe');
             this.crearDashboardSimulado();
           } else {
@@ -110,32 +110,47 @@ export class DashboardJefeComponent implements OnInit {
    */
   private crearDashboardSimulado(): void {
     this.estadisticasGenerales = {
-      totalSubordinados: 2,
-      alertasActivas: 3,
-      alertasResueltasHoy: 1,
-      promedioSaludGeneral: 85,
+      totalSubordinados: 3,
+      alertasActivas: 5,
+      alertasResueltasHoy: 2,
+      promedioSaludGeneral: 87,
       subordinados: [
         {
-          id: 1,
-          nombre: 'Juan',
-          apellido: 'Pérez',
-          email: 'juan.perez@example.com',
+          id: 2,
+          nombre: 'Diego',
+          apellido: 'Diaz',
+          email: 'diego.diaz@healthpredict.com',
           rol: 'Trabajador',
           departamento: 'Desarrollo',
+          cargo: 'Desarrollador Full Stack',
           esActivo: true,
-          nombreCompleto: 'Juan Pérez',
+          nombreCompleto: 'Diego Díaz',
           esJefe: false,
           esTrabajador: true
         },
         {
-          id: 2,
-          nombre: 'María',
-          apellido: 'González', 
-          email: 'maria.gonzalez@example.com',
+          id: 3,
+          nombre: 'Iahn',
+          apellido: 'Vera', 
+          email: 'iahn.vera@healthpredict.com',
           rol: 'Trabajador',
           departamento: 'Desarrollo',
+          cargo: 'Desarrollador Frontend',
           esActivo: true,
-          nombreCompleto: 'María González',
+          nombreCompleto: 'Iahn Vera',
+          esJefe: false,
+          esTrabajador: true
+        },
+        {
+          id: 4,
+          nombre: 'Matias',
+          apellido: 'Maripangue',
+          email: 'matias.maripangue@healthpredict.com',
+          rol: 'Trabajador',
+          departamento: 'Desarrollo',
+          cargo: 'Desarrollador Backend',
+          esActivo: true,
+          nombreCompleto: 'Matías Maripangue',
           esJefe: false,
           esTrabajador: true
         }

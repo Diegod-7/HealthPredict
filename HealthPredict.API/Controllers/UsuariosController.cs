@@ -1,10 +1,12 @@
 using HealthPredict.BLL;
 using HealthPredict.Models;
+using HealthPredict.DAL;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace HealthPredict.API.Controllers
 {
@@ -13,10 +15,12 @@ namespace HealthPredict.API.Controllers
     public class UsuariosController : ControllerBase
     {
         private readonly UsuarioService _usuarioService;
+        private readonly HealthPredictContext _context;
 
-        public UsuariosController(UsuarioService usuarioService)
+        public UsuariosController(UsuarioService usuarioService, HealthPredictContext context)
         {
             _usuarioService = usuarioService;
+            _context = context;
         }
 
         // GET: api/Usuarios
@@ -419,6 +423,137 @@ namespace HealthPredict.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, $"Error al actualizar rol: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Reinicializa los usuarios con los datos correctos del sistema
+        /// </summary>
+        /// <returns>Resultado de la operación</returns>
+        [HttpPost("reinicializar-usuarios")]
+        public async Task<IActionResult> ReinicializarUsuarios()
+        {
+            try
+            {
+                // Eliminar todos los usuarios existentes
+                var usuariosExistentes = await _context.Usuarios.ToListAsync();
+                _context.Usuarios.RemoveRange(usuariosExistentes);
+                await _context.SaveChangesAsync();
+
+                // Crear los nuevos usuarios correctos
+                var usuarios = new List<Usuario>
+                {
+                    // Jefe
+                    new Usuario
+                    {
+                        Nombre = "Carlos",
+                        Apellido = "Rodriguez",
+                        Email = "carlos.rodriguez@healthpredict.com",
+                        Password = "admin123",
+                        FechaNacimiento = new DateTime(1985, 3, 15),
+                        Genero = "Masculino",
+                        Altura = 178,
+                        Peso = 80.0m,
+                        FechaRegistro = DateTime.UtcNow,
+                        UltimoAcceso = DateTime.UtcNow,
+                        EsProfesionalMedico = false,
+                        Rol = "Jefe",
+                        Departamento = "Administración",
+                        Cargo = "Gerente General",
+                        JefeId = null,
+                        EsActivo = true
+                    },
+                    
+                    // Trabajadores
+                    new Usuario
+                    {
+                        Nombre = "Diego",
+                        Apellido = "Diaz",
+                        Email = "diego.diaz@healthpredict.com",
+                        Password = "diego123",
+                        FechaNacimiento = new DateTime(1992, 8, 22),
+                        Genero = "Masculino",
+                        Altura = 175,
+                        Peso = 75.0m,
+                        FechaRegistro = DateTime.UtcNow,
+                        UltimoAcceso = DateTime.UtcNow,
+                        EsProfesionalMedico = false,
+                        Rol = "Trabajador",
+                        Departamento = "Desarrollo",
+                        Cargo = "Desarrollador Full Stack",
+                        JefeId = null, // Se actualizará después
+                        EsActivo = true
+                    },
+                    
+                    new Usuario
+                    {
+                        Nombre = "Iahn",
+                        Apellido = "Vera",
+                        Email = "iahn.vera@healthpredict.com",
+                        Password = "iahn123",
+                        FechaNacimiento = new DateTime(1994, 11, 10),
+                        Genero = "Masculino",
+                        Altura = 172,
+                        Peso = 70.0m,
+                        FechaRegistro = DateTime.UtcNow,
+                        UltimoAcceso = DateTime.UtcNow,
+                        EsProfesionalMedico = false,
+                        Rol = "Trabajador",
+                        Departamento = "Desarrollo",
+                        Cargo = "Desarrollador Frontend",
+                        JefeId = null, // Se actualizará después
+                        EsActivo = true
+                    },
+                    
+                    new Usuario
+                    {
+                        Nombre = "Matias",
+                        Apellido = "Maripangue",
+                        Email = "matias.maripangue@healthpredict.com",
+                        Password = "matias123",
+                        FechaNacimiento = new DateTime(1993, 6, 5),
+                        Genero = "Masculino",
+                        Altura = 180,
+                        Peso = 82.0m,
+                        FechaRegistro = DateTime.UtcNow,
+                        UltimoAcceso = DateTime.UtcNow,
+                        EsProfesionalMedico = false,
+                        Rol = "Trabajador",
+                        Departamento = "Desarrollo",
+                        Cargo = "Desarrollador Backend",
+                        JefeId = null, // Se actualizará después
+                        EsActivo = true
+                    }
+                };
+
+                // Agregar usuarios
+                await _context.Usuarios.AddRangeAsync(usuarios);
+                await _context.SaveChangesAsync();
+
+                // Actualizar JefeId de los trabajadores para que apunten al jefe
+                var jefe = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == "carlos.rodriguez@healthpredict.com");
+                if (jefe != null)
+                {
+                    var trabajadores = await _context.Usuarios
+                        .Where(u => u.Rol == "Trabajador")
+                        .ToListAsync();
+                    
+                    foreach (var trabajador in trabajadores)
+                    {
+                        trabajador.JefeId = jefe.Id;
+                    }
+                    
+                    await _context.SaveChangesAsync();
+                }
+
+                return Ok(new { 
+                    mensaje = "Usuarios reinicializados exitosamente",
+                    usuarios = usuarios.Select(u => new { u.Nombre, u.Apellido, u.Email, u.Rol }).ToList()
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al reinicializar usuarios: {ex.Message}");
             }
         }
     }
