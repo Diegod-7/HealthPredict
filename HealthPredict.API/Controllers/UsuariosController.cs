@@ -556,6 +556,81 @@ namespace HealthPredict.API.Controllers
                 return StatusCode(500, $"Error al reinicializar usuarios: {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// Crea un nuevo usuario
+        /// </summary>
+        /// <param name="nuevoUsuario">Datos del nuevo usuario</param>
+        /// <returns>Usuario creado</returns>
+        [HttpPost("crear")]
+        public async Task<IActionResult> CrearUsuario([FromBody] CrearUsuarioRequest nuevoUsuario)
+        {
+            try
+            {
+                // Verificar si el email ya existe
+                var usuarioExistente = await _context.Usuarios
+                    .FirstOrDefaultAsync(u => u.Email == nuevoUsuario.Email);
+                
+                if (usuarioExistente != null)
+                {
+                    return BadRequest($"Ya existe un usuario con el email {nuevoUsuario.Email}");
+                }
+
+                var usuario = new Usuario
+                {
+                    Nombre = nuevoUsuario.Nombre,
+                    Apellido = nuevoUsuario.Apellido,
+                    Email = nuevoUsuario.Email,
+                    Password = nuevoUsuario.Password,
+                    FechaNacimiento = nuevoUsuario.FechaNacimiento ?? new DateTime(1990, 1, 1),
+                    Genero = nuevoUsuario.Genero ?? "Masculino",
+                    Altura = nuevoUsuario.Altura ?? 175,
+                    Peso = nuevoUsuario.Peso ?? 70.0m,
+                    FechaRegistro = DateTime.UtcNow,
+                    UltimoAcceso = DateTime.UtcNow,
+                    EsProfesionalMedico = false,
+                    Rol = nuevoUsuario.Rol ?? "Trabajador",
+                    Departamento = nuevoUsuario.Departamento ?? "Desarrollo",
+                    Cargo = nuevoUsuario.Cargo ?? "Desarrollador",
+                    JefeId = nuevoUsuario.JefeId,
+                    EsActivo = true
+                };
+
+                await _context.Usuarios.AddAsync(usuario);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { 
+                    mensaje = "Usuario creado exitosamente",
+                    usuario = new { 
+                        usuario.Id, 
+                        usuario.Nombre, 
+                        usuario.Apellido, 
+                        usuario.Email, 
+                        usuario.Rol 
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al crear usuario: {ex.Message}");
+            }
+        }
+
+        public class CrearUsuarioRequest
+        {
+            public string Nombre { get; set; } = "";
+            public string Apellido { get; set; } = "";
+            public string Email { get; set; } = "";
+            public string Password { get; set; } = "";
+            public DateTime? FechaNacimiento { get; set; }
+            public string? Genero { get; set; }
+            public int? Altura { get; set; }
+            public decimal? Peso { get; set; }
+            public string? Rol { get; set; }
+            public string? Departamento { get; set; }
+            public string? Cargo { get; set; }
+            public int? JefeId { get; set; }
+        }
     }
 
     public class LoginModel
