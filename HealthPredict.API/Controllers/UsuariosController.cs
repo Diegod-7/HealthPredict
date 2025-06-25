@@ -616,6 +616,31 @@ namespace HealthPredict.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Fuerza la inicialización de usuarios usando el DbInitializer
+        /// </summary>
+        /// <returns>Resultado de la operación</returns>
+        [HttpPost("forzar-inicializacion")]
+        public async Task<IActionResult> ForzarInicializacion()
+        {
+            try
+            {
+                await DbInitializer.InitializeAsync(_context);
+                
+                var usuarios = await _context.Usuarios.ToListAsync();
+                
+                return Ok(new { 
+                    mensaje = "Inicialización forzada completada",
+                    totalUsuarios = usuarios.Count,
+                    usuarios = usuarios.Select(u => new { u.Id, u.Nombre, u.Apellido, u.Email, u.Rol }).ToList()
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al forzar inicialización: {ex.Message}");
+            }
+        }
+
         public class CrearUsuarioRequest
         {
             public string Nombre { get; set; } = "";
