@@ -63,7 +63,7 @@ export class DashboardJefeComponent implements OnInit {
     }
 
     // Verificar si es Carlos Rodríguez y hacerlo jefe temporalmente
-    if (this.usuarioActual.email === 'carlos.rodriguez@healthpredict.com') {
+    if (this.usuarioActual.email === 'carlos.rodriguez@example.com') {
       console.log('👔 Promoviendo a Carlos Rodríguez como jefe temporal');
       this.usuarioActual.rol = 'Jefe';
       this.usuarioActual.esJefe = true;
@@ -88,7 +88,7 @@ export class DashboardJefeComponent implements OnInit {
         
         if (error.status === 400 && error.error === 'El usuario especificado no es un jefe') {
           // Si es Carlos Rodríguez, crear datos simulados para el dashboard del jefe
-          if (this.usuarioActual?.email === 'carlos.rodriguez@healthpredict.com') {
+          if (this.usuarioActual?.email === 'carlos.rodriguez@example.com') {
             console.log('📊 Creando dashboard simulado para Carlos como jefe');
             this.crearDashboardSimulado();
           } else {
@@ -116,10 +116,10 @@ export class DashboardJefeComponent implements OnInit {
       promedioSaludGeneral: 87,
       subordinados: [
         {
-          id: 2,
+          id: 1,
           nombre: 'Diego',
           apellido: 'Diaz',
-          email: 'diego.diaz@healthpredict.com',
+          email: 'juan.perez@example.com',
           rol: 'Trabajador',
           departamento: 'Desarrollo',
           cargo: 'Desarrollador Full Stack',
@@ -129,10 +129,10 @@ export class DashboardJefeComponent implements OnInit {
           esTrabajador: true
         },
         {
-          id: 3,
+          id: 2,
           nombre: 'Iahn',
           apellido: 'Vera', 
-          email: 'iahn.vera@healthpredict.com',
+          email: 'maria.gonzalez@example.com',
           rol: 'Trabajador',
           departamento: 'Desarrollo',
           cargo: 'Desarrollador Frontend',
@@ -142,7 +142,7 @@ export class DashboardJefeComponent implements OnInit {
           esTrabajador: true
         },
         {
-          id: 4,
+          id: 999,
           nombre: 'Matias',
           apellido: 'Maripangue',
           email: 'matias.maripangue@healthpredict.com',

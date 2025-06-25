@@ -78,8 +78,21 @@ export class LoginComponent implements OnInit {
    * Maneja un login exitoso
    */
   private handleSuccessfulLogin(usuario: Usuario): void {
+    // Transformar usuarios existentes a los nombres que queremos
+    if (usuario.email === 'juan.perez@example.com') {
+      usuario.nombre = 'Diego';
+      usuario.apellido = 'Diaz';
+      usuario.nombreCompleto = 'Diego Díaz';
+    } else if (usuario.email === 'maria.gonzalez@example.com') {
+      usuario.nombre = 'Iahn';
+      usuario.apellido = 'Vera';
+      usuario.nombreCompleto = 'Iahn Vera';
+    }
+    
     // Calcular propiedades adicionales
-    usuario.nombreCompleto = this.usuarioService.getNombreCompleto(usuario);
+    if (!usuario.nombreCompleto) {
+      usuario.nombreCompleto = this.usuarioService.getNombreCompleto(usuario);
+    }
     usuario.esJefe = this.usuarioService.esJefe(usuario);
     usuario.esTrabajador = this.usuarioService.esTrabajador(usuario);
     
@@ -101,6 +114,41 @@ export class LoginComponent implements OnInit {
     this.email = email;
     this.password = password;
     this.onLogin();
+  }
+
+  /**
+   * Login simulado para Matías Maripangue hasta que se desplieguen los nuevos usuarios
+   */
+  loginRapidoMatias(): void {
+    if (this.isLoading) return;
+    
+    console.log('🎭 Simulando login de Matías Maripangue');
+    
+    // Crear usuario simulado de Matías
+    const matiasSimulado: Usuario = {
+      id: 999,
+      nombre: 'Matias',
+      apellido: 'Maripangue',
+      email: 'matias.maripangue@healthpredict.com',
+      password: 'matias123',
+      fechaNacimiento: new Date(1993, 6, 5),
+      genero: 'Masculino',
+      altura: 180,
+      peso: 82.0,
+      fechaRegistro: new Date(),
+      ultimoAcceso: new Date(),
+      esProfesionalMedico: false,
+      rol: 'Trabajador',
+      departamento: 'Desarrollo',
+      cargo: 'Desarrollador Backend',
+      jefeId: 1,
+      esActivo: true,
+      nombreCompleto: 'Matías Maripangue',
+      esJefe: false,
+      esTrabajador: true
+    };
+
+    this.handleSuccessfulLogin(matiasSimulado);
   }
 
   /**
