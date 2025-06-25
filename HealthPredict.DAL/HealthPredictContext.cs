@@ -35,6 +35,25 @@ namespace HealthPredict.DAL
                 entity.Property(e => e.EsProfesionalMedico).HasColumnName("ES_PROFESIONAL_MEDICO").IsRequired();
                 entity.Property(e => e.Especialidad).HasColumnName("ESPECIALIDAD").HasMaxLength(100);
                 entity.Property(e => e.NumeroLicencia).HasColumnName("NUMERO_LICENCIA").HasMaxLength(50);
+
+                // ✅ NUEVAS PROPIEDADES PARA SISTEMA DE ROLES
+                entity.Property(e => e.Rol).HasColumnName("ROL").IsRequired().HasMaxLength(20).HasDefaultValue("Trabajador");
+                entity.Property(e => e.Departamento).HasColumnName("DEPARTAMENTO").HasMaxLength(100);
+                entity.Property(e => e.Cargo).HasColumnName("CARGO").HasMaxLength(100);
+                entity.Property(e => e.JefeId).HasColumnName("JEFE_ID");
+                entity.Property(e => e.EsActivo).HasColumnName("ES_ACTIVO").IsRequired().HasDefaultValue(true);
+
+                // ✅ RELACIÓN JEFE-SUBORDINADO (AUTORREFERENCIA)
+                entity.HasOne(e => e.Jefe)
+                      .WithMany(e => e.Subordinados)
+                      .HasForeignKey(e => e.JefeId)
+                      .OnDelete(DeleteBehavior.Restrict)
+                      .HasConstraintName("FK_USUARIOS_JEFE");
+
+                // Ignorar propiedades calculadas
+                entity.Ignore(e => e.NombreCompleto);
+                entity.Ignore(e => e.EsJefe);
+                entity.Ignore(e => e.EsTrabajador);
             });
 
             // Configuración de la tabla DatosVitales

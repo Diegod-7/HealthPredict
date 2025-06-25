@@ -160,7 +160,7 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var dbContext = services.GetRequiredService<HealthPredictContext>();
-        DbInitializer.Initialize(dbContext).Wait();
+        DbInitializer.InitializeAsync(dbContext).Wait();
         Console.WriteLine("Base de datos inicializada con datos de prueba.");
     }
     catch (Exception ex)

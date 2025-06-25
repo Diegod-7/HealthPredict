@@ -1,0 +1,105 @@
+<div class="login-container">
+  <div class="login-card">
+    <!-- Logo y título -->
+    <div class="login-header">
+      <h1>🏥 HealthPredict</h1>
+      <p>Sistema de Perfilamiento</p>
+    </div>
+
+    <!-- Formulario de login -->
+    <div class="login-form">
+      <h2>Iniciar Sesión</h2>
+      
+      <form (ngSubmit)="onLogin()" #loginForm="ngForm">
+        <!-- Campo email -->
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email"
+            [(ngModel)]="email" 
+            required
+            placeholder="usuario@healthpredict.com"
+            class="form-control"
+            [disabled]="isLoading">
+        </div>
+
+        <!-- Campo contraseña -->
+        <div class="form-group">
+          <label for="password">Contraseña:</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password"
+            [(ngModel)]="password" 
+            required
+            placeholder="Ingresa tu contraseña"
+            class="form-control"
+            [disabled]="isLoading">
+        </div>
+
+        <!-- Mensaje de error -->
+        <div *ngIf="errorMessage" class="error-message">
+          ⚠️ {{ errorMessage }}
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="form-actions">
+          <button 
+            type="submit" 
+            class="btn btn-primary"
+            [disabled]="isLoading || !email || !password">
+            <span *ngIf="isLoading">🔄 Iniciando sesión...</span>
+            <span *ngIf="!isLoading">🚀 Iniciar Sesión</span>
+          </button>
+          
+          <button 
+            type="button" 
+            class="btn btn-secondary"
+            (click)="limpiarFormulario()"
+            [disabled]="isLoading">
+            🗑️ Limpiar
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Usuarios de prueba -->
+    <div class="quick-login">
+      <h3>🚀 Login Rápido (Desarrollo)</h3>
+      <p>Haz clic en cualquier usuario para iniciar sesión automáticamente:</p>
+      
+      <div class="users-grid">
+        <div 
+          *ngFor="let usuario of usuariosPredefinidos" 
+          class="user-card"
+          (click)="loginRapido(usuario)"
+          [class.disabled]="isLoading">
+          
+          <div class="user-info">
+            <h4>{{ usuario.nombre }}</h4>
+            <p>{{ usuario.email }}</p>
+          </div>
+          
+          <div class="user-role">
+            <span class="role-badge" 
+                  [class.jefe]="usuario.email.includes('jefe')"
+                  [class.trabajador]="!usuario.email.includes('jefe')">
+              {{ usuario.email.includes('jefe') ? '👔 Jefe' : '👨‍💻 Trabajador' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información del sistema -->
+    <div class="system-info">
+      <h4>📋 Roles del Sistema:</h4>
+      <ul>
+        <li><strong>👔 Jefe:</strong> Ve todos los datos de sus trabajadores</li>
+        <li><strong>👨‍💻 Trabajador:</strong> Solo ve sus propios datos</li>
+      </ul>
+    </div>
+  </div>
+</div> 

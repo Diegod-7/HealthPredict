@@ -160,6 +160,108 @@ namespace HealthPredict.API.Controllers
                 return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
         }
+
+        // GET: api/Usuarios/Jefes
+        [HttpGet("Jefes")]
+        public async Task<ActionResult<IEnumerable<Usuario>>> GetJefes()
+        {
+            try
+            {
+                var jefes = await _usuarioService.GetJefesAsync();
+                return Ok(jefes);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+
+        // GET: api/Usuarios/Trabajadores
+        [HttpGet("Trabajadores")]
+        public async Task<ActionResult<IEnumerable<Usuario>>> GetTrabajadores()
+        {
+            try
+            {
+                var trabajadores = await _usuarioService.GetTrabajadoresAsync();
+                return Ok(trabajadores);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+
+        // GET: api/Usuarios/Jefe/5/Subordinados
+        [HttpGet("Jefe/{jefeId}/Subordinados")]
+        public async Task<ActionResult<IEnumerable<Usuario>>> GetSubordinadosByJefe(int jefeId)
+        {
+            try
+            {
+                // Verificar que el usuario sea jefe
+                if (!await _usuarioService.EsJefeAsync(jefeId))
+                {
+                    return BadRequest("El usuario especificado no es un jefe");
+                }
+
+                var subordinados = await _usuarioService.GetSubordinadosByJefeAsync(jefeId);
+                return Ok(subordinados);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+
+        // GET: api/Usuarios/Dashboard/Jefe/5
+        [HttpGet("Dashboard/Jefe/{jefeId}")]
+        public async Task<ActionResult<object>> GetDashboardJefe(int jefeId)
+        {
+            try
+            {
+                // Verificar que el usuario sea jefe
+                if (!await _usuarioService.EsJefeAsync(jefeId))
+                {
+                    return BadRequest("El usuario especificado no es un jefe");
+                }
+
+                var estadisticas = await _usuarioService.GetEstadisticasGeneralesJefeAsync(jefeId);
+                return Ok(estadisticas);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+
+        // GET: api/Usuarios/Departamento/Desarrollo
+        [HttpGet("Departamento/{departamento}")]
+        public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuariosByDepartamento(string departamento)
+        {
+            try
+            {
+                var usuarios = await _usuarioService.GetUsuariosByDepartamentoAsync(departamento);
+                return Ok(usuarios);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+
+        // GET: api/Usuarios/VerificarAcceso/5/7
+        [HttpGet("VerificarAcceso/{usuarioSolicitante}/{usuarioObjetivo}")]
+        public async Task<ActionResult<bool>> VerificarAccesoADatos(int usuarioSolicitante, int usuarioObjetivo)
+        {
+            try
+            {
+                var puedeAcceder = await _usuarioService.PuedeAccederADatosAsync(usuarioSolicitante, usuarioObjetivo);
+                return Ok(new { PuedeAcceder = puedeAcceder });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
     }
 
     public class LoginModel
