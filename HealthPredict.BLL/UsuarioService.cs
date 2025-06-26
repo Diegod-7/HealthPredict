@@ -43,8 +43,12 @@ namespace HealthPredict.BLL
 
         public async Task<Usuario> CreateUsuarioAsync(Usuario usuario)
         {
-            usuario.FechaRegistro = DateTime.Now;
-            usuario.UltimoAcceso = DateTime.Now;
+            // Solo asignar fechas si no están ya asignadas
+            if (usuario.FechaRegistro == default(DateTime))
+                usuario.FechaRegistro = DateTime.UtcNow;
+            
+            if (usuario.UltimoAcceso == default(DateTime))
+                usuario.UltimoAcceso = DateTime.UtcNow;
             
             _context.Usuarios.Add(usuario);
             await _context.SaveChangesAsync();

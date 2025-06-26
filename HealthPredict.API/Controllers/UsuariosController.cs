@@ -86,10 +86,44 @@ namespace HealthPredict.API.Controllers
         {
             try
             {
+                // Validaciones básicas
+                if (string.IsNullOrWhiteSpace(usuario.Nombre))
+                    return BadRequest("El nombre es requerido");
+                
+                if (string.IsNullOrWhiteSpace(usuario.Apellido))
+                    return BadRequest("El apellido es requerido");
+                
+                if (string.IsNullOrWhiteSpace(usuario.Email))
+                    return BadRequest("El email es requerido");
+                
+                if (string.IsNullOrWhiteSpace(usuario.Password))
+                    return BadRequest("La contraseña es requerida");
+
                 if (await _usuarioService.EmailExistsAsync(usuario.Email))
                 {
                     return Conflict($"El email {usuario.Email} ya está registrado");
                 }
+
+                // Asignar valores por defecto si no están presentes
+                if (string.IsNullOrWhiteSpace(usuario.Genero))
+                    usuario.Genero = "Masculino";
+                
+                if (usuario.Altura <= 0)
+                    usuario.Altura = 175;
+                
+                if (usuario.Peso <= 0)
+                    usuario.Peso = 70;
+                
+                if (usuario.FechaNacimiento == default(DateTime))
+                    usuario.FechaNacimiento = new DateTime(1990, 1, 1);
+                
+                if (string.IsNullOrWhiteSpace(usuario.Rol))
+                    usuario.Rol = "Trabajador";
+                
+                // Las fechas de registro y último acceso se asignan automáticamente en el servicio
+                usuario.FechaRegistro = DateTime.UtcNow;
+                usuario.UltimoAcceso = DateTime.UtcNow;
+                usuario.EsActivo = true;
 
                 var createdUsuario = await _usuarioService.CreateUsuarioAsync(usuario);
                 return CreatedAtAction(nameof(GetUsuario), new { id = createdUsuario.Id }, createdUsuario);
