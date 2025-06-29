@@ -110,9 +110,23 @@ builder.Services.AddScoped<ReporteService>();
 // Configuración de CORS
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAngularApp", policy => {
-        policy.WithOrigins(builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>())
-               .AllowAnyMethod()
-               .AllowAnyHeader();
+        if (builder.Environment.IsDevelopment())
+        {
+            // En desarrollo, permitir cualquier origen para facilitar testing
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        }
+        else
+        {
+            // En producción, usar orígenes específicos
+            var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() 
+                               ?? new[] { "http://localhost:4200" };
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+        }
     });
 });
 
