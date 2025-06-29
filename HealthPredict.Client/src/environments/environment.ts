@@ -1,4 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:5000/api'
+  // Temporalmente usar Render hasta arreglar API local
+  apiUrl: 'https://healthpredict-l1hu.onrender.com/api'
 }; 
