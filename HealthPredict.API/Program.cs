@@ -157,17 +157,53 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    
     try
     {
+        Console.WriteLine("🔄 Iniciando inicialización de la base de datos...");
+        logger.LogInformation("Iniciando inicialización de la base de datos");
+        
         var dbContext = services.GetRequiredService<HealthPredictContext>();
-        DbInitializer.InitializeAsync(dbContext).Wait();
-        Console.WriteLine("Base de datos inicializada con datos de prueba.");
+        
+        // Probar la conexión primero
+        Console.WriteLine("🔗 Probando conexión a la base de datos...");
+        await dbContext.Database.CanConnectAsync();
+        Console.WriteLine("✅ Conexión a la base de datos exitosa");
+        logger.LogInformation("Conexión a la base de datos establecida correctamente");
+        
+        // Ejecutar las migraciones si es necesario
+        Console.WriteLine("🔄 Verificando y aplicando migraciones...");
+        await dbContext.Database.MigrateAsync();
+        Console.WriteLine("✅ Migraciones aplicadas correctamente");
+        logger.LogInformation("Migraciones de base de datos aplicadas");
+        
+        // Inicializar datos
+        Console.WriteLine("🔄 Inicializando datos de prueba...");
+        await DbInitializer.InitializeAsync(dbContext);
+        Console.WriteLine("✅ Base de datos inicializada con datos de prueba");
+        logger.LogInformation("Base de datos inicializada con datos de prueba exitosamente");
     }
     catch (Exception ex)
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Ocurrió un error al inicializar la base de datos.");
+        Console.WriteLine($"❌ ERROR CRÍTICO al inicializar la base de datos:");
+        Console.WriteLine($"   Tipo de excepción: {ex.GetType().Name}");
+        Console.WriteLine($"   Mensaje: {ex.Message}");
+        Console.WriteLine($"   Stack Trace: {ex.StackTrace}");
+        
+        if (ex.InnerException != null)
+        {
+            Console.WriteLine($"   Excepción interna: {ex.InnerException.Message}");
+            Console.WriteLine($"   Stack Trace interno: {ex.InnerException.StackTrace}");
+        }
+        
+        logger.LogError(ex, "Error crítico al inicializar la base de datos. Tipo: {ExceptionType}, Mensaje: {Message}", 
+            ex.GetType().Name, ex.Message);
+        
+        // No lanzar la excepción para que la app siga funcionando
+        Console.WriteLine("⚠️ La aplicación continuará ejecutándose sin datos iniciales");
+        logger.LogWarning("La aplicación continuará sin datos iniciales debido al error de inicialización");
     }
 }
 
-app.Run();
+await app.RunAsync();

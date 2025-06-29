@@ -675,6 +675,67 @@ namespace HealthPredict.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Diagnóstica el estado de la base de datos y la conexión
+        /// </summary>
+        /// <returns>Información de diagnóstico</returns>
+        [HttpGet("diagnostico-bd")]
+        public async Task<IActionResult> DiagnosticoBD()
+        {
+            var diagnostico = new
+            {
+                timestamp = DateTime.UtcNow,
+                connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") != null ? "✅ Configurado" : "❌ No encontrado",
+                environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "No configurado"
+            };
+
+            try
+            {
+                // Probar conexión
+                var puedeConectar = await _context.Database.CanConnectAsync();
+                
+                // Contar usuarios
+                var totalUsuarios = await _context.Usuarios.CountAsync();
+                
+                // Verificar tablas
+                var tablas = await _context.Database.SqlQueryRaw<string>(
+                    "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
+                ).ToListAsync();
+
+                return Ok(new
+                {
+                    diagnostico,
+                    conexion = new
+                    {
+                        puedeConectar,
+                        mensaje = puedeConectar ? "✅ Conexión exitosa" : "❌ No se puede conectar"
+                    },
+                    baseDatos = new
+                    {
+                        totalUsuarios,
+                        tablas = tablas.ToArray(),
+                        totalTablas = tablas.Count
+                    },
+                    estado = puedeConectar && totalUsuarios > 0 ? "✅ Base de datos operativa" : "⚠️ Requiere inicialización"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    diagnostico,
+                    error = new
+                    {
+                        tipo = ex.GetType().Name,
+                        mensaje = ex.Message,
+                        stackTrace = ex.StackTrace?.Split('\n').Take(5).ToArray(),
+                        excepcionInterna = ex.InnerException?.Message
+                    },
+                    estado = "❌ Error de conexión"
+                });
+            }
+        }
+
         public class CrearUsuarioRequest
         {
             public string Nombre { get; set; } = "";
