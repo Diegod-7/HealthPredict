@@ -111,4 +111,4 @@ Write-Host "• Usuarios: $ApiUrl/api/Usuarios" -ForegroundColor White
 Write-Host "• Login: POST $ApiUrl/api/Usuarios/authenticate" -ForegroundColor White
 
 Write-Host "`n✅ Diagnóstico completado!" -ForegroundColor Green
-Write-Host "Si necesitas más ayuda, revisa los logs en Render Dashboard." -ForegroundColor Cyan 
+Write-Host "Si necesitas mas ayuda, revisa los logs en Render Dashboard." -ForegroundColor Cyan 

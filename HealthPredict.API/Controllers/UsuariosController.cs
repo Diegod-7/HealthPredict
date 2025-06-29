@@ -25,12 +25,28 @@ namespace HealthPredict.API.Controllers
 
         // GET: api/Usuarios
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
+        public async Task<ActionResult<IEnumerable<object>>> GetUsuarios()
         {
             try
             {
                 var usuarios = await _usuarioService.GetUsuariosAsync();
-                return Ok(usuarios);
+                var usuariosResponse = usuarios.Select(u => new
+                {
+                    id = u.Id,
+                    nombre = u.Nombre,
+                    apellido = u.Apellido,
+                    email = u.Email,
+                    nombreCompleto = u.NombreCompleto,
+                    rol = u.Rol,
+                    departamento = u.Departamento,
+                    cargo = u.Cargo,
+                    jefeId = u.JefeId,
+                    esJefe = u.EsJefe,
+                    esTrabajador = u.EsTrabajador,
+                    fechaRegistro = u.FechaRegistro,
+                    ultimoAcceso = u.UltimoAcceso
+                });
+                return Ok(usuariosResponse);
             }
             catch (Exception ex)
             {
@@ -181,7 +197,7 @@ namespace HealthPredict.API.Controllers
 
         // POST: api/Usuarios/authenticate
         [HttpPost("authenticate")]
-        public async Task<ActionResult<Usuario>> Authenticate([FromBody] LoginModel model)
+        public async Task<ActionResult<object>> Authenticate([FromBody] LoginModel model)
         {
             try
             {
@@ -189,14 +205,32 @@ namespace HealthPredict.API.Controllers
 
                 if (usuario == null)
                 {
-                    return Unauthorized();
+                    return Unauthorized(new { success = false, message = "Credenciales inválidas" });
                 }
 
-                return Ok(usuario);
+                // Devolver un objeto simple sin referencias circulares
+                var usuarioResponse = new
+                {
+                    id = usuario.Id,
+                    nombre = usuario.Nombre,
+                    apellido = usuario.Apellido,
+                    email = usuario.Email,
+                    nombreCompleto = usuario.NombreCompleto,
+                    rol = usuario.Rol,
+                    departamento = usuario.Departamento,
+                    cargo = usuario.Cargo,
+                    jefeId = usuario.JefeId,
+                    esJefe = usuario.EsJefe,
+                    esTrabajador = usuario.EsTrabajador,
+                    fechaRegistro = usuario.FechaRegistro,
+                    ultimoAcceso = usuario.UltimoAcceso
+                };
+
+                return Ok(new { success = true, usuario = usuarioResponse });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+                return StatusCode(500, new { success = false, message = $"Error interno del servidor: {ex.Message}" });
             }
         }
 
