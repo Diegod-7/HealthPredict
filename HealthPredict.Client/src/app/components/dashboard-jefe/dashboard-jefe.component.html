@@ -2,7 +2,7 @@
   <!-- Header del Dashboard -->
   <div class="dashboard-header">
     <div class="user-info">
-      <h1>👔 Dashboard General - {{ usuarioActual?.nombreCompleto }}</h1>
+      <h1>👔 Panel Supervisor - {{ usuarioActual?.nombreCompleto }}</h1>
       <p>Rol: <span class="role-badge jefe">{{ usuarioActual?.rol }}</span> | 
          Departamento: {{ usuarioActual?.departamento }}</p>
     </div>
@@ -19,7 +19,7 @@
   <!-- Estado de carga -->
   <div *ngIf="isLoading" class="loading-state">
     <div class="spinner"></div>
-    <p>📊 Cargando datos del equipo...</p>
+    <p>📊 Cargando datos del panel supervisor...</p>
   </div>
 
   <!-- Mensaje de error -->
@@ -31,133 +31,434 @@
   <!-- Dashboard Content -->
   <div *ngIf="!isLoading && !error" class="dashboard-content">
     
-    <!-- Tarjetas de Estadísticas Generales -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon">👥</div>
-        <div class="stat-content">
-          <h3>{{ estadisticasGenerales?.totalSubordinados || 0 }}</h3>
-          <p>Subordinados</p>
-        </div>
-      </div>
-
-      <div class="stat-card alertas">
-        <div class="stat-icon">🚨</div>
-        <div class="stat-content">
-          <h3>{{ estadisticasGenerales?.totalAlertas || 0 }}</h3>
-          <p>Total Alertas</p>
-        </div>
-      </div>
-
-      <div class="stat-card no-leidas">
-        <div class="stat-icon">📬</div>
-        <div class="stat-content">
-          <h3>{{ estadisticasGenerales?.alertasNoLeidas || 0 }}</h3>
-          <p>Alertas No Leídas</p>
-        </div>
-      </div>
-
-      <div class="stat-card datos">
-        <div class="stat-icon">📊</div>
-        <div class="stat-content">
-          <h3>{{ estadisticasGenerales?.totalDatosVitales || 0 }}</h3>
-          <p>Datos Vitales</p>
-        </div>
-      </div>
+    <!-- Navegación del Panel -->
+    <div class="panel-navigation">
+      <button 
+        class="nav-btn" 
+        [class.active]="vistaActual === 'general'"
+        (click)="cambiarVista('general')">
+        📊 Vista General
+      </button>
+      <button 
+        class="nav-btn" 
+        [class.active]="vistaActual === 'trabajadores'"
+        (click)="cambiarVista('trabajadores')">
+        👥 Trabajadores
+      </button>
+      <button 
+        class="nav-btn" 
+        [class.active]="vistaActual === 'alertas'"
+        (click)="cambiarVista('alertas')">
+        🚨 Alertas
+      </button>
+      <button 
+        class="nav-btn" 
+        [class.active]="vistaActual === 'metricas'"
+        (click)="cambiarVista('metricas')">
+        📈 Métricas
+      </button>
+      <button 
+        class="nav-btn" 
+        [class.active]="vistaActual === 'riesgo'"
+        (click)="cambiarVista('riesgo')">
+        ⚠️ Trabajadores en Riesgo
+      </button>
     </div>
 
-    <!-- Lista de Subordinados -->
-    <div class="section">
-      <h2>👨‍💻 Mi Equipo de Trabajo</h2>
-      <div class="subordinados-grid">
-        <div 
-          *ngFor="let subordinado of subordinados" 
-          class="subordinado-card"
-          (click)="verPerfilSubordinado(subordinado)">
-          
-          <div class="subordinado-header">
-            <h4>{{ subordinado.nombreCompleto || (subordinado.nombre + ' ' + subordinado.apellido) }}</h4>
-            <span class="role-badge trabajador">{{ subordinado.cargo }}</span>
+    <!-- VISTA GENERAL -->
+    <div *ngIf="vistaActual === 'general'" class="vista-general">
+      <!-- Tarjetas de Estadísticas Principales -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-content">
+            <h3>{{ dashboardData?.resumenGeneral?.totalSubordinados || estadisticasGenerales?.totalSubordinados || 0 }}</h3>
+            <p>Total Trabajadores</p>
           </div>
-          
-          <div class="subordinado-info">
-            <p><strong>📧 Email:</strong> {{ subordinado.email }}</p>
-            <p><strong>🏢 Departamento:</strong> {{ subordinado.departamento }}</p>
-            <p><strong>🕐 Último Acceso:</strong> 
-              {{ subordinado.ultimoAcceso | date:'dd/MM/yyyy HH:mm' }}
-            </p>
-          </div>
+        </div>
 
-          <div class="subordinado-stats">
-            <div class="mini-stat">
-              <span class="mini-stat-value">{{ getAlertasNoLeidasPorSubordinado(subordinado.id!) }}</span>
-              <span class="mini-stat-label">Alertas</span>
+        <div class="stat-card alertas">
+          <div class="stat-icon">🚨</div>
+          <div class="stat-content">
+            <h3>{{ dashboardData?.resumenGeneral?.alertasActivas || estadisticasGenerales?.totalAlertas || 0 }}</h3>
+            <p>Alertas Activas</p>
+          </div>
+        </div>
+
+        <div class="stat-card criticas">
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-content">
+            <h3>{{ dashboardData?.resumenGeneral?.alertasCriticas || 0 }}</h3>
+            <p>Alertas Críticas</p>
+          </div>
+        </div>
+
+        <div class="stat-card riesgo">
+          <div class="stat-icon">🛡️</div>
+          <div class="stat-content">
+            <h3>{{ dashboardData?.resumenGeneral?.trabajadoresEnRiesgo || 0 }}</h3>
+            <p>Trabajadores en Riesgo</p>
+          </div>
+        </div>
+
+        <div class="stat-card bienestar">
+          <div class="stat-icon">💚</div>
+          <div class="stat-content">
+            <h3>{{ dashboardData?.resumenGeneral?.promedioScoreBienestar || 85 }}%</h3>
+            <p>Score Promedio Bienestar</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alertas Críticas Recientes -->
+      <div class="section" *ngIf="getAlertasCriticas().length > 0">
+        <h2>🚨 Alertas Críticas Recientes</h2>
+        <div class="alertas-criticas-grid">
+          <div 
+            *ngFor="let alerta of getAlertasCriticas().slice(0, 4)" 
+            class="alerta-critica-card"
+            [style.border-left-color]="getColorSeveridad(alerta.severidad)">
+            
+            <div class="alerta-header">
+              <span class="alerta-tipo">{{ alerta.tipoAlerta }}</span>
+              <span class="alerta-tiempo">{{ alerta.fechaCreacion | date:'dd/MM HH:mm' }}</span>
             </div>
-            <div class="mini-stat">
-              <span class="mini-stat-value">{{ getDatosVitalesPorSubordinado(subordinado.id!) }}</span>
-              <span class="mini-stat-label">Datos</span>
+            
+            <p class="alerta-descripcion">{{ alerta.descripcion }}</p>
+            
+            <div class="alerta-footer">
+              <span class="trabajador-nombre">👤 {{ alerta.usuario }}</span>
+              <button 
+                class="btn btn-sm btn-primary" 
+                *ngIf="!alerta.leida"
+                (click)="marcarAlertaLeida(alerta.id)">
+                Marcar Leída
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen de Trabajadores por Riesgo -->
+      <div class="section">
+        <h2>📊 Distribución por Nivel de Riesgo</h2>
+        <div class="riesgo-distribution">
+          <div class="riesgo-item critico">
+            <span class="riesgo-icon">🚨</span>
+            <div class="riesgo-content">
+              <h3>{{ getTrabajadoresPorRiesgo('crítico').length }}</h3>
+              <p>Crítico</p>
+            </div>
+          </div>
+          <div class="riesgo-item alto">
+            <span class="riesgo-icon">⚠️</span>
+            <div class="riesgo-content">
+              <h3>{{ getTrabajadoresPorRiesgo('alto').length }}</h3>
+              <p>Alto</p>
+            </div>
+          </div>
+          <div class="riesgo-item moderado">
+            <span class="riesgo-icon">⚡</span>
+            <div class="riesgo-content">
+              <h3>{{ getTrabajadoresPorRiesgo('moderado').length }}</h3>
+              <p>Moderado</p>
+            </div>
+          </div>
+          <div class="riesgo-item bajo">
+            <span class="riesgo-icon">✅</span>
+            <div class="riesgo-content">
+              <h3>{{ getTrabajadoresPorRiesgo('bajo').length }}</h3>
+              <p>Bajo</p>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Alertas de Alta Prioridad -->
-    <div class="section" *ngIf="getAlertasAltaPrioridad().length > 0">
-      <h2>🚨 Alertas de Alta Prioridad</h2>
-      <div class="alertas-priority-list">
-        <div 
-          *ngFor="let alerta of getAlertasAltaPrioridad().slice(0, 5)" 
-          class="alerta-priority-item">
-          
-          <div class="alerta-info">
-            <h4>{{ alerta.tipoAlerta }}</h4>
-            <p>{{ alerta.descripcion }}</p>
-            <small>
-              Usuario: {{ getNombreSubordinado(alerta.usuarioId!) }} | 
-              {{ alerta.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}
-            </small>
-          </div>
-          
-          <div class="alerta-status">
-            <span class="severity-badge alta">{{ alerta.severidad }}</span>
-            <span [ngClass]="{'status-badge': true, 'leida': alerta.leida, 'no-leida': !alerta.leida}">
-              {{ alerta.leida ? 'Leída' : 'Nueva' }}
-            </span>
+    <!-- VISTA TRABAJADORES -->
+    <div *ngIf="vistaActual === 'trabajadores'" class="vista-trabajadores">
+      <div class="section">
+        <h2>👨‍💻 Equipo de Trabajo - {{ dashboardData?.supervisor?.departamento || usuarioActual?.departamento }}</h2>
+        
+        <!-- Grid de trabajadores -->
+        <div class="trabajadores-grid">
+          <div 
+            class="trabajador-card" 
+            *ngFor="let trabajador of getListaTrabajadores()"
+            [class.riesgo-critico]="trabajador.nivelRiesgo === 'Crítico'"
+            [class.riesgo-alto]="trabajador.nivelRiesgo === 'Alto'"
+            [class.riesgo-moderado]="trabajador.nivelRiesgo === 'Moderado'"
+            [class.riesgo-bajo]="trabajador.nivelRiesgo === 'Bajo'">
+            
+            <div class="trabajador-header">
+              <div class="trabajador-info">
+                <h4>{{ getNombreTrabajador(trabajador) }}</h4>
+                <p class="cargo">{{ trabajador.cargo || trabajador.cargo }}</p>
+                <p class="departamento">{{ trabajador.departamento || trabajador.departamento }}</p>
+              </div>
+
+              <!-- Score de bienestar -->
+              <div class="score-bienestar" *ngIf="trabajador.scoreBienestar !== undefined">
+                <div class="score-circle" [style.background]="getScoreColor(trabajador.scoreBienestar)">
+                  <span>{{ trabajador.scoreBienestar }}</span>
+                </div>
+                <span class="score-label">Score</span>
+              </div>
+
+              <!-- Nivel de riesgo -->
+              <div class="nivel-riesgo" *ngIf="trabajador.nivelRiesgo">
+                <span class="riesgo-badge" [class]="'riesgo-' + (trabajador.nivelRiesgo?.toLowerCase() || 'bajo')">
+                  {{ trabajador.nivelRiesgo }}
+                </span>
+              </div>
+            </div>
+
+            <div class="trabajador-stats">
+              <div class="stat">
+                <span class="stat-label">Alertas Activas</span>
+                <span class="stat-value">{{ trabajador.alertasActivas || getAlertasActivasPorSubordinado(trabajador.id!) }}</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Datos Vitales</span>
+                <span class="stat-value">{{ trabajador.ultimosDatos?.length || getDatosVitalesPorSubordinado(trabajador.id!) }}</span>
+              </div>
+            </div>
+
+            <!-- Preview de datos vitales -->
+            <div class="datos-vitales-preview" *ngIf="trabajador.ultimosDatos && trabajador.ultimosDatos.length > 0">
+              <h5>Últimos Datos:</h5>
+              <div class="datos-preview-grid">
+                <div class="dato-preview" *ngFor="let dato of trabajador.ultimosDatos; let i = index">
+                  <span class="dato-tipo">{{ dato.tipoDato }}</span>
+                  <span class="dato-valor">{{ dato.ultimoValor }} {{ dato.unidad }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="trabajador-actions">
+              <button class="btn-secondary" (click)="verDetalleSubordinado(trabajador.id!)">
+                Ver Detalle
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Datos Vitales Recientes -->
-    <div class="section" *ngIf="getDatosVitalesRecientes().length > 0">
-      <h2>📊 Datos Vitales Recientes (Todo el Equipo)</h2>
-      <div class="datos-recientes-list">
-        <div 
-          *ngFor="let dato of getDatosVitalesRecientes().slice(0, 8)" 
-          class="dato-reciente-item">
-          
-          <div class="dato-info">
-            <h4>{{ dato.tipoDato }}</h4>
-            <p><strong>{{ dato.valor }} {{ dato.unidad }}</strong></p>
-            <small>
-              {{ getNombreSubordinado(dato.usuarioId!) }} | 
-              {{ dato.fechaRegistro | date:'dd/MM/yyyy HH:mm' }}
-            </small>
-          </div>
-          
-          <div class="dato-device" *ngIf="dato.dispositivoOrigen">
-            <span class="device-badge">{{ dato.dispositivoOrigen }}</span>
+    <!-- VISTA ALERTAS -->
+    <div *ngIf="vistaActual === 'alertas'" class="vista-alertas">
+      <div class="section">
+        <h2>🚨 Centro de Alertas</h2>
+        
+        <!-- Filtros de Alertas -->
+        <div class="alertas-filtros">
+          <button class="filtro-btn active">Todas</button>
+          <button class="filtro-btn">Críticas</button>
+          <button class="filtro-btn">Altas</button>
+          <button class="filtro-btn">No Leídas</button>
+        </div>
+
+        <!-- Lista de alertas -->
+        <div class="alertas-lista">
+          <div 
+            class="alerta-card" 
+            *ngFor="let alerta of dashboardData?.alertasRecientes || alertasActivas"
+            [class.critica]="alerta.severidad === 'Crítica'"
+            [class.alta]="alerta.severidad === 'Alta'"
+            [class.media]="alerta.severidad === 'Media'">
+            
+            <div class="alerta-header">
+              <span class="alerta-tipo">{{ alerta.tipoAlerta }}</span>
+              <span class="alerta-severidad" [class]="'severidad-' + (alerta.severidad?.toLowerCase() || 'baja')">
+                {{ alerta.severidad }}
+              </span>
+            </div>
+            
+            <p class="alerta-descripcion">{{ alerta.descripcion }}</p>
+            
+            <div class="alerta-footer">
+              <div class="alerta-info">
+                <span class="alerta-usuario">
+                  👤 {{ getNombreSubordinado(alerta.usuarioId!) }}
+                </span>
+                <span class="alerta-fecha">📅 {{ alerta.fechaCreacion | date:'short' }}</span>
+              </div>
+              <button 
+                class="btn-marcar-leida" 
+                *ngIf="!alerta.leida"
+                (click)="marcarAlertaLeida(alerta.id!)">
+                Marcar como leída
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Estado cuando no hay subordinados -->
-    <div *ngIf="subordinados.length === 0" class="empty-state">
-      <div class="empty-icon">👥</div>
-      <h3>No tienes subordinados asignados</h3>
-      <p>Contacta al administrador del sistema para configurar tu equipo de trabajo.</p>
+    <!-- VISTA MÉTRICAS -->
+    <div *ngIf="vistaActual === 'metricas'" class="vista-metricas">
+      <div class="section">
+        <h2>📈 Métricas del Departamento</h2>
+        
+        <!-- Alertas por severidad -->
+        <div class="metricas-grid">
+          <div class="metrica-card">
+            <h4>Alertas por Severidad</h4>
+            <div class="alertas-severidad">
+              <div 
+                class="severidad-item" 
+                *ngFor="let severidad of dashboardData?.metricasDepartamento?.alertasPorSeveridad || []">
+                <span class="severidad-label">{{ severidad.severidad }}</span>
+                <span class="severidad-count">{{ severidad.cantidad }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Promedios departamentales -->
+          <div class="metrica-card">
+            <h4>Datos Vitales Promedio</h4>
+            <div class="promedios-grid">
+              <div 
+                class="promedio-item" 
+                *ngFor="let promedio of dashboardData?.metricasDepartamento?.promediosDepartamento || []">
+                <span class="promedio-tipo">{{ promedio.tipoDato }}</span>
+                <span class="promedio-valor">{{ promedio.promedio }} {{ promedio.unidad }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tendencias -->
+          <div class="metrica-card">
+            <h4>Tendencias (7 días)</h4>
+            <div class="tendencias-info">
+              <div class="tendencia-item">
+                <span class="tendencia-label">Alertas Nuevas</span>
+                <span class="tendencia-valor">{{ dashboardData?.tendenciasSalud?.resumen?.alertasUltimos7Dias || 0 }}</span>
+              </div>
+              <div class="tendencia-item">
+                <span class="tendencia-label">Alertas Críticas</span>
+                <span class="tendencia-valor">{{ dashboardData?.tendenciasSalud?.resumen?.alertasCriticasUltimos7Dias || 0 }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- VISTA TRABAJADORES EN RIESGO -->
+    <div *ngIf="vistaActual === 'riesgo'" class="vista-riesgo">
+      <div class="section">
+        <h2>⚠️ Trabajadores que Requieren Atención</h2>
+        
+        <!-- Trabajadores en Riesgo Crítico -->
+        <div class="riesgo-categoria" *ngIf="getTrabajadoresPorRiesgo('crítico').length > 0">
+          <h3>🚨 Riesgo Crítico</h3>
+          <div class="trabajadores-riesgo-grid">
+            <div 
+              *ngFor="let trabajador of getTrabajadoresPorRiesgo('crítico')" 
+              class="trabajador-riesgo-card critico">
+              
+              <div class="trabajador-riesgo-header">
+                <h4>{{ trabajador.nombre }}</h4>
+                <span class="cargo">{{ trabajador.cargo }}</span>
+              </div>
+              
+              <div class="riesgo-detalles">
+                <div class="detalle-item">
+                  <span class="detalle-icon">🚨</span>
+                  <span>{{ trabajador.alertasActivas }} alertas activas</span>
+                </div>
+                <div class="detalle-item">
+                  <span class="detalle-icon">💚</span>
+                  <span>Score: {{ trabajador.scoreBienestar }}%</span>
+                </div>
+              </div>
+              
+              <button class="btn btn-danger btn-sm" (click)="verDetalleTrabajador(trabajador)">
+                Ver Detalles
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trabajadores en Riesgo Alto -->
+        <div class="riesgo-categoria" *ngIf="getTrabajadoresPorRiesgo('alto').length > 0">
+          <h3>⚠️ Riesgo Alto</h3>
+          <div class="trabajadores-riesgo-grid">
+            <div 
+              *ngFor="let trabajador of getTrabajadoresPorRiesgo('alto')" 
+              class="trabajador-riesgo-card alto">
+              
+              <div class="trabajador-riesgo-header">
+                <h4>{{ trabajador.nombre }}</h4>
+                <span class="cargo">{{ trabajador.cargo }}</span>
+              </div>
+              
+              <div class="riesgo-detalles">
+                <div class="detalle-item">
+                  <span class="detalle-icon">🚨</span>
+                  <span>{{ trabajador.alertasActivas }} alertas activas</span>
+                </div>
+                <div class="detalle-item">
+                  <span class="detalle-icon">💚</span>
+                  <span>Score: {{ trabajador.scoreBienestar }}%</span>
+                </div>
+              </div>
+              
+              <button class="btn btn-warning btn-sm" (click)="verDetalleTrabajador(trabajador)">
+                Ver Detalles
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mensaje si no hay trabajadores en riesgo -->
+        <div *ngIf="getTrabajadoresPorRiesgo('crítico').length === 0 && getTrabajadoresPorRiesgo('alto').length === 0" 
+             class="no-riesgo-message">
+          <div class="success-icon">✅</div>
+          <h3>¡Excelente!</h3>
+          <p>No hay trabajadores en riesgo crítico o alto en este momento.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fallback: Vista Legacy para compatibilidad -->
+    <div *ngIf="!dashboardData && subordinados.length > 0" class="vista-legacy">
+      <div class="section">
+        <h2>👨‍💻 Mi Equipo de Trabajo (Vista Básica)</h2>
+        <div class="subordinados-grid">
+          <div 
+            *ngFor="let subordinado of subordinados" 
+            class="subordinado-card"
+            (click)="verPerfilSubordinado(subordinado)">
+            
+            <div class="subordinado-header">
+              <h4>{{ subordinado.nombreCompleto || (subordinado.nombre + ' ' + subordinado.apellido) }}</h4>
+              <span class="role-badge trabajador">{{ subordinado.cargo }}</span>
+            </div>
+            
+            <div class="subordinado-info">
+              <p><strong>📧 Email:</strong> {{ subordinado.email }}</p>
+              <p><strong>🏢 Departamento:</strong> {{ subordinado.departamento }}</p>
+              <p><strong>🕐 Último Acceso:</strong> 
+                {{ subordinado.ultimoAcceso | date:'dd/MM/yyyy HH:mm' }}
+              </p>
+            </div>
+
+            <div class="subordinado-stats">
+              <div class="mini-stat">
+                <span class="mini-stat-value">{{ getAlertasNoLeidasPorSubordinado(subordinado.id!) }}</span>
+                <span class="mini-stat-label">Alertas</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-stat-value">{{ getDatosVitalesPorSubordinado(subordinado.id!) }}</span>
+                <span class="mini-stat-label">Datos</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div> 

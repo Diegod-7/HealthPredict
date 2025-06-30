@@ -2,104 +2,47 @@ using HealthPredict.DAL;
 using HealthPredict.BLL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Oracle.EntityFrameworkCore.Infrastructure;
 using DinkToPdf;
 using DinkToPdf.Contracts;
 using HealthPredict.API.Services;
 using HealthPredict.API;
-using System.IO;
-using System.Collections;
+using System.Reflection;
+
+// ✅ CONFIGURACIÓN PARA POSTGRESQL Y ZONAS HORARIAS
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Configuración de servicios
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddApplicationPart(Assembly.GetExecutingAssembly())
+    .AddControllersAsServices();
 
 // Configuración de la base de datos PostgreSQL
 var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") 
                       ?? builder.Configuration.GetConnectionString("PostgreSQLConnection");
 
 Console.WriteLine($"🔍 PostgreSQL Connection String encontrado: {!string.IsNullOrEmpty(connectionString)}");
-Console.WriteLine($"🔍 ASPNETCORE_ENVIRONMENT: {Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}");
 
 if (string.IsNullOrEmpty(connectionString))
 {
     Console.WriteLine("❌ ERROR: No se encontró el string de conexión de PostgreSQL");
-    Console.WriteLine("Variables de entorno disponibles:");
-    foreach (DictionaryEntry env in Environment.GetEnvironmentVariables())
-    {
-        var key = env.Key.ToString();
-        if (key.Contains("DATABASE") || key.Contains("CONNECTION") || key.Contains("POSTGRES"))
-        {
-            Console.WriteLine($"   {key}: {env.Value}");
-        }
-    }
-    
     // Usar una conexión por defecto para evitar crash
     connectionString = "Host=localhost;Database=healthpredict;Username=postgres;Password=password";
-    Console.WriteLine("⚠️ Usando conexión por defecto (la app funcionará parcialmente)");
-}
-else
-{
-    Console.WriteLine($"✅ PostgreSQL Connection String configurado correctamente");
-    // Mostrar solo los primeros caracteres por seguridad
-    Console.WriteLine($"🔗 Connection String: {connectionString.Substring(0, Math.Min(50, connectionString.Length))}...");
+    Console.WriteLine("⚠️ Usando conexión por defecto");
 }
 
 builder.Services.AddDbContext<HealthPredictContext>(options => 
 {
-    options.UseNpgsql(connectionString, npgsqlOptions => 
-    {
-        // Configurar timeout más largo para conexiones remotas
-        npgsqlOptions.CommandTimeout(60);
-    });
+    options.UseNpgsql(connectionString);
     
-    // Configurar logging para PostgreSQL en desarrollo
+    // Logging solo en desarrollo
     if (builder.Environment.IsDevelopment())
     {
         options.EnableSensitiveDataLogging();
         options.LogTo(Console.WriteLine, LogLevel.Information);
     }
 });
-
-// Configurar DinkToPdf
-try 
-{
-    var customAssemblyLoadContext = new CustomAssemblyLoadContext();
-    
-    // Buscar la librería en varias ubicaciones posibles
-    string[] possiblePaths = new[]
-    {
-        Path.Combine(Directory.GetCurrentDirectory(), "libwkhtmltox.dll"),
-        Path.Combine(Directory.GetCurrentDirectory(), "lib", "libwkhtmltox.dll"),
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "libwkhtmltox.dll"),
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "lib", "libwkhtmltox.dll")
-    };
-    
-    string? libraryPath = possiblePaths.FirstOrDefault(File.Exists);
-    
-    if (libraryPath == null)
-    {
-        // Si no se encuentra la librería, mostrar mensaje de error pero seguir ejecutando
-        Console.WriteLine("======================================================================");
-        Console.WriteLine("ADVERTENCIA: No se encontró la librería libwkhtmltox.dll");
-        Console.WriteLine("La funcionalidad de generación de PDFs no estará disponible.");
-        Console.WriteLine("Por favor, descargue la librería desde https://wkhtmltopdf.org/downloads.html");
-        Console.WriteLine("y colóquela en el directorio raíz de la aplicación o en una carpeta 'lib'.");
-        Console.WriteLine("======================================================================");
-    }
-    else 
-    {
-        Console.WriteLine($"Cargando librería nativa desde: {libraryPath}");
-        customAssemblyLoadContext.LoadUnmanagedLibrary(libraryPath);
-        builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
-    }
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"Error al cargar la librería wkhtmltopdf: {ex.Message}");
-    // Continuar sin la funcionalidad de PDF
-}
 
 // Registro de servicios
 builder.Services.AddScoped<UsuarioService>();
@@ -112,17 +55,13 @@ builder.Services.AddCors(options => {
     options.AddPolicy("AllowAngularApp", policy => {
         if (builder.Environment.IsDevelopment())
         {
-            // En desarrollo, permitir cualquier origen para facilitar testing
             policy.AllowAnyOrigin()
                   .AllowAnyMethod()
                   .AllowAnyHeader();
         }
         else
         {
-            // En producción, usar orígenes específicos
-            var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() 
-                               ?? new[] { "http://localhost:4200" };
-            policy.WithOrigins(allowedOrigins)
+            policy.WithOrigins("http://localhost:4200", "https://healthpredict-l1hu.onrender.com")
                   .AllowAnyMethod()
                   .AllowAnyHeader()
                   .AllowCredentials();
@@ -132,42 +71,56 @@ builder.Services.AddCors(options => {
 
 // Configuración de Swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "HealthPredict API", Version = "v1" });
+});
 
 var app = builder.Build();
 
-// Configurar para escuchar en el puerto que Render asigne
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
-app.Urls.Add($"http://0.0.0.0:{port}");
+Console.WriteLine("🔍 Controladores registrados:");
+var controllerActionDescriptorProvider = app.Services.GetService<Microsoft.AspNetCore.Mvc.Infrastructure.IActionDescriptorCollectionProvider>();
+if (controllerActionDescriptorProvider != null)
+{
+    var actions = controllerActionDescriptorProvider.ActionDescriptors.Items;
+    foreach (var action in actions.Take(10)) // Mostrar solo los primeros 10
+    {
+        Console.WriteLine($"   - {action.DisplayName}");
+    }
+    Console.WriteLine($"   Total de acciones: {actions.Count}");
+}
 
 // Configuración del pipeline de solicitudes HTTP
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
-}
-else
-{
-    // En producción también habilitamos Swagger para testing
-    app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "HealthPredict API V1");
-        c.RoutePrefix = "swagger";
     });
-}
-
-// No usar HTTPS redirect en Render (ellos manejan SSL)
-if (!app.Environment.IsProduction())
-{
-    app.UseHttpsRedirection();
 }
 
 app.UseCors("AllowAngularApp");
 app.UseAuthorization();
+
+// ✅ ENDPOINT RAÍZ PERSONALIZADO
+app.MapGet("/", () => new { 
+    message = "HealthPredict API", 
+    version = "1.0.0",
+    status = "Funcionando correctamente",
+    endpoints = new {
+        swagger = "/swagger",
+        usuarios = "/api/Usuarios",
+        datosVitales = "/api/DatosVitales",
+        alertas = "/api/Alertas",
+        graficos = "/api/Graficos",
+        reportes = "/api/Reportes"
+    }
+});
+
 app.MapControllers();
 
-// Inicializar la base de datos con datos de prueba
+// Inicializar la base de datos
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -175,49 +128,31 @@ using (var scope = app.Services.CreateScope())
     
     try
     {
-        Console.WriteLine("🔄 Iniciando inicialización de la base de datos...");
-        logger.LogInformation("Iniciando inicialización de la base de datos");
-        
+        Console.WriteLine("🔄 Inicializando base de datos...");
         var dbContext = services.GetRequiredService<HealthPredictContext>();
         
-        // Probar la conexión primero
-        Console.WriteLine("🔗 Probando conexión a la base de datos...");
+        // Probar conexión
         dbContext.Database.CanConnect();
-        Console.WriteLine("✅ Conexión a la base de datos exitosa");
-        logger.LogInformation("Conexión a la base de datos establecida correctamente");
+        Console.WriteLine("✅ Conexión a BD exitosa");
         
-        // Ejecutar las migraciones si es necesario
-        Console.WriteLine("🔄 Verificando y aplicando migraciones...");
+        // Aplicar migraciones
         dbContext.Database.Migrate();
-        Console.WriteLine("✅ Migraciones aplicadas correctamente");
-        logger.LogInformation("Migraciones de base de datos aplicadas");
+        Console.WriteLine("✅ Migraciones aplicadas");
         
         // Inicializar datos
-        Console.WriteLine("🔄 Inicializando datos de prueba...");
         DbInitializer.InitializeAsync(dbContext).Wait();
-        Console.WriteLine("✅ Base de datos inicializada con datos de prueba");
-        logger.LogInformation("Base de datos inicializada con datos de prueba exitosamente");
+        Console.WriteLine("✅ Datos inicializados");
+        
+            // Comentado temporalmente para debug
+    // DataSeeder.SeedDataAsync(dbContext).Wait();
+    Console.WriteLine("✅ DataSeeder deshabilitado temporalmente");
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"❌ ERROR CRÍTICO al inicializar la base de datos:");
-        Console.WriteLine($"   Tipo de excepción: {ex.GetType().Name}");
-        Console.WriteLine($"   Mensaje: {ex.Message}");
-        Console.WriteLine($"   Stack Trace: {ex.StackTrace}");
-        
-        if (ex.InnerException != null)
-        {
-            Console.WriteLine($"   Excepción interna: {ex.InnerException.Message}");
-            Console.WriteLine($"   Stack Trace interno: {ex.InnerException.StackTrace}");
-        }
-        
-        logger.LogError(ex, "Error crítico al inicializar la base de datos. Tipo: {ExceptionType}, Mensaje: {Message}", 
-            ex.GetType().Name, ex.Message);
-        
-        // No lanzar la excepción para que la app siga funcionando
-        Console.WriteLine("⚠️ La aplicación continuará ejecutándose sin datos iniciales");
-        logger.LogWarning("La aplicación continuará sin datos iniciales debido al error de inicialización");
+        Console.WriteLine($"❌ Error al inicializar BD: {ex.Message}");
+        logger.LogError(ex, "Error al inicializar la base de datos");
     }
 }
 
+Console.WriteLine("🚀 API iniciada correctamente");
 app.Run();

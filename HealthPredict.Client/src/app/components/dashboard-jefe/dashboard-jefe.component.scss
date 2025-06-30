@@ -1,60 +1,163 @@
-// ✅ ESTILOS PARA EL DASHBOARD DEL JEFE
+// =====================================
+// PANEL SUPERVISOR - ESTILOS MEJORADOS
+// =====================================
 
 .dashboard-jefe-container {
-  padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
-  background-color: #f8f9fa;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-// ✅ HEADER DEL DASHBOARD
+// =====================================
+// HEADER
+// =====================================
 .dashboard-header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 20px 30px;
+  margin-bottom: 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: white;
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  margin-bottom: 25px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 
   .user-info {
     h1 {
-      color: #2d3748;
-      margin: 0 0 8px 0;
-      font-size: 1.8rem;
+      margin: 0;
+      color: #2c3e50;
+      font-size: 28px;
       font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     p {
-      color: #718096;
-      margin: 0;
-      font-size: 1rem;
+      margin: 5px 0 0 0;
+      color: #7f8c8d;
+      font-size: 14px;
+    }
+
+    .role-badge {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+
+      &.jefe {
+        background: linear-gradient(45deg, #f093fb, #f5576c);
+      }
     }
   }
 
   .header-actions {
     display: flex;
-    gap: 12px;
+    gap: 15px;
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 25px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+
+      &.btn-secondary {
+        background: linear-gradient(45deg, #74b9ff, #0984e3);
+        color: white;
+
+        &:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(116, 185, 255, 0.4);
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+
+      &.btn-danger {
+        background: linear-gradient(45deg, #fd79a8, #e84393);
+        color: white;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(253, 121, 168, 0.4);
+        }
+      }
+    }
   }
 }
 
-// ✅ ESTADOS DE CARGA Y ERROR
+// =====================================
+// NAVEGACIÓN DEL PANEL
+// =====================================
+.panel-navigation {
+  display: flex;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 10px;
+  margin-bottom: 30px;
+  gap: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+
+  .nav-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: #7f8c8d;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    font-size: 14px;
+
+    &:hover {
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+    }
+
+    &.active {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+  }
+}
+
+// =====================================
+// ESTADOS DE CARGA Y ERROR
+// =====================================
 .loading-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 60px 20px;
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
   border-radius: 15px;
-  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 
   .spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid #e2e8f0;
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
     border-top: 4px solid #667eea;
     border-radius: 50%;
     animation: spin 1s linear infinite;
@@ -62,381 +165,846 @@
   }
 
   p {
-    color: #718096;
-    font-size: 1.1rem;
+    color: #7f8c8d;
+    font-size: 16px;
     margin: 0;
   }
 }
 
+.error-message {
+  background: linear-gradient(45deg, #ff7675, #fd79a8);
+  color: white;
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 8px 32px rgba(255, 118, 117, 0.3);
+
+  .btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+// =====================================
+// TARJETAS DE ESTADÍSTICAS
+// =====================================
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+
+  .stat-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-icon {
+      font-size: 40px;
+      padding: 15px;
+      border-radius: 15px;
+      background: linear-gradient(45deg, #74b9ff, #0984e3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stat-content {
+      h3 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        color: #2c3e50;
+      }
+
+      p {
+        margin: 5px 0 0 0;
+        color: #7f8c8d;
+        font-size: 14px;
+        font-weight: 600;
+      }
+    }
+
+    &.alertas .stat-icon {
+      background: linear-gradient(45deg, #fd79a8, #fdcb6e);
+    }
+
+    &.criticas .stat-icon {
+      background: linear-gradient(45deg, #e17055, #d63031);
+    }
+
+    &.riesgo .stat-icon {
+      background: linear-gradient(45deg, #fd79a8, #e84393);
+    }
+
+    &.bienestar .stat-icon {
+      background: linear-gradient(45deg, #00b894, #00cec9);
+    }
+  }
+}
+
+// =====================================
+// SECCIONES COMUNES
+// =====================================
+.section {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  h2 {
+    margin: 0 0 25px 0;
+    color: #2c3e50;
+    font-size: 24px;
+    font-weight: 700;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ecf0f1;
+  }
+
+  h3 {
+    margin: 0 0 20px 0;
+    color: #2c3e50;
+    font-size: 20px;
+    font-weight: 600;
+  }
+}
+
+// =====================================
+// TRABAJADORES GRID MEJORADO
+// =====================================
+.trabajadores-grid-enhanced {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 25px;
+
+  .trabajador-card-enhanced {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    &.riesgo-critico {
+      border-color: #e74c3c;
+      background: linear-gradient(135deg, rgba(231, 76, 60, 0.05), rgba(255, 255, 255, 0.95));
+    }
+
+    &.riesgo-alto {
+      border-color: #f39c12;
+      background: linear-gradient(135deg, rgba(243, 156, 18, 0.05), rgba(255, 255, 255, 0.95));
+    }
+
+    &.riesgo-moderado {
+      border-color: #f1c40f;
+      background: linear-gradient(135deg, rgba(241, 196, 15, 0.05), rgba(255, 255, 255, 0.95));
+    }
+
+    &.riesgo-bajo {
+      border-color: #27ae60;
+      background: linear-gradient(135deg, rgba(39, 174, 96, 0.05), rgba(255, 255, 255, 0.95));
+    }
+
+    .trabajador-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+
+      .trabajador-info {
+        h4 {
+          margin: 0;
+          color: #2c3e50;
+          font-size: 18px;
+          font-weight: 700;
+        }
+
+        .trabajador-cargo {
+          color: #7f8c8d;
+          font-size: 14px;
+          font-weight: 500;
+        }
+      }
+
+      .trabajador-riesgo {
+        .riesgo-badge {
+          padding: 6px 12px;
+          border-radius: 20px;
+          color: white;
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+      }
+    }
+
+    .trabajador-stats {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+
+      .stat-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        flex: 1;
+
+        .stat-icon {
+          font-size: 20px;
+          margin-bottom: 5px;
+        }
+
+        .stat-value {
+          font-size: 18px;
+          font-weight: 700;
+          color: #2c3e50;
+          margin-bottom: 2px;
+        }
+
+        .stat-label {
+          font-size: 12px;
+          color: #7f8c8d;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+      }
+    }
+
+    .datos-vitales-preview {
+      margin-bottom: 20px;
+
+      h5 {
+        margin: 0 0 10px 0;
+        color: #2c3e50;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .datos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 10px;
+
+        .dato-item {
+          background: #f8f9fa;
+          padding: 8px;
+          border-radius: 8px;
+          text-align: center;
+
+          .dato-tipo {
+            display: block;
+            font-size: 11px;
+            color: #7f8c8d;
+            margin-bottom: 2px;
+          }
+
+          .dato-valor {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #2c3e50;
+          }
+        }
+      }
+    }
+
+    .trabajador-footer {
+      padding-top: 15px;
+      border-top: 1px solid #ecf0f1;
+
+      .ultimo-acceso {
+        color: #7f8c8d;
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+// =====================================
+// ALERTAS
+// =====================================
+.alertas-criticas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+
+  .alerta-critica-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 20px;
+    border-left: 4px solid;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .alerta-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+
+      .alerta-tipo {
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      .alerta-tiempo {
+        font-size: 12px;
+        color: #7f8c8d;
+      }
+    }
+
+    .alerta-descripcion {
+      color: #34495e;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 15px;
+    }
+
+    .alerta-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .trabajador-nombre {
+        font-size: 13px;
+        color: #7f8c8d;
+      }
+
+      .btn {
+        padding: 6px 12px;
+        border-radius: 15px;
+        border: none;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+
+        &.btn-primary {
+          background: linear-gradient(45deg, #74b9ff, #0984e3);
+          color: white;
+
+          &:hover {
+            box-shadow: 0 4px 15px rgba(116, 185, 255, 0.4);
+          }
+        }
+      }
+    }
+  }
+}
+
+.alertas-lista {
+  .alerta-item {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-left: 4px solid;
+    display: flex;
+    gap: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    &.no-leida {
+      background: linear-gradient(135deg, rgba(116, 185, 255, 0.05), rgba(255, 255, 255, 0.95));
+    }
+
+    .alerta-severidad {
+      padding: 4px 8px;
+      border-radius: 15px;
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      align-self: flex-start;
+    }
+
+    .alerta-contenido {
+      flex: 1;
+
+      .alerta-titulo {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+
+        h4 {
+          margin: 0;
+          color: #2c3e50;
+          font-size: 16px;
+          font-weight: 600;
+        }
+
+        .alerta-fecha {
+          font-size: 12px;
+          color: #7f8c8d;
+        }
+      }
+
+      .alerta-descripcion {
+        color: #34495e;
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 15px;
+      }
+
+      .alerta-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .trabajador-afectado {
+          font-size: 13px;
+          color: #7f8c8d;
+        }
+      }
+    }
+  }
+}
+
+// =====================================
+// DISTRIBUCIÓN DE RIESGO
+// =====================================
+.riesgo-distribution {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+
+  .riesgo-item {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    &.critico {
+      border-color: #e74c3c;
+      background: linear-gradient(135deg, rgba(231, 76, 60, 0.05), rgba(255, 255, 255, 0.95));
+    }
+
+    &.alto {
+      border-color: #f39c12;
+      background: linear-gradient(135deg, rgba(243, 156, 18, 0.05), rgba(255, 255, 255, 0.95));
+    }
+
+    &.moderado {
+      border-color: #f1c40f;
+      background: linear-gradient(135deg, rgba(241, 196, 15, 0.05), rgba(255, 255, 255, 0.95));
+    }
+
+    &.bajo {
+      border-color: #27ae60;
+      background: linear-gradient(135deg, rgba(39, 174, 96, 0.05), rgba(255, 255, 255, 0.95));
+    }
+
+    .riesgo-icon {
+      font-size: 40px;
+      display: block;
+      margin-bottom: 15px;
+    }
+
+    .riesgo-content {
+      h3 {
+        margin: 0;
+        font-size: 32px;
+        font-weight: 700;
+        color: #2c3e50;
+      }
+
+      p {
+        margin: 5px 0 0 0;
+        color: #7f8c8d;
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+    }
+  }
+}
+
+// =====================================
+// MÉTRICAS
+// =====================================
+.metricas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 25px;
+
+  .metrica-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+    h3 {
+      margin: 0 0 20px 0;
+      color: #2c3e50;
+      font-size: 18px;
+      font-weight: 600;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #ecf0f1;
+    }
+
+    .severidad-stats, .promedios-stats, .tendencias-stats {
+      .severidad-item, .promedio-item, .tendencia-item {
+        display: flex;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #f8f9fa;
+
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+
+      .severidad-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 10px;
+      }
+
+      .severidad-nombre, .promedio-tipo, .tendencia-label {
+        flex: 1;
+        font-weight: 500;
+        color: #2c3e50;
+      }
+
+      .severidad-cantidad, .promedio-valor, .tendencia-valor {
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      .promedio-cantidad {
+        margin-left: 10px;
+        font-size: 12px;
+        color: #7f8c8d;
+      }
+
+      .tendencia-item.criticas .tendencia-valor {
+        color: #e74c3c;
+        font-weight: 700;
+      }
+    }
+  }
+}
+
+// =====================================
+// TRABAJADORES EN RIESGO
+// =====================================
+.riesgo-categoria {
+  margin-bottom: 30px;
+
+  h3 {
+    margin: 0 0 20px 0;
+    color: #2c3e50;
+    font-size: 20px;
+    font-weight: 600;
+    padding: 10px 15px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  .trabajadores-riesgo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+
+    .trabajador-riesgo-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      padding: 20px;
+      border: 2px solid;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      }
+
+      &.critico {
+        border-color: #e74c3c;
+        background: linear-gradient(135deg, rgba(231, 76, 60, 0.05), rgba(255, 255, 255, 0.95));
+      }
+
+      &.alto {
+        border-color: #f39c12;
+        background: linear-gradient(135deg, rgba(243, 156, 18, 0.05), rgba(255, 255, 255, 0.95));
+      }
+
+      .trabajador-riesgo-header {
+        margin-bottom: 15px;
+
+        h4 {
+          margin: 0;
+          color: #2c3e50;
+          font-size: 18px;
+          font-weight: 700;
+        }
+
+        .cargo {
+          color: #7f8c8d;
+          font-size: 14px;
+          font-weight: 500;
+        }
+      }
+
+      .riesgo-detalles {
+        margin-bottom: 20px;
+
+        .detalle-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 8px;
+          color: #34495e;
+          font-size: 14px;
+
+          .detalle-icon {
+            font-size: 16px;
+          }
+        }
+      }
+
+      .btn {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &.btn-danger {
+          background: linear-gradient(45deg, #e74c3c, #c0392b);
+          color: white;
+
+          &:hover {
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+          }
+        }
+
+        &.btn-warning {
+          background: linear-gradient(45deg, #f39c12, #e67e22);
+          color: white;
+
+          &:hover {
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);
+          }
+        }
+      }
+    }
+  }
+}
+
+.no-riesgo-message {
+  text-align: center;
+  padding: 40px;
+
+  .success-icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+  }
+
+  h3 {
+    color: #27ae60;
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: #7f8c8d;
+    font-size: 16px;
+  }
+}
+
+// =====================================
+// FILTROS
+// =====================================
+.alertas-filtros {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+
+  .filtro-btn {
+    padding: 8px 16px;
+    border: 2px solid #ecf0f1;
+    border-radius: 20px;
+    background: white;
+    color: #7f8c8d;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      border-color: #667eea;
+      color: #667eea;
+    }
+
+    &.active {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      border-color: #667eea;
+      color: white;
+    }
+  }
+}
+
+// =====================================
+// LEGACY SUPPORT
+// =====================================
+.vista-legacy {
+  .subordinados-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 25px;
+
+    .subordinado-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      padding: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+      }
+
+      .subordinado-header {
+        margin-bottom: 20px;
+
+        h4 {
+          margin: 0;
+          color: #2c3e50;
+          font-size: 18px;
+          font-weight: 700;
+        }
+
+        .role-badge {
+          background: linear-gradient(45deg, #74b9ff, #0984e3);
+          color: white;
+          padding: 4px 10px;
+          border-radius: 15px;
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+      }
+
+      .subordinado-info {
+        margin-bottom: 20px;
+
+        p {
+          margin: 8px 0;
+          color: #34495e;
+          font-size: 14px;
+
+          strong {
+            color: #2c3e50;
+          }
+        }
+      }
+
+      .subordinado-stats {
+        display: flex;
+        gap: 20px;
+
+        .mini-stat {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          flex: 1;
+
+          .mini-stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+          }
+
+          .mini-stat-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+        }
+      }
+    }
+  }
+}
+
+// =====================================
+// ANIMATIONS
+// =====================================
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-.error-message {
-  background-color: #fed7d7;
-  color: #c53030;
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  text-align: center;
-  border-left: 4px solid #e53e3e;
-
-  .btn {
-    margin-left: 15px;
-  }
-}
-
-// ✅ CONTENIDO DEL DASHBOARD
-.dashboard-content {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-}
-
-// ✅ GRID DE ESTADÍSTICAS
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  margin-bottom: 10px;
-}
-
-.stat-card {
-  background: white;
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-  }
-
-  .stat-icon {
-    font-size: 2.5rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 12px;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .stat-content {
-    h3 {
-      color: #2d3748;
-      font-size: 2.2rem;
-      font-weight: 700;
-      margin: 0 0 5px 0;
-    }
-
-    p {
-      color: #718096;
-      margin: 0;
-      font-size: 0.95rem;
-      font-weight: 500;
-    }
-  }
-
-  &.alertas .stat-icon {
-    background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
-  }
-
-  &.no-leidas .stat-icon {
-    background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
-  }
-
-  &.datos .stat-icon {
-    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-  }
-}
-
-// ✅ SECCIONES
-.section {
-  background: white;
-  border-radius: 15px;
-  padding: 25px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-
-  h2 {
-    color: #2d3748;
-    margin: 0 0 20px 0;
-    font-size: 1.4rem;
-    font-weight: 600;
-    border-bottom: 2px solid #e2e8f0;
-    padding-bottom: 12px;
-  }
-}
-
-// ✅ GRID DE SUBORDINADOS
-.subordinados-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 20px;
-}
-
-.subordinado-card {
-  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border-color: #667eea;
-  }
-
-  .subordinado-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-
-    h4 {
-      color: #2d3748;
-      margin: 0;
-      font-size: 1.2rem;
-      font-weight: 600;
-    }
-  }
-
-  .subordinado-info {
-    margin-bottom: 15px;
-
-    p {
-      color: #4a5568;
-      margin: 8px 0;
-      font-size: 0.9rem;
-      line-height: 1.4;
-
-      strong {
-        color: #2d3748;
-      }
-    }
-  }
-
-  .subordinado-stats {
-    display: flex;
-    gap: 15px;
-    padding-top: 15px;
-    border-top: 1px solid #e2e8f0;
-  }
-}
-
-.mini-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-
-  .mini-stat-value {
-    color: #2d3748;
-    font-size: 1.3rem;
-    font-weight: 700;
-  }
-
-  .mini-stat-label {
-    color: #718096;
-    font-size: 0.8rem;
-    font-weight: 500;
-  }
-}
-
-// ✅ LISTAS DE ALERTAS Y DATOS
-.alertas-priority-list, .datos-recientes-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.alerta-priority-item, .dato-reciente-item {
-  background: #f7fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 18px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background: #edf2f7;
-  }
-
-  .alerta-info, .dato-info {
-    flex: 1;
-
-    h4 {
-      color: #2d3748;
-      margin: 0 0 8px 0;
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
-
-    p {
-      color: #4a5568;
-      margin: 0 0 8px 0;
-      line-height: 1.4;
-    }
-
-    small {
-      color: #718096;
-      font-size: 0.85rem;
-    }
-  }
-
-  .alerta-status, .dato-device {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: flex-end;
-  }
-}
-
-// ✅ BADGES Y ROLES
-.role-badge {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-
-  &.jefe {
-    background-color: #c6f6d5;
-    color: #22543d;
-  }
-
-  &.trabajador {
-    background-color: #bee3f8;
-    color: #2a4365;
-  }
-}
-
-.severity-badge {
-  padding: 4px 10px;
-  border-radius: 15px;
-  font-size: 0.75rem;
-  font-weight: 600;
-
-  &.alta {
-    background-color: #fed7d7;
-    color: #c53030;
-  }
-}
-
-.status-badge {
-  padding: 4px 10px;
-  border-radius: 15px;
-  font-size: 0.75rem;
-  font-weight: 600;
-
-  &.leida {
-    background-color: #c6f6d5;
-    color: #22543d;
-  }
-
-  &.no-leida {
-    background-color: #fbb6ce;
-    color: #97266d;
-  }
-}
-
-.device-badge {
-  background-color: #e6fffa;
-  color: #234e52;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-// ✅ ESTADO VACÍO
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: #718096;
-
-  .empty-icon {
-    font-size: 4rem;
-    margin-bottom: 20px;
-    opacity: 0.6;
-  }
-
-  h3 {
-    color: #4a5568;
-    margin-bottom: 10px;
-    font-size: 1.3rem;
-  }
-
-  p {
-    margin: 0;
-    line-height: 1.5;
-  }
-}
-
-// ✅ BOTONES
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-decoration: none;
-  display: inline-block;
-
-  &.btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-
-    &:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-    }
-  }
-
-  &.btn-secondary {
-    background-color: #edf2f7;
-    color: #4a5568;
-
-    &:hover:not(:disabled) {
-      background-color: #e2e8f0;
-    }
-  }
-
-  &.btn-danger {
-    background-color: #f56565;
-    color: white;
-
-    &:hover:not(:disabled) {
-      background-color: #e53e3e;
-    }
-  }
-
-  &.btn-sm {
-    padding: 6px 12px;
-    font-size: 0.85rem;
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-}
-
-// ✅ RESPONSIVE
+// =====================================
+// RESPONSIVE DESIGN
+// =====================================
 @media (max-width: 768px) {
   .dashboard-jefe-container {
-    padding: 10px;
+    padding: 15px;
   }
 
   .dashboard-header {
@@ -449,21 +1017,48 @@
     }
   }
 
-  .stats-grid {
-    grid-template-columns: 1fr;
+  .panel-navigation {
+    justify-content: center;
+    
+    .nav-btn {
+      padding: 10px 15px;
+      font-size: 13px;
+    }
   }
 
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+
+    .stat-card {
+      padding: 20px;
+
+      .stat-icon {
+        font-size: 30px;
+        padding: 10px;
+      }
+
+      .stat-content h3 {
+        font-size: 24px;
+      }
+    }
+  }
+
+  .trabajadores-grid-enhanced,
+  .trabajadores-riesgo-grid,
   .subordinados-grid {
     grid-template-columns: 1fr;
   }
 
-  .alerta-priority-item, .dato-reciente-item {
-    flex-direction: column;
-    gap: 15px;
+  .metricas-grid {
+    grid-template-columns: 1fr;
+  }
 
-    .alerta-status, .dato-device {
-      align-items: flex-start;
-      flex-direction: row;
-    }
+  .riesgo-distribution {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .alertas-criticas-grid {
+    grid-template-columns: 1fr;
   }
 } 

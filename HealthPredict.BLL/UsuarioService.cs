@@ -19,10 +19,8 @@ namespace HealthPredict.BLL
 
         public async Task<IEnumerable<Usuario>> GetUsuariosAsync()
         {
-            return await _context.Usuarios
-                .Include(u => u.Jefe)
-                .Include(u => u.Subordinados)
-                .ToListAsync();
+            // Evitar referencias circulares - no incluir Jefe ni Subordinados
+            return await _context.Usuarios.ToListAsync();
         }
 
         public async Task<Usuario?> GetUsuarioByIdAsync(int id)
@@ -78,9 +76,8 @@ namespace HealthPredict.BLL
 
         public async Task<Usuario?> AuthenticateAsync(string email, string password)
         {
+            // Evitar referencias circulares - no incluir Jefe ni Subordinados
             return await _context.Usuarios
-                .Include(u => u.Jefe)
-                .Include(u => u.Subordinados)
                 .FirstOrDefaultAsync(u => u.Email == email && u.Password == password && u.EsActivo);
         }
         

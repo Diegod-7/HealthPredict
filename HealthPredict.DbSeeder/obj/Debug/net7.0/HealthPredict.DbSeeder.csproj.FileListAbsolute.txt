@@ -1,0 +1,5 @@
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.DbSeeder\obj\Debug\net7.0\HealthPredict.DbSeeder.csproj.AssemblyReference.cache
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.DbSeeder\obj\Debug\net7.0\HealthPredict.DbSeeder.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.DbSeeder\obj\Debug\net7.0\HealthPredict.DbSeeder.AssemblyInfoInputs.cache
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.DbSeeder\obj\Debug\net7.0\HealthPredict.DbSeeder.AssemblyInfo.cs
+C:\Users\Diego\OneDrive\Escritorio\ProyectoPortafolio\HealthPredict\HealthPredict.DbSeeder\obj\Debug\net7.0\HealthPredict.DbSeeder.csproj.CoreCompileInputs.cache

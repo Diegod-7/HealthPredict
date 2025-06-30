@@ -18,9 +18,9 @@ export class LoginComponent implements OnInit {
   isLoading: boolean = false;
   errorMessage: string = '';
   
-  // ✅ USUARIOS PREDEFINIDOS PARA DESARROLLO
+  // ✅ USUARIOS PREDEFINIDOS PARA DESARROLLO - CREDENCIALES CORRECTAS
   usuariosPredefinidos = [
-    { email: 'jefe@healthpredict.com', password: 'admin123', nombre: 'Carlos Rodriguez (Jefe)' },
+    { email: 'carlos.rodriguez@healthpredict.com', password: 'admin123', nombre: 'Carlos Rodriguez (Jefe)' },
     { email: 'diego.diaz@healthpredict.com', password: 'diego123', nombre: 'Diego Diaz (Trabajador)' },
     { email: 'matias.maripangue@healthpredict.com', password: 'matias123', nombre: 'Matias Maripangue (Trabajador)' },
     { email: 'iahn.vera@healthpredict.com', password: 'iahn123', nombre: 'Iahn Vera (Trabajador)' }
@@ -77,24 +77,83 @@ export class LoginComponent implements OnInit {
   /**
    * Maneja un login exitoso
    */
-  private handleSuccessfulLogin(usuario: Usuario): void {
-    // Transformar usuarios existentes a los nombres que queremos
+  private handleSuccessfulLogin(response: any): void {
+    console.log('🔐 Respuesta recibida del backend:', response);
+    
+    // Extraer el usuario de la respuesta
+    let usuario: Usuario;
+    if (response && response.usuario) {
+      // Caso: { success: true, usuario: {...} }
+      usuario = response.usuario;
+    } else if (response && response.email) {
+      // Caso: directamente el objeto usuario
+      usuario = response;
+    } else {
+      console.error('❌ Respuesta inválida del backend:', response);
+      this.errorMessage = 'Error: Datos de usuario inválidos';
+      this.isLoading = false;
+      return;
+    }
+    
+    // Validar que el usuario tenga información básica
+    if (!usuario || !usuario.email) {
+      console.error('❌ Usuario inválido extraído de la respuesta');
+      this.errorMessage = 'Error: Datos de usuario inválidos';
+      this.isLoading = false;
+      return;
+    }
+    
+    // Asegurar que las propiedades básicas existan
+    if (!usuario.nombre) usuario.nombre = '';
+    if (!usuario.apellido) usuario.apellido = '';
+    
+    // Transformar usuarios existentes a los nombres que queremos (para compatibilidad con datos legacy)
     if (usuario.email === 'juan.perez@example.com') {
       usuario.nombre = 'Diego';
       usuario.apellido = 'Diaz';
-      usuario.nombreCompleto = 'Diego Díaz';
     } else if (usuario.email === 'maria.gonzalez@example.com') {
       usuario.nombre = 'Iahn';
       usuario.apellido = 'Vera';
-      usuario.nombreCompleto = 'Iahn Vera';
+    } else if (usuario.email === 'carlos.rodriguez@example.com') {
+      usuario.nombre = 'Carlos';
+      usuario.apellido = 'Rodríguez';
+      usuario.rol = 'Jefe'; // Asegurar que Carlos sea jefe
+    }
+    
+    // Calcular nombreCompleto si no existe
+    if (!usuario.nombreCompleto || usuario.nombreCompleto.trim() === '') {
+      usuario.nombreCompleto = this.usuarioService.getNombreCompleto(usuario);
+    }
+    
+    // Si nombreCompleto sigue vacío, usar el email como fallback
+    if (!usuario.nombreCompleto || usuario.nombreCompleto.trim() === '' || usuario.nombreCompleto === ' ') {
+      if (usuario.email && typeof usuario.email === 'string') {
+        const emailName = usuario.email.split('@')[0];
+        usuario.nombreCompleto = emailName.charAt(0).toUpperCase() + emailName.slice(1);
+      } else {
+        usuario.nombreCompleto = 'Usuario';
+      }
     }
     
     // Calcular propiedades adicionales
-    if (!usuario.nombreCompleto) {
-      usuario.nombreCompleto = this.usuarioService.getNombreCompleto(usuario);
-    }
     usuario.esJefe = this.usuarioService.esJefe(usuario);
     usuario.esTrabajador = this.usuarioService.esTrabajador(usuario);
+    
+    // Si es Carlos Rodríguez por email, forzar que sea jefe
+    if (usuario.email === 'carlos.rodriguez@healthpredict.com' || usuario.email === 'carlos.rodriguez@example.com') {
+      usuario.rol = 'Jefe';
+      usuario.esJefe = true;
+      usuario.esTrabajador = false;
+      if (!usuario.nombreCompleto || usuario.nombreCompleto.trim() === '') {
+        usuario.nombreCompleto = 'Carlos Rodríguez';
+      }
+    }
+    
+    console.log('✅ Usuario procesado para guardar:', usuario);
+    console.log('📧 Email:', usuario.email);
+    console.log('👤 Nombre completo:', usuario.nombreCompleto);
+    console.log('👔 Rol:', usuario.rol);
+    console.log('🎯 Es jefe:', usuario.esJefe);
     
     // Guardar usuario en localStorage
     this.usuarioService.setCurrentUser(usuario);
@@ -114,41 +173,6 @@ export class LoginComponent implements OnInit {
     this.email = email;
     this.password = password;
     this.onLogin();
-  }
-
-  /**
-   * Login simulado para Matías Maripangue hasta que se desplieguen los nuevos usuarios
-   */
-  loginRapidoMatias(): void {
-    if (this.isLoading) return;
-    
-    console.log('🎭 Simulando login de Matías Maripangue');
-    
-    // Crear usuario simulado de Matías
-    const matiasSimulado: Usuario = {
-      id: 999,
-      nombre: 'Matias',
-      apellido: 'Maripangue',
-      email: 'matias.maripangue@healthpredict.com',
-      password: 'matias123',
-      fechaNacimiento: new Date(1993, 6, 5),
-      genero: 'Masculino',
-      altura: 180,
-      peso: 82.0,
-      fechaRegistro: new Date(),
-      ultimoAcceso: new Date(),
-      esProfesionalMedico: false,
-      rol: 'Trabajador',
-      departamento: 'Desarrollo',
-      cargo: 'Desarrollador Backend',
-      jefeId: 1,
-      esActivo: true,
-      nombreCompleto: 'Matías Maripangue',
-      esJefe: false,
-      esTrabajador: true
-    };
-
-    this.handleSuccessfulLogin(matiasSimulado);
   }
 
   /**

@@ -1,0 +1,39 @@
+// Estilos para el dropdown del usuario
+.navbar {
+  .dropdown-menu {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .dropdown-item-text {
+    color: #6c757d;
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .dropdown-item {
+    color: #212529;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: #f8f9fa;
+      color: #495057;
+    }
+  }
+
+  .dropdown-divider {
+    margin: 0.5rem 0;
+  }
+}
+
+// Asegurar que el main tenga el espacio adecuado
+main {
+  min-height: calc(100vh - 200px);
+}
+
+// Estilos para el footer
+footer {
+  margin-top: auto;
+}

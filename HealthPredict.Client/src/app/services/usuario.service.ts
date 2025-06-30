@@ -98,7 +98,12 @@ export class UsuarioService {
    * Calcula el nombre completo de un usuario
    */
   getNombreCompleto(usuario: Usuario): string {
-    return `${usuario.nombre} ${usuario.apellido}`;
+    if (!usuario.nombre && !usuario.apellido) {
+      return '';
+    }
+    const nombre = usuario.nombre || '';
+    const apellido = usuario.apellido || '';
+    return `${nombre} ${apellido}`.trim();
   }
 
   /**

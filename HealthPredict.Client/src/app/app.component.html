@@ -1,4 +1,5 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<!-- Navbar solo visible cuando el usuario está autenticado -->
+<nav *ngIf="isAuthenticated" class="navbar navbar-expand-lg navbar-dark bg-primary">
   <div class="container">
     <a class="navbar-brand" routerLink="/">HealthPredict</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" 
@@ -20,7 +21,23 @@
           <a class="nav-link" routerLink="/reportes" routerLinkActive="active">Reportes</a>
         </li>
       </ul>
-  </div>
+      
+      <!-- Información del usuario y logout -->
+      <ul class="navbar-nav">
+        <li class="nav-item dropdown" *ngIf="currentUser">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
+             data-bs-toggle="dropdown" aria-expanded="false">
+            👋 {{ getNombreParaMostrar(currentUser) }}
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><span class="dropdown-item-text">📧 {{ currentUser.email }}</span></li>
+            <li><span class="dropdown-item-text">👔 {{ currentUser.rol }}</span></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" (click)="logout()">🚪 Cerrar Sesión</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
   </div>
 </nav>
 
@@ -28,8 +45,9 @@
   <router-outlet></router-outlet>
 </main>
 
-<footer class="bg-light p-3 mt-5">
+<!-- Footer solo visible cuando el usuario está autenticado -->
+<footer *ngIf="isAuthenticated" class="bg-light p-3 mt-5">
   <div class="container text-center">
     <p class="mb-0">© 2023 HealthPredict - Todos los derechos reservados</p>
   </div>
-  </footer>
+</footer>

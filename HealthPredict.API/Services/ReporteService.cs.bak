@@ -1,0 +1,536 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+using HealthPredict.DAL;
+using HealthPredict.Models;
+using Microsoft.EntityFrameworkCore;
+using DinkToPdf;
+using DinkToPdf.Contracts;
+using System.Linq;
+using System.Globalization;
+
+namespace HealthPredict.API.Services
+{
+    public class ReporteService
+    {
+        private readonly HealthPredictContext _context;
+        private readonly IConverter _converter;
+        private readonly bool _pdfServiceAvailable;
+
+        public ReporteService(HealthPredictContext context, IServiceProvider serviceProvider)
+        {
+            _context = context;
+            
+            // Intentar obtener el servicio IConverter (podría no estar disponible)
+            try
+            {
+                _converter = (IConverter)serviceProvider.GetService(typeof(IConverter));
+                _pdfServiceAvailable = _converter != null;
+            }
+            catch
+            {
+                _pdfServiceAvailable = false;
+            }
+        }
+
+        public async Task<byte[]> GenerarReporteDatosVitalesAsync(int usuarioId, string tipoDato = null)
+        {
+            if (!_pdfServiceAvailable)
+            {
+                throw new InvalidOperationException("El servicio de generación de PDF no está disponible. Por favor, asegúrese de que la librería libwkhtmltox.dll esté instalada correctamente.");
+            }
+
+            // Obtener el usuario
+            var usuario = await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.Id == usuarioId);
+
+            if (usuario == null)
+            {
+                throw new Exception("Usuario no encontrado");
+            }
+
+            // Obtener datos vitales
+            var query = _context.DatosVitales
+                .Where(d => d.UsuarioId == usuarioId);
+
+            if (!string.IsNullOrEmpty(tipoDato))
+            {
+                query = query.Where(d => d.TipoDato == tipoDato);
+            }
+
+            var datosVitales = await query.OrderByDescending(d => d.FechaRegistro).ToListAsync();
+            
+            if (!datosVitales.Any())
+            {
+                throw new Exception("No hay datos vitales para generar el reporte");
+            }
+
+            // Agrupar datos por tipo
+            var datosPorTipo = datosVitales
+                .GroupBy(d => d.TipoDato)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            // Generar HTML para el reporte
+            string html = GenerarHtmlReporte(usuario, datosPorTipo);
+
+            // Configurar documento PDF
+            var doc = new HtmlToPdfDocument()
+            {
+                GlobalSettings = {
+                    PaperSize = PaperKind.A4,
+                    Orientation = Orientation.Portrait,
+                    ColorMode = ColorMode.Color,
+                    Margins = new MarginSettings { Top = 20, Bottom = 20, Left = 20, Right = 20 }
+                },
+                Objects = {
+                    new ObjectSettings {
+                        HtmlContent = html,
+                        WebSettings = { DefaultEncoding = "utf-8" }
+                    }
+                }
+            };
+
+            // Convertir HTML a PDF
+            return _converter.Convert(doc);
+        }
+
+        private string GenerarHtmlReporte(Usuario usuario, Dictionary<string, List<DatoVital>> datosPorTipo)
+        {
+            var html = $@"
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='utf-8'>
+                <title>Reporte de Datos Vitales - HealthPredict</title>
+                <style>
+                    body {{ font-family: Arial, sans-serif; margin: 0; padding: 20px; color: #333; }}
+                    .header {{ text-align: center; margin-bottom: 30px; }}
+                    .logo {{ font-size: 24px; font-weight: bold; color: #4e73df; margin-bottom: 10px; }}
+                    .title {{ font-size: 20px; margin-bottom: 5px; }}
+                    .subtitle {{ font-size: 16px; color: #666; margin-bottom: 20px; }}
+                    .user-info {{ margin-bottom: 30px; border: 1px solid #ddd; padding: 15px; border-radius: 5px; }}
+                    .user-info h3 {{ margin-top: 0; color: #4e73df; }}
+                    .section {{ margin-bottom: 30px; }}
+                    .section h3 {{ color: #4e73df; border-bottom: 1px solid #eee; padding-bottom: 5px; }}
+                    table {{ width: 100%; border-collapse: collapse; margin-bottom: 20px; }}
+                    th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+                    th {{ background-color: #f8f9fc; }}
+                    .stat-box {{ display: inline-block; width: 22%; margin-right: 2%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 15px; }}
+                    .stat-label {{ font-size: 12px; color: #666; }}
+                    .stat-value {{ font-size: 18px; font-weight: bold; color: #4e73df; }}
+                    .footer {{ text-align: center; margin-top: 40px; font-size: 12px; color: #666; }}
+                    .page-break {{ page-break-after: always; }}
+                </style>
+            </head>
+            <body>
+                <div class='header'>
+                    <div class='logo'>HealthPredict</div>
+                    <div class='title'>Reporte de Datos Vitales</div>
+                    <div class='subtitle'>Generado el {DateTime.Now.ToString("dd/MM/yyyy HH:mm")}</div>
+                </div>
+
+                <div class='user-info'>
+                    <h3>Información del Paciente</h3>
+                    <table>
+                        <tr>
+                            <th>Nombre Completo</th>
+                            <td>{usuario.Nombre} {usuario.Apellido}</td>
+                            <th>Fecha de Nacimiento</th>
+                            <td>{usuario.FechaNacimiento.ToString("dd/MM/yyyy")}</td>
+                        </tr>
+                        <tr>
+                            <th>Género</th>
+                            <td>{usuario.Genero}</td>
+                            <th>Edad</th>
+                            <td>{CalcularEdad(usuario.FechaNacimiento)} años</td>
+                        </tr>
+                        <tr>
+                            <th>Altura</th>
+                            <td>{usuario.Altura} m</td>
+                            <th>Peso</th>
+                            <td>{usuario.Peso} kg</td>
+                        </tr>
+                    </table>
+                </div>";
+
+            // Agregar secciones para cada tipo de dato vital
+            foreach (var tipo in datosPorTipo.Keys)
+            {
+                var datos = datosPorTipo[tipo];
+                var ultimoDato = datos.OrderByDescending(d => d.FechaRegistro).First();
+                var promedio = datos.Average(d => d.Valor);
+                var minimo = datos.Min(d => d.Valor);
+                var maximo = datos.Max(d => d.Valor);
+
+                html += $@"
+                <div class='section'>
+                    <h3>{tipo}</h3>
+                    
+                    <div>
+                        <div class='stat-box'>
+                            <div class='stat-label'>Último Valor</div>
+                            <div class='stat-value'>{ultimoDato.Valor.ToString("0.0")} {ultimoDato.Unidad}</div>
+                            <div class='stat-label'>{ultimoDato.FechaRegistro.ToString("dd/MM/yyyy HH:mm")}</div>
+                        </div>
+                        <div class='stat-box'>
+                            <div class='stat-label'>Promedio</div>
+                            <div class='stat-value'>{promedio.ToString("0.0")} {ultimoDato.Unidad}</div>
+                        </div>
+                        <div class='stat-box'>
+                            <div class='stat-label'>Mínimo</div>
+                            <div class='stat-value'>{minimo.ToString("0.0")} {ultimoDato.Unidad}</div>
+                        </div>
+                        <div class='stat-box'>
+                            <div class='stat-label'>Máximo</div>
+                            <div class='stat-value'>{maximo.ToString("0.0")} {ultimoDato.Unidad}</div>
+                        </div>
+                    </div>
+                    
+                    <h4>Últimas 10 Mediciones</h4>
+                    <table>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Valor</th>
+                            <th>Dispositivo</th>
+                            <th>Notas</th>
+                        </tr>";
+
+                // Agregar filas para las últimas 10 mediciones
+                foreach (var dato in datos.OrderByDescending(d => d.FechaRegistro).Take(10))
+                {
+                    html += $@"
+                        <tr>
+                            <td>{dato.FechaRegistro.ToString("dd/MM/yyyy HH:mm")}</td>
+                            <td>{dato.Valor.ToString("0.0")} {dato.Unidad}</td>
+                            <td>{dato.DispositivoOrigen ?? "No especificado"}</td>
+                            <td>{dato.Notas ?? ""}</td>
+                        </tr>";
+                }
+
+                html += @"
+                    </table>
+                </div>";
+            }
+
+            // Agregar pie de página
+            html += $@"
+                <div class='footer'>
+                    <p>Este reporte fue generado automáticamente por HealthPredict. La información contenida es confidencial y está destinada únicamente para uso médico.</p>
+                    <p>© {DateTime.Now.Year} HealthPredict - Todos los derechos reservados</p>
+                </div>
+            </body>
+            </html>";
+
+            return html;
+        }
+
+        private int CalcularEdad(DateTime fechaNacimiento)
+        {
+            var hoy = DateTime.Today;
+            var edad = hoy.Year - fechaNacimiento.Year;
+            if (fechaNacimiento.Date > hoy.AddYears(-edad)) edad--;
+            return edad;
+        }
+        }
+
+        // Métodos adicionales para los nuevos endpoints
+        public async Task<object> GetDatosVitalesJsonAsync(int usuarioId, string tipoDato = null)
+        {
+            var usuario = await _context.Usuarios.FindAsync(usuarioId);
+            if (usuario == null)
+            {
+                throw new ArgumentException("Usuario no encontrado");
+            }
+
+            var query = _context.DatosVitales.Where(d => d.UsuarioId == usuarioId);
+            
+            if (!string.IsNullOrEmpty(tipoDato))
+            {
+                query = query.Where(d => d.TipoDato == tipoDato);
+            }
+
+            var datos = await query
+                .OrderByDescending(d => d.FechaRegistro)
+                .Take(100) // Limitar a últimos 100 registros
+                .Select(d => new
+                {
+                    id = d.Id,
+                    tipoDato = d.TipoDato,
+                    valor = d.Valor,
+                    unidad = d.Unidad,
+                    fechaRegistro = d.FechaRegistro,
+                    dispositivoOrigen = d.DispositivoOrigen,
+                    notas = d.Notas
+                })
+                .ToListAsync();
+
+            return new
+            {
+                usuario = new
+                {
+                    id = usuario.Id,
+                    nombre = usuario.Nombre + " " + usuario.Apellido,
+                    cargo = usuario.Cargo,
+                    departamento = usuario.Departamento
+                },
+                filtros = new
+                {
+                    tipoDato = tipoDato ?? "Todos",
+                    totalRegistros = datos.Count
+                },
+                datos,
+                fechaGeneracion = DateTime.Now
+            };
+        }
+
+        public async Task<object> GetReporteAlertasAsync(int usuarioId)
+        {
+            var usuario = await _context.Usuarios.FindAsync(usuarioId);
+            if (usuario == null)
+            {
+                throw new ArgumentException("Usuario no encontrado");
+            }
+
+            var alertas = await _context.Alertas
+                .Where(a => a.UsuarioId == usuarioId)
+                .OrderByDescending(a => a.FechaCreacion)
+                .Select(a => new
+                {
+                    id = a.Id,
+                    tipoAlerta = a.TipoAlerta,
+                    severidad = a.Severidad,
+                    descripcion = a.Descripcion,
+                    fechaCreacion = a.FechaCreacion,
+                    leida = a.Leida,
+                    fechaLectura = a.FechaLectura,
+                    resuelta = a.Resuelta,
+                    fechaResolucion = a.FechaResolucion,
+                    notasResolucion = a.NotasResolucion
+                })
+                .ToListAsync();
+
+            var resumen = new
+            {
+                totalAlertas = alertas.Count,
+                alertasActivas = alertas.Count(a => !a.resuelta),
+                alertasCriticas = alertas.Count(a => a.severidad == "Crítica"),
+                alertasAltas = alertas.Count(a => a.severidad == "Alta"),
+                alertasMedias = alertas.Count(a => a.severidad == "Media"),
+                alertasBajas = alertas.Count(a => a.severidad == "Baja"),
+                porcentajeResolucion = alertas.Count > 0 ? 
+                    Math.Round((double)alertas.Count(a => a.resuelta) / alertas.Count * 100, 1) : 0
+            };
+
+            return new
+            {
+                usuario = new
+                {
+                    id = usuario.Id,
+                    nombre = usuario.Nombre + " " + usuario.Apellido,
+                    cargo = usuario.Cargo,
+                    departamento = usuario.Departamento
+                },
+                resumen,
+                alertas,
+                fechaGeneracion = DateTime.Now
+            };
+        }
+
+        public async Task<object> GetReporteSupervisorAsync(int jefeId)
+        {
+            var jefe = await _context.Usuarios.FindAsync(jefeId);
+            if (jefe == null || jefe.Rol != "Jefe")
+            {
+                throw new ArgumentException("Supervisor no encontrado");
+            }
+
+            var subordinados = await _context.Usuarios
+                .Where(u => u.JefeId == jefeId && u.EsActivo)
+                .ToListAsync();
+
+            var subordinadosIds = subordinados.Select(s => s.Id).ToList();
+
+            // Alertas de subordinados
+            var alertasSubordinados = await _context.Alertas
+                .Where(a => subordinadosIds.Contains(a.UsuarioId))
+                .Include(a => a.Usuario)
+                .OrderByDescending(a => a.FechaCreacion)
+                .Take(50)
+                .Select(a => new
+                {
+                    id = a.Id,
+                    usuario = a.Usuario.Nombre + " " + a.Usuario.Apellido,
+                    tipoAlerta = a.TipoAlerta,
+                    severidad = a.Severidad,
+                    descripcion = a.Descripcion,
+                    fechaCreacion = a.FechaCreacion,
+                    resuelta = a.Resuelta
+                })
+                .ToListAsync();
+
+            // Resumen por subordinado
+            var resumenSubordinados = new List<object>();
+            foreach (var subordinado in subordinados)
+            {
+                var alertasEmpleado = await _context.Alertas
+                    .Where(a => a.UsuarioId == subordinado.Id)
+                    .CountAsync();
+
+                var alertasActivas = await _context.Alertas
+                    .Where(a => a.UsuarioId == subordinado.Id && !a.Resuelta)
+                    .CountAsync();
+
+                resumenSubordinados.Add(new
+                {
+                    id = subordinado.Id,
+                    nombre = subordinado.Nombre + " " + subordinado.Apellido,
+                    cargo = subordinado.Cargo,
+                    totalAlertas = alertasEmpleado,
+                    alertasActivas,
+                    ultimoAcceso = subordinado.UltimoAcceso
+                });
+            }
+
+            return new
+            {
+                supervisor = new
+                {
+                    id = jefe.Id,
+                    nombre = jefe.Nombre + " " + jefe.Apellido,
+                    departamento = jefe.Departamento
+                },
+                resumen = new
+                {
+                    totalSubordinados = subordinados.Count,
+                    totalAlertas = alertasSubordinados.Count,
+                    alertasActivas = alertasSubordinados.Count(a => !a.resuelta),
+                    alertasCriticas = alertasSubordinados.Count(a => a.severidad == "Crítica")
+                },
+                subordinados = resumenSubordinados,
+                alertasRecientes = alertasSubordinados,
+                fechaGeneracion = DateTime.Now
+            };
+        }
+
+        public async Task<object> GetReporteDepartamentoAsync(string departamento)
+        {
+            var usuariosDepartamento = await _context.Usuarios
+                .Where(u => u.Departamento == departamento && u.EsActivo)
+                .ToListAsync();
+
+            if (!usuariosDepartamento.Any())
+            {
+                throw new ArgumentException($"No se encontraron usuarios en el departamento {departamento}");
+            }
+
+            var usuariosIds = usuariosDepartamento.Select(u => u.Id).ToList();
+
+            var alertasDepartamento = await _context.Alertas
+                .Where(a => usuariosIds.Contains(a.UsuarioId))
+                .ToListAsync();
+
+            var datosDepartamento = await _context.DatosVitales
+                .Where(d => usuariosIds.Contains(d.UsuarioId))
+                .Where(d => d.FechaRegistro >= DateTime.Now.AddDays(-30))
+                .ToListAsync();
+
+            return new
+            {
+                departamento,
+                resumen = new
+                {
+                    totalEmpleados = usuariosDepartamento.Count,
+                    empleadosActivos = usuariosDepartamento.Count(u => u.EsActivo),
+                    totalAlertas = alertasDepartamento.Count,
+                    alertasActivas = alertasDepartamento.Count(a => !a.Resuelta),
+                    totalDatosVitales = datosDepartamento.Count
+                },
+                empleados = usuariosDepartamento.Select(u => new
+                {
+                    id = u.Id,
+                    nombre = u.Nombre + " " + u.Apellido,
+                    cargo = u.Cargo,
+                    alertas = alertasDepartamento.Count(a => a.UsuarioId == u.Id),
+                    ultimoAcceso = u.UltimoAcceso
+                }),
+                alertasPorSeveridad = alertasDepartamento
+                    .GroupBy(a => a.Severidad)
+                    .Select(g => new { severidad = g.Key, cantidad = g.Count() }),
+                fechaGeneracion = DateTime.Now
+            };
+        }
+
+        public async Task<object> GetResumenEjecutivoAsync()
+        {
+            var totalUsuarios = await _context.Usuarios.CountAsync();
+            var usuariosActivos = await _context.Usuarios.CountAsync(u => u.EsActivo);
+            var totalAlertas = await _context.Alertas.CountAsync();
+            var alertasActivas = await _context.Alertas.CountAsync(a => !a.Resuelta);
+            var totalDatosVitales = await _context.DatosVitales.CountAsync();
+
+            // Estadísticas por departamento
+            var estatsPorDepartamento = await _context.Usuarios
+                .Where(u => u.EsActivo)
+                .GroupBy(u => u.Departamento)
+                .Select(g => new
+                {
+                    departamento = g.Key,
+                    empleados = g.Count(),
+                    alertas = _context.Alertas.Count(a => g.Select(u => u.Id).Contains(a.UsuarioId))
+                })
+                .ToListAsync();
+
+            // Tipos de alertas más comunes
+            var tiposAlertasComunes = await _context.Alertas
+                .GroupBy(a => a.TipoAlerta)
+                .Select(g => new
+                {
+                    tipoAlerta = g.Key,
+                    cantidad = g.Count(),
+                    porcentaje = Math.Round((double)g.Count() / totalAlertas * 100, 1)
+                })
+                .OrderByDescending(x => x.cantidad)
+                .Take(10)
+                .ToListAsync();
+
+            // Tendencia de los últimos 30 días
+            var hace30Dias = DateTime.Now.AddDays(-30);
+            var tendenciaAlertas = await _context.Alertas
+                .Where(a => a.FechaCreacion >= hace30Dias)
+                .GroupBy(a => a.FechaCreacion.Date)
+                .Select(g => new
+                {
+                    fecha = g.Key,
+                    cantidad = g.Count()
+                })
+                .OrderBy(x => x.fecha)
+                .ToListAsync();
+
+            return new
+            {
+                resumenGeneral = new
+                {
+                    totalUsuarios,
+                    usuariosActivos,
+                    totalAlertas,
+                    alertasActivas,
+                    totalDatosVitales,
+                    porcentajeAlertasResueltas = totalAlertas > 0 ? 
+                        Math.Round((double)(totalAlertas - alertasActivas) / totalAlertas * 100, 1) : 0
+                },
+                estatsPorDepartamento,
+                tiposAlertasComunes,
+                tendenciaAlertas,
+                indicadoresClave = new
+                {
+                    promedioAlertasPorUsuario = usuariosActivos > 0 ? 
+                        Math.Round((double)totalAlertas / usuariosActivos, 1) : 0,
+                    porcentajeUsuariosConAlertas = usuariosActivos > 0 ? 
+                        Math.Round((double)_context.Alertas.Select(a => a.UsuarioId).Distinct().Count() / usuariosActivos * 100, 1) : 0
+                },
+                fechaGeneracion = DateTime.Now
+            };
+        }
+    }
+}
