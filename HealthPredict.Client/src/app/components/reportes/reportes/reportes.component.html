@@ -11,9 +11,17 @@
                         Puedes seleccionar un tipo específico de dato vital o generar un reporte completo.
                     </p>
 
-                    <!-- Alerta de error -->
-                    <div *ngIf="showError" class="alert alert-danger mb-4">
-                        <i class="fa fa-exclamation-circle mr-2"></i> {{ errorMessage }}
+                    <!-- Alerta de error/información -->
+                    <div *ngIf="showError" class="mb-4"
+                         [class.alert-danger]="!errorMessage.includes('✅')"
+                         [class.alert-success]="errorMessage.includes('✅')"
+                         [class.alert-warning]="errorMessage.includes('alternativo')"
+                         class="alert">
+                        <i class="fa mr-2"
+                           [class.fa-exclamation-circle]="!errorMessage.includes('✅')"
+                           [class.fa-check-circle]="errorMessage.includes('✅')"
+                           [class.fa-info-circle]="errorMessage.includes('alternativo')"></i> 
+                        {{ errorMessage }}
                     </div>
 
                     <form [formGroup]="reporteForm" (ngSubmit)="generarReporte()">
@@ -56,10 +64,11 @@
                             <h5 class="text-primary">Información del Paciente</h5>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <p><strong>ID:</strong> {{ usuarioId }}</p>
-                                    <p><strong>Nombre:</strong> Usuario de prueba</p>
+                                    <p><strong>ID:</strong> {{ usuarioActual?.id || 'N/A' }}</p>
+                                    <p><strong>Nombre:</strong> {{ usuarioActual?.nombreCompleto || 'Usuario' }}</p>
                                 </div>
                                 <div class="col-md-6">
+                                    <p><strong>Email:</strong> {{ usuarioActual?.email || 'N/A' }}</p>
                                     <p><strong>Fecha:</strong> {{ today | date: 'dd/MM/yyyy' }}</p>
                                 </div>
                             </div>
@@ -81,7 +90,8 @@
 
                         <div class="alert alert-info">
                             <i class="fa fa-info-circle mr-2"></i>
-                            El reporte PDF generado incluirá gráficos detallados, historial completo y análisis estadístico de tus datos vitales.
+                            El reporte generado incluirá gráficos detallados, historial completo y análisis estadístico de tus datos vitales.
+                            <br><small><strong>Nota:</strong> Si el servicio PDF no está disponible, se generará automáticamente un reporte en formato HTML.</small>
                         </div>
                     </div>
                 </div>

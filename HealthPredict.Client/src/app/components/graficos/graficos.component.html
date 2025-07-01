@@ -40,10 +40,17 @@
         </div>
         <div class="card-body">
           <app-linea-temporal 
-            [usuarioId]="usuarioId" 
+            [usuarioId]="usuarioActual?.id || 0" 
             [tipoDato]="tipoSeleccionado"
-            *ngIf="tipoSeleccionado">
+            *ngIf="tipoSeleccionado && usuarioActual?.id">
           </app-linea-temporal>
+          
+          <!-- Mostrar mensaje cuando hay datos simulados -->
+          <div *ngIf="tipoSeleccionado && !usuarioActual?.id" class="text-center text-muted p-4">
+            <i class="fas fa-chart-line fa-3x mb-3"></i>
+            <h5>Datos temporalmente no disponibles</h5>
+            <p>Los gráficos detallados se mostrarán una vez que se restablezca la conexión con el servidor.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -58,6 +65,27 @@
             [datos]="resumenDatos[tipoSeleccionado]"
             *ngIf="tipoSeleccionado && resumenDatos[tipoSeleccionado]">
           </app-resumen-estadisticas>
+          
+          <!-- Mostrar datos simulados cuando no hay datos específicos -->
+          <div *ngIf="tipoSeleccionado && resumenDatos?.promedios && !resumenDatos[tipoSeleccionado]" class="text-center">
+            <h5 class="mb-3">📊 {{ tipoSeleccionado }}</h5>
+            <div class="mb-3">
+              <strong>Valor Promedio:</strong><br>
+              <span class="badge bg-primary fs-6">{{ resumenDatos.promedios[tipoSeleccionado] }}</span>
+            </div>
+            <div class="mb-3">
+              <strong>Tendencia:</strong><br>
+              <span class="badge" 
+                    [class.bg-success]="resumenDatos.tendencias[tipoSeleccionado] === 'Excelente' || resumenDatos.tendencias[tipoSeleccionado] === 'Mejorando' || resumenDatos.tendencias[tipoSeleccionado] === 'Bueno'"
+                    [class.bg-warning]="resumenDatos.tendencias[tipoSeleccionado] === 'Atención' || resumenDatos.tendencias[tipoSeleccionado] === 'Estable'"
+                    [class.bg-info]="resumenDatos.tendencias[tipoSeleccionado] === 'Normal'">
+                {{ resumenDatos.tendencias[tipoSeleccionado] }}
+              </span>
+            </div>
+            <small class="text-muted">
+              Total de registros: {{ resumenDatos.totalRegistros }}
+            </small>
+          </div>
         </div>
       </div>
 
@@ -67,10 +95,17 @@
         </div>
         <div class="card-body">
           <app-comparativa-mensual
-            [usuarioId]="usuarioId"
+            [usuarioId]="usuarioActual?.id || 0"
             [tipoDato]="tipoSeleccionado"
-            *ngIf="tipoSeleccionado">
+            *ngIf="tipoSeleccionado && usuarioActual?.id">
           </app-comparativa-mensual>
+          
+          <!-- Mostrar mensaje cuando hay datos simulados -->
+          <div *ngIf="tipoSeleccionado && !usuarioActual?.id" class="text-center text-muted p-4">
+            <i class="fas fa-chart-bar fa-2x mb-3"></i>
+            <h6>Comparativa no disponible</h6>
+            <small>Se mostrará cuando se restablezca la conexión.</small>
+          </div>
         </div>
       </div>
     </div>

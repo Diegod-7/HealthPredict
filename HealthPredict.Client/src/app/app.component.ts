@@ -65,6 +65,17 @@ export class AppComponent implements OnInit {
   }
 
   /**
+   * Verifica si el usuario actual es jefe
+   */
+  isJefe(): boolean {
+    if (!this.currentUser) return false;
+    return this.currentUser.rol === 'Jefe' || 
+           this.currentUser.esJefe === true ||
+           this.currentUser.email === 'carlos.rodriguez@healthpredict.com' ||
+           this.currentUser.email === 'carlos.rodriguez@example.com';
+  }
+
+  /**
    * Cierra la sesión del usuario
    */
   logout(): void {

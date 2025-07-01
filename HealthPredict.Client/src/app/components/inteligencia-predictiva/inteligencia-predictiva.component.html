@@ -1,0 +1,361 @@
+<div class="inteligencia-predictiva-container">
+  <div class="header">
+    <h2>🤖 Inteligencia Predictiva - HealthPredict IA</h2>
+    <p class="subtitle">Análisis avanzado con algoritmos de inteligencia artificial</p>
+    <div *ngIf="usuarioActual" class="usuario-info">
+      <p><strong>👤 Usuario:</strong> {{usuarioActual.nombreCompleto}}</p>
+      <p><strong>📧 Email:</strong> {{usuarioActual.email}}</p>
+    </div>
+  </div>
+
+  <div *ngIf="cargando" class="loading">
+    <div class="spinner"></div>
+    <p>🤖 Analizando datos con IA...</p>
+  </div>
+
+  <div *ngIf="datosIA && !cargando" class="contenido-ia">
+    
+    <!-- Resumen Ejecutivo de IA -->
+    <div class="resumen-ejecutivo">
+      <h3>📊 Resumen Ejecutivo - Inteligencia Artificial</h3>
+      <div class="resumen-grid">
+        <div class="metric-card estado-general">
+          <div class="metric-icon">🎯</div>
+          <div class="metric-content">
+            <h4>Estado General</h4>
+            <p class="estado-valor">{{datosIA.resumenIA.estadoGeneral}}</p>
+          </div>
+        </div>
+        
+        <div class="metric-card score-salud">
+          <div class="metric-icon">💚</div>
+          <div class="metric-content">
+            <h4>Score General de Salud</h4>
+            <p class="score-valor">{{datosIA.resumenIA.scoreGeneralSalud}}%</p>
+            <div class="score-bar">
+              <div class="score-fill" [style.width.%]="datosIA.resumenIA.scoreGeneralSalud"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="metric-card burnout-risk">
+          <div class="metric-icon">🔥</div>
+          <div class="metric-content">
+            <h4>Riesgo de Burnout</h4>
+            <p class="risk-level">{{datosIA.resumenIA.riesgosBurnout}}</p>
+            <p class="probability">{{datosIA.resumenIA.probabilidadBurnout}}% de probabilidad</p>
+          </div>
+        </div>
+        
+        <div class="metric-card confianza-ia">
+          <div class="metric-icon">🧠</div>
+          <div class="metric-content">
+            <h4>Confianza de IA</h4>
+            <p class="confianza-valor">{{datosIA.resumenIA.confianzaIA}}%</p>
+            <small>{{datosIA.metadata.procesamiento}}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Análisis de Patrones de Comportamiento -->
+    <div class="patrones-section">
+      <h3>🔍 Análisis de Patrones de Comportamiento</h3>
+      <div class="patrones-grid">
+        
+        <!-- Patrón de Sueño -->
+        <div class="patron-card sueno">
+          <div class="patron-header">
+            <h4>😴 Patrón de Sueño</h4>
+          </div>
+          <div class="patron-content">
+                         <div class="patron-metric">
+               <strong>Promedio de Horas:</strong> {{datosIA.patronesComportamiento['sueño'].promedioHoras}}h
+             </div>
+             <div class="patron-metric">
+               <strong>Calidad:</strong> <span class="calidad-badge">{{datosIA.patronesComportamiento['sueño'].calidad}}</span>
+             </div>
+             <div class="patron-metric">
+               <strong>Tendencia:</strong> <span class="tendencia">{{datosIA.patronesComportamiento['sueño'].tendencia}}</span>
+             </div>
+             <div class="patron-metric">
+               <strong>Consistencia:</strong> {{datosIA.patronesComportamiento['sueño'].consistencia}}
+             </div>
+          </div>
+        </div>
+
+        <!-- Patrón de Actividad -->
+        <div class="patron-card actividad">
+          <div class="patron-header">
+            <h4>🏃‍♂️ Actividad Física</h4>
+          </div>
+          <div class="patron-content">
+            <div class="patron-metric">
+              <strong>Promedio de Pasos:</strong> {{datosIA.patronesComportamiento.actividad.promedioPasos | number}} pasos
+            </div>
+            <div class="patron-metric">
+              <strong>Nivel:</strong> <span class="nivel-badge">{{datosIA.patronesComportamiento.actividad.nivel}}</span>
+            </div>
+            <div class="patron-metric">
+              <strong>Tendencia:</strong> <span class="tendencia">{{datosIA.patronesComportamiento.actividad.tendencia}}</span>
+            </div>
+            <div class="patron-metric">
+              <strong>Días Activos:</strong> {{datosIA.patronesComportamiento.actividad.diasActivos}} días
+            </div>
+          </div>
+        </div>
+
+        <!-- Patrón de Estrés -->
+        <div class="patron-card estres">
+          <div class="patron-header">
+            <h4>😰 Nivel de Estrés</h4>
+          </div>
+          <div class="patron-content">
+            <div class="patron-metric">
+              <strong>Promedio:</strong> {{datosIA.patronesComportamiento.estres.promedioNivel}}/10
+            </div>
+            <div class="patron-metric">
+              <strong>Nivel:</strong> <span class="estres-badge">{{datosIA.patronesComportamiento.estres.nivel}}</span>
+            </div>
+            <div class="patron-metric">
+              <strong>Tendencia:</strong> <span class="tendencia">{{datosIA.patronesComportamiento.estres.tendencia}}</span>
+            </div>
+            <div class="patron-metric">
+              <strong>Picos de Estrés:</strong> {{datosIA.patronesComportamiento.estres.picosEstres}}
+            </div>
+          </div>
+        </div>
+
+        <!-- Patrón Vital -->
+        <div class="patron-card vital">
+          <div class="patron-header">
+            <h4>💓 Signos Vitales</h4>
+          </div>
+          <div class="patron-content">
+            <div class="patron-metric">
+              <strong>Estado General:</strong> <span class="vital-badge">{{datosIA.patronesComportamiento.vital.estadoGeneral}}</span>
+            </div>
+            <div class="patron-metric">
+              <strong>Tendencia:</strong> <span class="tendencia">{{datosIA.patronesComportamiento.vital.tendenciaVital}}</span>
+            </div>
+            <div *ngIf="datosIA.patronesComportamiento.vital.indicadoresPreocupantes.length > 0" class="patron-metric">
+              <strong>Indicadores Preocupantes:</strong>
+              <ul>
+                <li *ngFor="let indicador of datosIA.patronesComportamiento.vital.indicadoresPreocupantes">{{indicador}}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Predicción de Burnout -->
+    <div class="burnout-section">
+      <h3>🔥 Predicción de Burnout</h3>
+      <div class="burnout-content">
+        <div class="burnout-main">
+          <div class="probability-circle">
+            <div class="circle-progress" [style.--progress]="datosIA.prediccionBurnout.probabilidad + '%'">
+              <span class="percentage">{{datosIA.prediccionBurnout.probabilidad}}%</span>
+            </div>
+            <p class="risk-level">{{datosIA.prediccionBurnout.nivelRiesgo}}</p>
+          </div>
+          
+          <div class="burnout-details">
+            <div class="detail-section">
+              <h5>📈 Predicciones Temporales</h5>
+              <div class="predicciones-grid">
+                <div *ngFor="let prediccion of datosIA.prediccionesTemporales" class="prediccion-card">
+                  <h6>{{prediccion.periodo}}</h6>
+                  <p class="prediccion-texto">{{prediccion.prediccion}}</p>
+                  <p class="probabilidad">Riesgo: {{prediccion.probabilidadBurnout}}</p>
+                  <p class="confianza">Confianza: {{prediccion.confianza}}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div *ngIf="datosIA.prediccionBurnout.factoresPrincipales.length > 0" class="detail-section">
+              <h5>⚠️ Factores Principales</h5>
+              <ul class="factores-list">
+                <li *ngFor="let factor of datosIA.prediccionBurnout.factoresPrincipales">{{factor}}</li>
+              </ul>
+            </div>
+            
+            <div *ngIf="datosIA.prediccionBurnout.recomendacionesPrevencion.length > 0" class="detail-section">
+              <h5>💡 Recomendaciones de Prevención</h5>
+              <ul class="recomendaciones-list">
+                <li *ngFor="let recomendacion of datosIA.prediccionBurnout.recomendacionesPrevencion">{{recomendacion}}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detección Temprana -->
+    <div class="deteccion-section">
+      <h3>🏥 Detección Temprana de Enfermedades</h3>
+      <div class="deteccion-content">
+        <div class="deteccion-header">
+          <div class="score-riesgo">
+            <h4>Score de Riesgo General</h4>
+            <div class="score-display">{{datosIA.deteccionTemprana.scoreRiesgoGeneral}}/100</div>
+          </div>
+          <div class="seguimiento-info">
+            <p><strong>Seguimiento:</strong> {{datosIA.deteccionTemprana.seguimientoRequerido}}</p>
+            <p><strong>Próxima Evaluación:</strong> {{datosIA.deteccionTemprana.proximaEvaluacion | date:'medium'}}</p>
+          </div>
+        </div>
+        
+        <div *ngIf="datosIA.deteccionTemprana.riesgosDetectados.length > 0" class="riesgos-detectados">
+          <h5>⚠️ Riesgos Detectados</h5>
+          <div class="riesgos-grid">
+            <div *ngFor="let riesgo of datosIA.deteccionTemprana.riesgosDetectados" class="riesgo-card">
+              <div class="riesgo-header">
+                <h6>{{riesgo.tipoRiesgo}}</h6>
+                <span class="nivel-riesgo" [ngClass]="'nivel-' + riesgo.nivelRiesgo.toLowerCase()">{{riesgo.nivelRiesgo}}</span>
+              </div>
+              <p class="riesgo-descripcion">{{riesgo.descripcion}}</p>
+              <p class="probabilidad-riesgo">Probabilidad: {{riesgo.probabilidad}}%</p>
+              
+              <div *ngIf="riesgo.factoresContribuyentes.length > 0" class="factores-contribuyentes">
+                <strong>Factores contribuyentes:</strong>
+                <ul>
+                  <li *ngFor="let factor of riesgo.factoresContribuyentes">{{factor}}</li>
+                </ul>
+              </div>
+              
+              <div *ngIf="riesgo.recomendacionesInmediatas.length > 0" class="recomendaciones-inmediatas">
+                <strong>Recomendaciones inmediatas:</strong>
+                <ul>
+                  <li *ngFor="let recomendacion of riesgo.recomendacionesInmediatas">{{recomendacion}}</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div *ngIf="datosIA.deteccionTemprana.riesgosDetectados.length === 0" class="sin-riesgos">
+          <div class="success-message">
+            <span class="icon">✅</span>
+            <h4>¡Excelente!</h4>
+            <p>No se detectaron riesgos significativos en este momento.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recomendaciones Personalizadas -->
+    <div class="recomendaciones-section">
+      <h3>💡 Recomendaciones Personalizadas</h3>
+      <div class="recomendaciones-content">
+        <div class="recomendaciones-header">
+          <p><strong>Score de Personalización:</strong> {{datosIA.recomendacionesPersonalizadas.scorePersonalizacion}}%</p>
+          <p><strong>Válido hasta:</strong> {{datosIA.recomendacionesPersonalizadas.validoHasta | date:'medium'}}</p>
+        </div>
+        
+        <div class="recomendaciones-grid">
+          <div *ngFor="let rec of datosIA.recomendacionesPersonalizadas.recomendaciones" class="recomendacion-card">
+            <div class="rec-header">
+              <h5>{{rec.titulo}}</h5>
+              <span class="prioridad" [ngClass]="'prioridad-' + rec.prioridad">{{rec.categoria}}</span>
+            </div>
+            <p class="rec-descripcion">{{rec.descripcion}}</p>
+            <p class="tipo-accion"><strong>Tipo:</strong> {{rec.tipoAccion}}</p>
+            
+            <div *ngIf="rec.pasosEspecificos.length > 0" class="pasos-especificos">
+              <strong>Pasos específicos:</strong>
+              <ol>
+                <li *ngFor="let paso of rec.pasosEspecificos">{{paso}}</li>
+              </ol>
+            </div>
+            
+            <div class="justificacion">
+              <small><strong>Justificación:</strong> {{rec.justificacion}}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alertas Preventivas -->
+    <div *ngIf="datosIA.alertasPreventivas.length > 0" class="alertas-section">
+      <h3>🚨 Alertas Preventivas Automáticas</h3>
+      <div class="alertas-content">
+        <div *ngFor="let alerta of datosIA.alertasPreventivas" class="alerta-card" [ngClass]="'urgencia-' + alerta.urgencia">
+          <div class="alerta-header">
+            <h5>{{alerta.tipo}}</h5>
+            <span class="urgencia-badge">Urgencia: {{alerta.urgencia}}/10</span>
+          </div>
+          <p class="alerta-mensaje">{{alerta.mensaje}}</p>
+          <p class="accion-automatica"><strong>Acción automática:</strong> {{alerta.accionAutomatica}}</p>
+          <p class="recomendacion-inmediata"><strong>Recomendación:</strong> {{alerta.recomendacionInmediata}}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Insights de IA -->
+    <div *ngIf="datosIA.insightsIA.length > 0" class="insights-section">
+      <h3>🧠 Insights de Inteligencia Artificial</h3>
+      <div class="insights-content">
+        <div *ngFor="let insight of datosIA.insightsIA" class="insight-card">
+          <p>{{insight}}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Correlaciones de IA -->
+    <div *ngIf="datosIA.correlacionesIA.length > 0" class="correlaciones-section">
+      <h3>🔗 Correlaciones Detectadas por IA</h3>
+      <div class="correlaciones-content">
+        <div *ngFor="let correlacion of datosIA.correlacionesIA" class="correlacion-card">
+          <h5>{{correlacion.tipo}}</h5>
+          <p class="correlacion-descripcion">{{correlacion.descripcion}}</p>
+          <div class="correlacion-stats">
+            <span class="impacto">Impacto: {{correlacion.impacto}}</span>
+            <span class="probabilidad">Probabilidad: {{correlacion.probabilidad}}%</span>
+          </div>
+          <p class="prediccion-correlacion">{{correlacion.prediccion}}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metadata del Sistema -->
+    <div class="metadata-section">
+      <h3>⚙️ Información del Sistema IA</h3>
+      <div class="metadata-content">
+        <div class="metadata-grid">
+          <div class="metadata-item">
+            <strong>Versión:</strong> {{datosIA.metadata.version}}
+          </div>
+          <div class="metadata-item">
+            <strong>Confiabilidad:</strong> {{datosIA.metadata.confiabilidad}}
+          </div>
+          <div class="metadata-item">
+            <strong>Procesamiento:</strong> {{datosIA.metadata.procesamiento}}
+          </div>
+          <div class="metadata-item">
+            <strong>Fecha Análisis:</strong> {{datosIA.fechaAnalisis | date:'medium'}}
+          </div>
+        </div>
+        
+        <div class="algoritmos-utilizados">
+          <h5>🔬 Algoritmos Utilizados</h5>
+          <ul>
+            <li *ngFor="let algoritmo of datosIA.metadata.algoritmos">{{algoritmo}}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Botón de Actualización -->
+  <div class="acciones">
+    <button class="btn-ia" (click)="cargarInteligenciaPredictiva()" [disabled]="cargando">
+      <span *ngIf="!cargando">🔄 Actualizar Análisis IA</span>
+      <span *ngIf="cargando">🤖 Analizando...</span>
+    </button>
+  </div>
+
+</div> 

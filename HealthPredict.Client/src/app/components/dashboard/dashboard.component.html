@@ -1,6 +1,12 @@
 <div class="container mt-4">
   <!-- ✅ HEADER DEL USUARIO TRABAJADOR -->
   <div class="dashboard-header mb-4">
+    <!-- Notificación si viene desde el panel del jefe -->
+    <div *ngIf="tieneJefeAnterior()" class="alert alert-info mb-3">
+      <strong>📋 Vista de Supervisor:</strong> Está viendo el dashboard del trabajador {{ usuarioActual?.nombreCompleto }}. 
+      <strong>Jefe:</strong> {{ jefeAnterior?.nombreCompleto }}
+    </div>
+    
     <div class="d-flex justify-content-between align-items-center bg-white p-4 rounded shadow-sm">
       <div class="user-info">
         <h2 class="mb-1">👨‍💻 Dashboard Personal - {{ usuarioActual?.nombreCompleto }}</h2>
@@ -11,6 +17,9 @@
         </p>
       </div>
       <div class="header-actions">
+        <button *ngIf="tieneJefeAnterior()" class="btn btn-outline-info me-2" (click)="volverAlPanelJefe()">
+          🔙 Volver al Panel del Jefe
+        </button>
         <button class="btn btn-outline-secondary me-2" (click)="recargarDatos()" [disabled]="loading">
           🔄 Recargar
         </button>

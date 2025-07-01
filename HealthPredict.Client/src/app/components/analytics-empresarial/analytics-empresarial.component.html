@@ -1,0 +1,246 @@
+<div class="analytics-empresarial-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <h2>📊 Analytics Empresarial</h2>
+      <p class="subtitle">Insights para la toma de decisiones estratégicas</p>
+      <div class="header-info" *ngIf="usuarioActual">
+        <span class="user-info">👤 {{usuarioActual.nombreCompleto}}</span>
+        <span class="department-info">🏢 {{usuarioActual.departamento || 'Administración'}}</span>
+        <span class="date-info">📅 {{getCurrentDate() | date:'dd/MM/yyyy HH:mm'}}</span>
+      </div>
+    </div>
+    
+    <div class="header-actions">
+      <div class="filters">
+        <select [(ngModel)]="periodoSeleccionado" (change)="cambiarPeriodo(periodoSeleccionado)" class="filter-select">
+          <option value="7d">📅 Últimos 7 días</option>
+          <option value="30d">📅 Últimos 30 días</option>
+          <option value="90d">📅 Últimos 3 meses</option>
+          <option value="1y">📅 Último año</option>
+        </select>
+      </div>
+      
+      <div class="action-buttons">
+        <button (click)="recargarDatos()" class="btn-action" title="Recargar datos">
+          🔄 Actualizar
+        </button>
+        <button (click)="exportarReporte()" class="btn-action" title="Exportar reporte">
+          📤 Exportar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading">
+    <div class="spinner"></div>
+    <p>📊 Cargando analytics empresarial...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !isLoading" class="error">
+    <p>❌ {{error}}</p>
+    <button (click)="recargarDatos()" class="btn-retry">🔄 Reintentar</button>
+  </div>
+
+  <!-- Contenido Principal -->
+  <div *ngIf="!isLoading && !error" class="contenido-analytics">
+    
+    <!-- Navegación de Vistas -->
+    <div class="vista-nav">
+      <button 
+        *ngFor="let vista of ['resumen', 'roi', 'departamentos', 'tendencias', 'wellness']"
+        [class.active]="vistaActual === vista"
+        (click)="cambiarVista(vista)"
+        class="nav-btn">
+        <span [ngSwitch]="vista">
+          <span *ngSwitchCase="'resumen'">📈 Resumen Ejecutivo</span>
+          <span *ngSwitchCase="'roi'">💰 ROI en Salud</span>
+          <span *ngSwitchCase="'departamentos'">🏢 Comparativas Departamentos</span>
+          <span *ngSwitchCase="'tendencias'">📉 Tendencias Ausentismo</span>
+          <span *ngSwitchCase="'wellness'">🌟 Efectividad Wellness</span>
+        </span>
+      </button>
+    </div>
+
+    <!-- Vista: Resumen Ejecutivo -->
+    <div *ngIf="vistaActual === 'resumen'" class="vista-resumen">
+      <div class="metrics-grid">
+        <div class="metric-card primary">
+          <div class="metric-icon">💰</div>
+          <div class="metric-content">
+            <h4>ROI en Salud</h4>
+            <p class="metric-value">{{formatearPorcentaje(resumenEjecutivo.roiSalud || 156.7)}}</p>
+            <p class="metric-subtitle">Retorno de inversión</p>
+          </div>
+        </div>
+        
+        <div class="metric-card success">
+          <div class="metric-icon">📉</div>
+          <div class="metric-content">
+            <h4>Reducción Ausentismo</h4>
+            <p class="metric-value">{{formatearPorcentaje(resumenEjecutivo.reduccionAusentismo || 23.5)}}</p>
+            <p class="metric-subtitle">Últimos 30 días</p>
+          </div>
+        </div>
+        
+        <div class="metric-card info">
+          <div class="metric-icon">📊</div>
+          <div class="metric-content">
+            <h4>Mejora Bienestar</h4>
+            <p class="metric-value">{{formatearPorcentaje(resumenEjecutivo.mejoraBienestar || 18.2)}}</p>
+            <p class="metric-subtitle">Score promedio</p>
+          </div>
+        </div>
+        
+        <div class="metric-card warning">
+          <div class="metric-icon">💊</div>
+          <div class="metric-content">
+            <h4>Ahorros Médicos</h4>
+            <p class="metric-value">{{formatearMoneda(resumenEjecutivo.ahorrosMedicos || 85400)}}</p>
+            <p class="metric-subtitle">Costos evitados</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen de IA Predictiva -->
+      <div class="ia-resumen" *ngIf="predictivosIA">
+        <h3>🤖 Resumen de Inteligencia Predictiva</h3>
+        <div class="ia-grid">
+          <div class="ia-card">
+            <h5>Alertas Preventivas</h5>
+            <p class="ia-value">{{predictivosIA.alertasPreventivas || 3}}</p>
+            <p class="ia-desc">Activas en tiempo real</p>
+          </div>
+          <div class="ia-card">
+            <h5>Riesgos Burnout</h5>
+            <p class="ia-value">{{predictivosIA.riesgosBurnout || 2}}</p>
+            <p class="ia-desc">Trabajadores en alto riesgo</p>
+          </div>
+          <div class="ia-card">
+            <h5>Precisión IA</h5>
+            <p class="ia-value">{{formatearPorcentaje(predictivosIA.precision || 89.4)}}</p>
+            <p class="ia-desc">Algoritmos predictivos</p>
+          </div>
+          <div class="ia-card">
+            <h5>Ahorros Proyectados</h5>
+            <p class="ia-value">{{formatearMoneda(predictivosIA.ahorrosProjected || 45600)}}</p>
+            <p class="ia-desc">Próximos 12 meses</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vista: ROI en Salud -->
+    <div *ngIf="vistaActual === 'roi'" class="vista-roi">
+      <div class="roi-dashboard">
+        <div class="roi-principales">
+          <h3>💰 Análisis de ROI en Salud y Productividad</h3>
+          
+          <div class="roi-cards">
+            <div class="roi-card inversion">
+              <h4>📊 Inversión Total</h4>
+              <p class="roi-amount">{{formatearMoneda(45000)}}</p>
+              <p class="roi-detail">Plataforma + Intervenciones</p>
+            </div>
+            
+            <div class="roi-card beneficios">
+              <h4>💰 Beneficios Obtenidos</h4>
+              <p class="roi-amount">{{formatearMoneda(115350)}}</p>
+              <p class="roi-detail">Reducción costos + Productividad</p>
+            </div>
+            
+            <div class="roi-card retorno">
+              <h4>📈 ROI Total</h4>
+              <p class="roi-percentage">{{formatearPorcentaje(resumenEjecutivo.roiSalud || 156.7)}}</p>
+              <p class="roi-detail">{{getIconoTendencia(resumenEjecutivo.roiSalud || 156.7)}} Tendencia positiva</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="roi-desglose">
+          <h4>🔍 Desglose de Beneficios</h4>
+          <div class="beneficios-lista">
+            <div class="beneficio-item">
+              <span class="beneficio-concepto">Reducción ausentismo laboral</span>
+              <span class="beneficio-valor">{{formatearMoneda(38500)}}</span>
+              <span class="beneficio-porcentaje">33.4%</span>
+            </div>
+            <div class="beneficio-item">
+              <span class="beneficio-concepto">Aumento productividad</span>
+              <span class="beneficio-valor">{{formatearMoneda(42800)}}</span>
+              <span class="beneficio-porcentaje">37.1%</span>
+            </div>
+            <div class="beneficio-item">
+              <span class="beneficio-concepto">Reducción costos médicos</span>
+              <span class="beneficio-valor">{{formatearMoneda(28050)}}</span>
+              <span class="beneficio-porcentaje">24.3%</span>
+            </div>
+            <div class="beneficio-item">
+              <span class="beneficio-concepto">Prevención riesgos laborales</span>
+              <span class="beneficio-valor">{{formatearMoneda(6000)}}</span>
+              <span class="beneficio-porcentaje">5.2%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vista: Comparativas Departamentos -->
+    <div *ngIf="vistaActual === 'departamentos'" class="vista-departamentos">
+      <h3>🏢 Comparativas por Departamentos</h3>
+      
+      <div class="departamentos-grid">
+        <div *ngFor="let dept of comparativasDepartamentos" class="departamento-card">
+          <div class="dept-header">
+            <h4>{{dept.nombre}}</h4>
+            <span class="dept-trabajadores">👥 {{dept.trabajadores}} trabajadores</span>
+          </div>
+          
+          <div class="dept-metricas">
+            <div class="dept-metrica">
+              <span class="metrica-label">💚 Salud Promedio</span>
+              <div class="metrica-bar">
+                <div class="metrica-fill" [style.width.%]="dept.promedioSalud" [style.background-color]="getColorScore(dept.promedioSalud)"></div>
+              </div>
+              <span class="metrica-valor">{{dept.promedioSalud}}%</span>
+            </div>
+            
+            <div class="dept-metrica">
+              <span class="metrica-label">⚠️ Alertas Promedio</span>
+              <span class="metrica-valor">{{dept.alertasPromedio}}/mes</span>
+            </div>
+            
+            <div class="dept-metrica">
+              <span class="metrica-label">📉 Reducción Ausentismo</span>
+              <span class="metrica-valor positive">{{formatearPorcentaje(dept.ausentismoReduccion)}}</span>
+            </div>
+            
+            <div class="dept-metrica">
+              <span class="metrica-label">💰 Costo Intervenciones</span>
+              <span class="metrica-valor">{{formatearMoneda(dept.costoIntervenciones)}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vista: Tendencias -->
+    <div *ngIf="vistaActual === 'tendencias'" class="vista-tendencias">
+      <h3>📉 Tendencias de Ausentismo</h3>
+      <div class="mensaje-desarrollo">
+        <p>🚧 Sección en desarrollo - Próximamente con datos históricos completos</p>
+      </div>
+    </div>
+
+    <!-- Vista: Wellness -->
+    <div *ngIf="vistaActual === 'wellness'" class="vista-wellness">
+      <h3>🌟 Efectividad de Programas Wellness</h3>
+      <div class="mensaje-desarrollo">
+        <p>🚧 Sección en desarrollo - Próximamente con análisis detallado de programas</p>
+      </div>
+    </div>
+
+  </div>
+</div> 

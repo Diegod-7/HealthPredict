@@ -33,6 +33,9 @@ export class DashboardJefeComponent implements OnInit {
 
   // ✅ CONFIGURACIÓN DE VISTA
   vistaActual: 'general' | 'trabajadores' | 'alertas' | 'metricas' | 'riesgo' = 'general';
+  
+  // ✅ FILTROS DE ALERTAS
+  filtroAlertaActual: 'todas' | 'criticas' | 'altas' | 'no-leidas' = 'todas';
 
   constructor(
     private usuarioService: UsuarioService,
@@ -489,8 +492,55 @@ export class DashboardJefeComponent implements OnInit {
    * Navega al detalle de un trabajador
    */
   verDetalleTrabajador(trabajador: ResumenSubordinado): void {
-    console.log('🔍 Viendo detalle de trabajador:', trabajador.nombre);
-    // TODO: Implementar navegación al detalle del trabajador
+    console.log('🔍 Navegando al detalle del trabajador desde vista de riesgo:', trabajador.nombre);
+    
+    if (!trabajador.id) {
+      console.error('❌ ID del trabajador no encontrado');
+      return;
+    }
+
+    // Crear un usuario temporal para el dashboard individual
+    const trabajadorParaDashboard: Usuario = {
+      id: trabajador.id,
+      nombre: trabajador.nombre ? trabajador.nombre.split(' ')[0] : 'Usuario',
+      apellido: trabajador.nombre ? trabajador.nombre.split(' ').slice(1).join(' ') : '',
+      nombreCompleto: trabajador.nombre || 'Usuario Desconocido',
+      email: trabajador.email || `usuario${trabajador.id}@healthpredict.com`,
+      cargo: trabajador.cargo || 'Trabajador',
+      departamento: trabajador.departamento || 'Desarrollo',
+      rol: 'Trabajador',
+      esActivo: true,
+      esJefe: false,
+      esTrabajador: true,
+      ultimoAcceso: trabajador.ultimoAcceso || new Date(),
+      // Propiedades adicionales requeridas por la interfaz Usuario
+      fechaNacimiento: new Date(1990, 0, 1), // Fecha por defecto
+      genero: 'No especificado',
+      altura: 170,
+      peso: 70,
+      esProfesionalMedico: false
+    };
+
+    // Guardar el usuario actual para poder volver después
+    const jefeActual = this.usuarioService.getCurrentUser();
+    if (!jefeActual) {
+      console.error('❌ No hay usuario jefe actual');
+      return;
+    }
+    
+    localStorage.setItem('jefeAnterior', JSON.stringify(jefeActual));
+    
+    // Establecer temporalmente al trabajador como usuario actual
+    this.usuarioService.setCurrentUser(trabajadorParaDashboard);
+    
+    // Navegar al dashboard del trabajador
+    this.router.navigate(['/dashboard']).then(() => {
+      console.log('✅ Navegación exitosa al dashboard del trabajador desde vista de riesgo');
+    }).catch(error => {
+      console.error('❌ Error en la navegación:', error);
+      // Restaurar usuario original en caso de error
+      this.usuarioService.setCurrentUser(jefeActual);
+    });
   }
 
   /**
@@ -498,7 +548,27 @@ export class DashboardJefeComponent implements OnInit {
    */
   marcarAlertaLeida(alertaId: number): void {
     console.log('📖 Marcando alerta como leída:', alertaId);
-    // TODO: Implementar marcado de alerta como leída
+    
+    // Buscar y marcar la alerta como leída en los datos locales
+    if (this.dashboardData?.alertasRecientes) {
+      const alerta = this.dashboardData.alertasRecientes.find(a => a.id === alertaId);
+      if (alerta) {
+        alerta.leida = true;
+        console.log('✅ Alerta marcada como leída localmente');
+      }
+    }
+    
+    // También marcar en el array legacy si existe
+    const alertaLegacy = this.todasLasAlertas.find(a => a.id === alertaId);
+    if (alertaLegacy) {
+      alertaLegacy.leida = true;
+    }
+
+    // TODO: Implementar llamada al backend para persistir el cambio
+    // this.alertaService.marcarComoLeida(alertaId).subscribe({
+    //   next: () => console.log('✅ Alerta marcada como leída en el servidor'),
+    //   error: (error) => console.error('❌ Error al marcar alerta como leída:', error)
+    // });
   }
 
   // Método para verificar si es ResumenSubordinado
@@ -521,8 +591,59 @@ export class DashboardJefeComponent implements OnInit {
 
   // Método para ver detalle del subordinado
   verDetalleSubordinado(id: number): void {
-    // TODO: Implementar navegación al detalle del subordinado
-    console.log('Ver detalle del subordinado:', id);
+    console.log('🔍 Navegando al detalle del subordinado:', id);
+    
+    // Obtener información del trabajador
+    const trabajador = this.dashboardData?.resumenSubordinados.find(t => t.id === id) || 
+                      this.subordinados.find(s => s.id === id);
+    
+    if (!trabajador) {
+      console.error('❌ Trabajador no encontrado');
+      return;
+    }
+
+    // Crear un usuario temporal para el dashboard individual
+    const trabajadorParaDashboard: Usuario = {
+      id: id,
+      nombre: trabajador.nombre ? trabajador.nombre.split(' ')[0] : 'Usuario',
+      apellido: trabajador.nombre ? trabajador.nombre.split(' ').slice(1).join(' ') : '',
+      nombreCompleto: trabajador.nombre || 'Usuario Desconocido',
+      email: trabajador.email || `usuario${id}@healthpredict.com`,
+      cargo: trabajador.cargo || 'Trabajador',
+      departamento: trabajador.departamento || 'Desarrollo',
+      rol: 'Trabajador',
+      esActivo: true,
+      esJefe: false,
+      esTrabajador: true,
+      ultimoAcceso: trabajador.ultimoAcceso || new Date(),
+      // Propiedades adicionales requeridas por la interfaz Usuario
+      fechaNacimiento: new Date(1990, 0, 1), // Fecha por defecto
+      genero: 'No especificado',
+      altura: 170,
+      peso: 70,
+      esProfesionalMedico: false
+    };
+
+    // Guardar el usuario actual para poder volver después
+    const jefeActual = this.usuarioService.getCurrentUser();
+    if (!jefeActual) {
+      console.error('❌ No hay usuario jefe actual');
+      return;
+    }
+    
+    localStorage.setItem('jefeAnterior', JSON.stringify(jefeActual));
+    
+    // Establecer temporalmente al trabajador como usuario actual
+    this.usuarioService.setCurrentUser(trabajadorParaDashboard);
+    
+    // Navegar al dashboard del trabajador
+    this.router.navigate(['/dashboard']).then(() => {
+      console.log('✅ Navegación exitosa al dashboard del trabajador');
+    }).catch(error => {
+      console.error('❌ Error en la navegación:', error);
+      // Restaurar usuario original en caso de error
+      this.usuarioService.setCurrentUser(jefeActual);
+    });
   }
 
   // Obtener lista de alertas activas
@@ -541,5 +662,157 @@ export class DashboardJefeComponent implements OnInit {
       return trabajador.nombre; // ResumenSubordinado
     }
     return (trabajador.nombre || '') + ' ' + (trabajador.apellido || ''); // Usuario
+  }
+
+  // ✅ MÉTODOS PARA MÉTRICAS DEL DEPARTAMENTO
+
+  /**
+   * Obtiene las métricas de alertas por severidad
+   */
+  getMetricasAlertasPorSeveridad(): { severidad: string, cantidad: number, color: string }[] {
+    const alertas = this.dashboardData?.alertasRecientes || this.todasLasAlertas || [];
+    const alertasArray = Array.isArray(alertas) ? alertas as any[] : [];
+    
+    const criticas = alertasArray.filter((a: any) => a.severidad?.toLowerCase() === 'crítica').length;
+    const altas = alertasArray.filter((a: any) => a.severidad?.toLowerCase() === 'alta').length;
+    const medias = alertasArray.filter((a: any) => a.severidad?.toLowerCase() === 'media').length;
+    const bajas = alertasArray.filter((a: any) => a.severidad?.toLowerCase() === 'baja').length;
+
+    return [
+      { severidad: 'Críticas', cantidad: criticas, color: '#ef4444' },
+      { severidad: 'Altas', cantidad: altas, color: '#f59e0b' },
+      { severidad: 'Medias', cantidad: medias, color: '#eab308' },
+      { severidad: 'Bajas', cantidad: bajas, color: '#22c55e' }
+    ];
+  }
+
+  /**
+   * Obtiene los promedios departamentales simulados
+   */
+  getPromediosDepartamentales(): { tipoDato: string, promedio: number, unidad: string, color: string }[] {
+    return [
+      { tipoDato: 'Presión Arterial Sistólica', promedio: 125, unidad: 'mmHg', color: '#667eea' },
+      { tipoDato: 'Presión Arterial Diastólica', promedio: 82, unidad: 'mmHg', color: '#764ba2' },
+      { tipoDato: 'Frecuencia Cardíaca', promedio: 75, unidad: 'bpm', color: '#f093fb' },
+      { tipoDato: 'Nivel de Estrés', promedio: 4.2, unidad: '/10', color: '#f5576c' },
+      { tipoDato: 'Horas de Sueño', promedio: 7.5, unidad: 'hrs', color: '#4facfe' },
+      { tipoDato: 'Actividad Física', promedio: 6.8, unidad: '/10', color: '#43e97b' }
+    ];
+  }
+
+  /**
+   * Obtiene las tendencias de los últimos 7 días
+   */
+  getTendencias7Dias(): { label: string, valor: number, cambio: number, color: string }[] {
+    const alertas = this.dashboardData?.alertasRecientes || this.todasLasAlertas || [];
+    const alertasArray = Array.isArray(alertas) ? alertas as any[] : [];
+    const totalAlertas = alertasArray.length;
+    const alertasCriticas = alertasArray.filter((a: any) => a.severidad?.toLowerCase() === 'crítica').length;
+
+    return [
+      { 
+        label: 'Alertas Nuevas', 
+        valor: totalAlertas, 
+        cambio: Math.floor(Math.random() * 20) - 10, // Cambio simulado entre -10 y +10
+        color: '#667eea' 
+      },
+      { 
+        label: 'Alertas Críticas', 
+        valor: alertasCriticas, 
+        cambio: Math.floor(Math.random() * 6) - 3, // Cambio simulado entre -3 y +3
+        color: '#ef4444' 
+      },
+      { 
+        label: 'Trabajadores Activos', 
+        valor: this.dashboardData?.resumenSubordinados?.length || this.subordinados.length, 
+        cambio: 0, 
+        color: '#22c55e' 
+      },
+      { 
+        label: 'Score Promedio Depto', 
+        valor: 82, 
+        cambio: 5, 
+        color: '#f59e0b' 
+      }
+    ];
+  }
+
+  /**
+   * Obtiene estadísticas de productividad del departamento
+   */
+  getEstadisticasProductividad(): { label: string, valor: number, unidad: string, color: string }[] {
+    const totalTrabajadores = this.dashboardData?.resumenSubordinados?.length || this.subordinados.length;
+    const trabajadoresBajoRiesgo = this.getTrabajadoresPorRiesgo('bajo').length;
+    const porcentajeSaludable = totalTrabajadores > 0 ? Math.round((trabajadoresBajoRiesgo / totalTrabajadores) * 100) : 0;
+
+    return [
+      { label: 'Trabajadores Saludables', valor: porcentajeSaludable, unidad: '%', color: '#22c55e' },
+      { label: 'Promedio Bienestar', valor: 84, unidad: '/100', color: '#667eea' },
+      { label: 'Alertas Resueltas', valor: 95, unidad: '%', color: '#f59e0b' },
+      { label: 'Tiempo Respuesta', valor: 2.3, unidad: 'hrs', color: '#8b5cf6' }
+    ];
+  }
+
+  // ✅ MÉTODOS PARA FILTROS DE ALERTAS
+
+  /**
+   * Cambia el filtro actual de alertas
+   */
+  cambiarFiltroAlertas(filtro: 'todas' | 'criticas' | 'altas' | 'no-leidas'): void {
+    console.log('🔍 Cambiando filtro de alertas a:', filtro);
+    this.filtroAlertaActual = filtro;
+  }
+
+  /**
+   * Obtiene las alertas filtradas según el filtro actual
+   */
+  getAlertasFiltradas(): any[] {
+    const alertas = this.dashboardData?.alertasRecientes || this.todasLasAlertas || [];
+    const alertasArray = Array.isArray(alertas) ? alertas as any[] : [];
+    
+    switch (this.filtroAlertaActual) {
+      case 'criticas':
+        return alertasArray.filter((alerta: any) => alerta.severidad?.toLowerCase() === 'crítica');
+      
+      case 'altas':
+        return alertasArray.filter((alerta: any) => alerta.severidad?.toLowerCase() === 'alta');
+      
+      case 'no-leidas':
+        return alertasArray.filter((alerta: any) => !alerta.leida);
+      
+      case 'todas':
+      default:
+        return alertasArray;
+    }
+  }
+
+  /**
+   * Verifica si un filtro está activo
+   */
+  esFiltroActivo(filtro: 'todas' | 'criticas' | 'altas' | 'no-leidas'): boolean {
+    return this.filtroAlertaActual === filtro;
+  }
+
+  /**
+   * Obtiene el número de alertas para un filtro específico
+   */
+  getContadorFiltro(filtro: 'todas' | 'criticas' | 'altas' | 'no-leidas'): number {
+    const alertas = this.dashboardData?.alertasRecientes || this.todasLasAlertas || [];
+    const alertasArray = Array.isArray(alertas) ? alertas as any[] : [];
+    
+    switch (filtro) {
+      case 'criticas':
+        return alertasArray.filter((alerta: any) => alerta.severidad?.toLowerCase() === 'crítica').length;
+      
+      case 'altas':
+        return alertasArray.filter((alerta: any) => alerta.severidad?.toLowerCase() === 'alta').length;
+      
+      case 'no-leidas':
+        return alertasArray.filter((alerta: any) => !alerta.leida).length;
+      
+      case 'todas':
+      default:
+        return alertasArray.length;
+    }
   }
 } 

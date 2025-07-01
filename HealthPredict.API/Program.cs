@@ -49,6 +49,7 @@ builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddScoped<DatoVitalService>();
 builder.Services.AddScoped<AlertaService>();
 builder.Services.AddScoped<ReporteService>();
+builder.Services.AddScoped<InteligenciaPredictiva>();
 
 // Configuración de CORS
 builder.Services.AddCors(options => {
@@ -108,14 +109,15 @@ app.MapGet("/", () => new {
     message = "HealthPredict API", 
     version = "1.0.0",
     status = "Funcionando correctamente",
-    endpoints = new {
-        swagger = "/swagger",
-        usuarios = "/api/Usuarios",
-        datosVitales = "/api/DatosVitales",
-        alertas = "/api/Alertas",
-        graficos = "/api/Graficos",
-        reportes = "/api/Reportes"
-    }
+            endpoints = new {
+            swagger = "/swagger",
+            usuarios = "/api/Usuarios",
+            datosVitales = "/api/DatosVitales",
+            alertas = "/api/Alertas",
+            graficos = "/api/Graficos",
+            reportes = "/api/Reportes",
+            inteligenciaIA = "/api/InteligenciaPredictiva"
+        }
 });
 
 app.MapControllers();

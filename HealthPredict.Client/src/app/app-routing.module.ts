@@ -6,6 +6,8 @@ import { AlertaDetalleComponent } from './components/alerta-detalle/alerta-detal
 import { GraficosComponent } from './components/graficos/graficos.component';
 import { LoginComponent } from './components/login/login.component';
 import { DashboardJefeComponent } from './components/dashboard-jefe/dashboard-jefe.component';
+import { InteligenciaPredictivaComponent } from './components/inteligencia-predictiva/inteligencia-predictiva.component';
+import { AnalyticsEmpresarialComponent } from './components/analytics-empresarial/analytics-empresarial.component';
 import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
@@ -36,6 +38,11 @@ const routes: Routes = [
     component: GraficosComponent,
     canActivate: [AuthGuard]
   },
+  { 
+    path: 'inteligencia-predictiva', 
+    component: InteligenciaPredictivaComponent,
+    canActivate: [AuthGuard]
+  },
   {
     path: 'reportes',
     loadChildren: () => import('./components/reportes/reportes.module').then(m => m.ReportesModule),
@@ -48,6 +55,13 @@ const routes: Routes = [
     component: DashboardJefeComponent,
     canActivate: [AuthGuard],
     data: { role: 'Jefe' }
+  },
+
+  // ✅ RUTA EXCLUSIVA PARA ANALYTICS EMPRESARIAL
+  {
+    path: 'analytics-empresarial',
+    component: AnalyticsEmpresarialComponent,
+    canActivate: [AuthGuard]
   },
 
   // ✅ RUTA COMODÍN - REDIRIGE AL LOGIN

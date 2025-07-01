@@ -18,6 +18,12 @@
           <a class="nav-link" routerLink="/graficos" routerLinkActive="active">Gráficos</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" routerLink="/inteligencia-predictiva" routerLinkActive="active">🧠 IA Predictiva</a>
+        </li>
+        <li class="nav-item" *ngIf="isJefe()">
+          <a class="nav-link" routerLink="/analytics-empresarial" routerLinkActive="active">📊 Analytics Empresarial</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" routerLink="/reportes" routerLinkActive="active">Reportes</a>
         </li>
       </ul>

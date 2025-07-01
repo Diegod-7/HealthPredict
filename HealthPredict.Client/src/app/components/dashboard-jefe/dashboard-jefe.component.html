@@ -252,17 +252,48 @@
         
         <!-- Filtros de Alertas -->
         <div class="alertas-filtros">
-          <button class="filtro-btn active">Todas</button>
-          <button class="filtro-btn">Críticas</button>
-          <button class="filtro-btn">Altas</button>
-          <button class="filtro-btn">No Leídas</button>
+          <button 
+            class="filtro-btn" 
+            [class.active]="esFiltroActivo('todas')"
+            (click)="cambiarFiltroAlertas('todas')">
+            Todas ({{ getContadorFiltro('todas') }})
+          </button>
+          <button 
+            class="filtro-btn" 
+            [class.active]="esFiltroActivo('criticas')"
+            (click)="cambiarFiltroAlertas('criticas')">
+            Críticas ({{ getContadorFiltro('criticas') }})
+          </button>
+          <button 
+            class="filtro-btn" 
+            [class.active]="esFiltroActivo('altas')"
+            (click)="cambiarFiltroAlertas('altas')">
+            Altas ({{ getContadorFiltro('altas') }})
+          </button>
+          <button 
+            class="filtro-btn" 
+            [class.active]="esFiltroActivo('no-leidas')"
+            (click)="cambiarFiltroAlertas('no-leidas')">
+            No Leídas ({{ getContadorFiltro('no-leidas') }})
+          </button>
         </div>
 
         <!-- Lista de alertas -->
         <div class="alertas-lista">
+          <!-- Mensaje cuando no hay alertas -->
+          <div *ngIf="getAlertasFiltradas().length === 0" class="no-alertas-message">
+            <div class="no-alertas-icon">📋</div>
+            <h3>No hay alertas</h3>
+            <p *ngIf="filtroAlertaActual === 'todas'">No hay alertas registradas en el sistema.</p>
+            <p *ngIf="filtroAlertaActual === 'criticas'">No hay alertas críticas en este momento.</p>
+            <p *ngIf="filtroAlertaActual === 'altas'">No hay alertas de prioridad alta.</p>
+            <p *ngIf="filtroAlertaActual === 'no-leidas'">Todas las alertas han sido leídas.</p>
+          </div>
+
+          <!-- Lista de alertas filtradas -->
           <div 
             class="alerta-card" 
-            *ngFor="let alerta of dashboardData?.alertasRecientes || alertasActivas"
+            *ngFor="let alerta of getAlertasFiltradas()"
             [class.critica]="alerta.severidad === 'Crítica'"
             [class.alta]="alerta.severidad === 'Alta'"
             [class.media]="alerta.severidad === 'Media'">
@@ -300,14 +331,16 @@
       <div class="section">
         <h2>📈 Métricas del Departamento</h2>
         
-        <!-- Alertas por severidad -->
+        <!-- Grid de métricas principales -->
         <div class="metricas-grid">
+          <!-- Alertas por severidad -->
           <div class="metrica-card">
-            <h4>Alertas por Severidad</h4>
+            <h4>🚨 Alertas por Severidad</h4>
             <div class="alertas-severidad">
               <div 
                 class="severidad-item" 
-                *ngFor="let severidad of dashboardData?.metricasDepartamento?.alertasPorSeveridad || []">
+                *ngFor="let severidad of getMetricasAlertasPorSeveridad()">
+                <div class="severidad-indicator" [style.background-color]="severidad.color"></div>
                 <span class="severidad-label">{{ severidad.severidad }}</span>
                 <span class="severidad-count">{{ severidad.cantidad }}</span>
               </div>
@@ -316,12 +349,15 @@
 
           <!-- Promedios departamentales -->
           <div class="metrica-card">
-            <h4>Datos Vitales Promedio</h4>
+            <h4>💊 Datos Vitales Promedio</h4>
             <div class="promedios-grid">
               <div 
                 class="promedio-item" 
-                *ngFor="let promedio of dashboardData?.metricasDepartamento?.promediosDepartamento || []">
-                <span class="promedio-tipo">{{ promedio.tipoDato }}</span>
+                *ngFor="let promedio of getPromediosDepartamentales()">
+                <div class="promedio-header">
+                  <div class="promedio-indicator" [style.background-color]="promedio.color"></div>
+                  <span class="promedio-tipo">{{ promedio.tipoDato }}</span>
+                </div>
                 <span class="promedio-valor">{{ promedio.promedio }} {{ promedio.unidad }}</span>
               </div>
             </div>
@@ -329,17 +365,69 @@
 
           <!-- Tendencias -->
           <div class="metrica-card">
-            <h4>Tendencias (7 días)</h4>
+            <h4>📊 Tendencias (7 días)</h4>
             <div class="tendencias-info">
-              <div class="tendencia-item">
-                <span class="tendencia-label">Alertas Nuevas</span>
-                <span class="tendencia-valor">{{ dashboardData?.tendenciasSalud?.resumen?.alertasUltimos7Dias || 0 }}</span>
-              </div>
-              <div class="tendencia-item">
-                <span class="tendencia-label">Alertas Críticas</span>
-                <span class="tendencia-valor">{{ dashboardData?.tendenciasSalud?.resumen?.alertasCriticasUltimos7Dias || 0 }}</span>
+              <div 
+                class="tendencia-item" 
+                *ngFor="let tendencia of getTendencias7Dias()">
+                <div class="tendencia-header">
+                  <span class="tendencia-label">{{ tendencia.label }}</span>
+                  <span class="tendencia-cambio" [class.positivo]="tendencia.cambio > 0" [class.negativo]="tendencia.cambio < 0">
+                    <span *ngIf="tendencia.cambio > 0">+{{ tendencia.cambio }}</span>
+                    <span *ngIf="tendencia.cambio < 0">{{ tendencia.cambio }}</span>
+                    <span *ngIf="tendencia.cambio === 0">--</span>
+                  </span>
+                </div>
+                <div class="tendencia-valor-container">
+                  <div class="tendencia-indicator" [style.background-color]="tendencia.color"></div>
+                  <span class="tendencia-valor">{{ tendencia.valor }}</span>
+                </div>
               </div>
             </div>
+          </div>
+
+          <!-- Estadísticas de productividad -->
+          <div class="metrica-card">
+            <h4>⚡ Estadísticas del Departamento</h4>
+            <div class="productividad-grid">
+              <div 
+                class="productividad-item" 
+                *ngFor="let stat of getEstadisticasProductividad()">
+                <div class="productividad-header">
+                  <div class="productividad-indicator" [style.background-color]="stat.color"></div>
+                  <span class="productividad-label">{{ stat.label }}</span>
+                </div>
+                <span class="productividad-valor">{{ stat.valor }} {{ stat.unidad }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumen ejecutivo -->
+        <div class="resumen-ejecutivo">
+          <h3>📋 Resumen Ejecutivo</h3>
+          <div class="resumen-cards">
+            <div class="resumen-card excelente">
+              <div class="resumen-icon">✅</div>
+              <div class="resumen-content">
+                <h5>Estado General</h5>
+                <p>El departamento mantiene un nivel de salud {{ getEstadisticasProductividad()[0].valor >= 80 ? 'excelente' : 'bueno' }}</p>
+              </div>
+            </div>
+            <div class="resumen-card atencion" *ngIf="getMetricasAlertasPorSeveridad()[0].cantidad > 0">
+              <div class="resumen-icon">⚠️</div>
+              <div class="resumen-content">
+                <h5>Requiere Atención</h5>
+                <p>{{ getMetricasAlertasPorSeveridad()[0].cantidad }} alertas críticas pendientes</p>
+              </div>
+            </div>
+                         <div class="resumen-card info">
+               <div class="resumen-icon">📈</div>
+               <div class="resumen-content">
+                 <h5>Tendencia</h5>
+                 <p>Score promedio del departamento: {{ getTendencias7Dias()[3].valor }}/100</p>
+               </div>
+             </div>
           </div>
         </div>
       </div>

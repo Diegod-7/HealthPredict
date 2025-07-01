@@ -14,10 +14,16 @@ import { GraficosComponent } from './components/graficos/graficos.component';
 import { LineaTemporalComponent } from './components/graficos/linea-temporal/linea-temporal.component';
 import { ResumenEstadisticasComponent } from './components/graficos/resumen-estadisticas/resumen-estadisticas.component';
 import { ComparativaMensualComponent } from './components/graficos/comparativa-mensual/comparativa-mensual.component';
+import { ReportesComponent } from './components/reportes/reportes/reportes.component';
 
 // ✅ NUEVOS COMPONENTES DEL SISTEMA DE PERFILAMIENTO
 import { LoginComponent } from './components/login/login.component';
 import { DashboardJefeComponent } from './components/dashboard-jefe/dashboard-jefe.component';
+import { InteligenciaPredictivaComponent } from './components/inteligencia-predictiva/inteligencia-predictiva.component';
+import { AnalyticsEmpresarialComponent } from './components/analytics-empresarial/analytics-empresarial.component';
+
+// Módulo de reportes
+import { ReportesModule } from './components/reportes/reportes.module';
 
 @NgModule({
   declarations: [
@@ -31,7 +37,9 @@ import { DashboardJefeComponent } from './components/dashboard-jefe/dashboard-je
     ComparativaMensualComponent,
     // ✅ COMPONENTES DEL SISTEMA DE PERFILAMIENTO
     LoginComponent,
-    DashboardJefeComponent
+    DashboardJefeComponent,
+    InteligenciaPredictivaComponent,
+    AnalyticsEmpresarialComponent
   ],
   imports: [
     BrowserModule,
@@ -40,7 +48,8 @@ import { DashboardJefeComponent } from './components/dashboard-jefe/dashboard-je
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
-    ChartsModule
+    ChartsModule,
+    ReportesModule
   ],
   providers: [],
   bootstrap: [AppComponent]

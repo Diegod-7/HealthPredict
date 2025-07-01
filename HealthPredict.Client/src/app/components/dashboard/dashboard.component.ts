@@ -20,6 +20,9 @@ export class DashboardComponent implements OnInit {
   alertasAlta: Alerta[] = [];
   loading = false;
   error: string | null = null;
+  
+  // ✅ VERIFICAR SI VIENE DESDE EL PANEL DEL JEFE
+  jefeAnterior: Usuario | null = null;
 
   constructor(
     private router: Router,
@@ -30,13 +33,24 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.usuarioActual = this.usuarioService.getCurrentUser();
     
+    // Verificar si viene desde el panel del jefe
+    const jefeAnteriorData = localStorage.getItem('jefeAnterior');
+    if (jefeAnteriorData) {
+      try {
+        this.jefeAnterior = JSON.parse(jefeAnteriorData);
+        console.log('👔 Se detectó navegación desde panel de jefe:', this.jefeAnterior?.nombreCompleto);
+      } catch (error) {
+        console.error('❌ Error al parsear datos del jefe anterior:', error);
+      }
+    }
+    
     if (!this.usuarioActual) {
       console.log('❌ Usuario no autenticado, redirigiendo al login');
       this.router.navigate(['/login']);
       return;
     }
 
-    if (this.usuarioActual.rol === 'Jefe') {
+    if (this.usuarioActual.rol === 'Jefe' && !this.jefeAnterior) {
       console.log('🔄 Usuario es jefe, redirigiendo a dashboard de jefe');
       this.router.navigate(['/dashboard-jefe']);
       return;
@@ -119,5 +133,32 @@ export class DashboardComponent implements OnInit {
   recargarDatos(): void {
     console.log('🔄 Recargando datos del dashboard');
     this.cargarDatos();
+  }
+
+  /**
+   * Vuelve al panel del jefe si se navegó desde allí
+   */
+  volverAlPanelJefe(): void {
+    if (this.jefeAnterior) {
+      console.log('🔙 Volviendo al panel del jefe:', this.jefeAnterior.nombreCompleto);
+      
+      // Restaurar el usuario jefe
+      this.usuarioService.setCurrentUser(this.jefeAnterior);
+      
+      // Limpiar los datos del localStorage
+      localStorage.removeItem('jefeAnterior');
+      
+      // Navegar de vuelta al dashboard del jefe
+      this.router.navigate(['/dashboard-jefe']);
+    } else {
+      console.log('❌ No hay jefe anterior para volver');
+    }
+  }
+
+  /**
+   * Verifica si hay un jefe anterior para mostrar el botón de volver
+   */
+  tieneJefeAnterior(): boolean {
+    return this.jefeAnterior !== null;
   }
 } 
