@@ -62,7 +62,13 @@ builder.Services.AddCors(options => {
         }
         else
         {
-            policy.WithOrigins("http://localhost:4200", "https://healthpredict-l1hu.onrender.com")
+            policy.WithOrigins(
+                    "http://localhost:4200", 
+                    "https://healthpredict-l1hu.onrender.com",
+                    "https://health-predict-eggtvl0sc-diego-diazs-projects-dabcb856.vercel.app",
+                    "https://health-predict.vercel.app",
+                    "https://*.vercel.app"
+                  )
                   .AllowAnyMethod()
                   .AllowAnyHeader()
                   .AllowCredentials();
