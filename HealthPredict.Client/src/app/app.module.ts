@@ -14,7 +14,6 @@ import { GraficosComponent } from './components/graficos/graficos.component';
 import { LineaTemporalComponent } from './components/graficos/linea-temporal/linea-temporal.component';
 import { ResumenEstadisticasComponent } from './components/graficos/resumen-estadisticas/resumen-estadisticas.component';
 import { ComparativaMensualComponent } from './components/graficos/comparativa-mensual/comparativa-mensual.component';
-import { ReportesComponent } from './components/reportes/reportes/reportes.component';
 
 // ✅ NUEVOS COMPONENTES DEL SISTEMA DE PERFILAMIENTO
 import { LoginComponent } from './components/login/login.component';

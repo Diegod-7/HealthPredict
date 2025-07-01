@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "buildCommand": "cd HealthPredict.Client && npm ci && npm run build",
+  "outputDirectory": "HealthPredict.Client/dist/health-predict.client",
+  "installCommand": "cd HealthPredict.Client && npm ci",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+} 
