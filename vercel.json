@@ -1,9 +1,10 @@
 {
   "version": 2,
   "name": "healthpredict-client",
-  "buildCommand": "cd HealthPredict.Client && npm install && npm run build",
-  "outputDirectory": "HealthPredict.Client/dist/health-predict.client",
-  "installCommand": "echo 'Installing dependencies will be handled in buildCommand'",
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": "dist/health-predict.client",
+  "installCommand": "npm ci",
+  "framework": "angular",
   "rewrites": [
     {
       "source": "/(.*)",
