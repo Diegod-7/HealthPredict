@@ -4,13 +4,14 @@
   "description": "Sistema predictivo de monitoreo de salud empresarial",
   "start_url": "/",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
   "theme_color": "#007bff",
   "background_color": "#ffffff",
   "lang": "es",
   "scope": "/",
   "categories": ["health", "productivity", "medical"],
   "prefer_related_applications": false,
+  "display_override": ["standalone", "minimal-ui"],
   "icons": [
     {
       "src": "assets/icons/icon-72x72.png",

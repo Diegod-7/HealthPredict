@@ -1,0 +1,101 @@
+.pwa-install-banner {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 123, 255, 0.1);
+  
+  .alert {
+    margin-bottom: 0;
+    border-radius: 0;
+    border: none;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    
+    .btn-outline-primary {
+      border-color: rgba(255, 255, 255, 0.5);
+      color: white;
+      
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: white;
+      }
+    }
+    
+    .btn-close {
+      filter: invert(1);
+    }
+  }
+  
+  .card {
+    border-radius: 0;
+    border: none;
+    border-top: 1px solid rgba(0, 123, 255, 0.1);
+    
+    .card-body {
+      padding: 1rem;
+      
+      ol {
+        padding-left: 1.2rem;
+        
+        li {
+          margin-bottom: 0.5rem;
+          
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+      
+      .alert-success {
+        background: rgba(25, 135, 84, 0.1);
+        border: 1px solid rgba(25, 135, 84, 0.2);
+        color: #155724;
+      }
+    }
+  }
+}
+
+/* Animaciones */
+.pwa-install-banner {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Estilos específicos para modo standalone */
+.pwa-standalone .pwa-install-banner {
+  display: none !important;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .pwa-install-banner {
+    .alert {
+      font-size: 0.875rem;
+      
+      .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+      }
+    }
+    
+    .card-body {
+      padding: 0.75rem;
+      
+      ol {
+        font-size: 0.875rem;
+      }
+    }
+  }
+} 

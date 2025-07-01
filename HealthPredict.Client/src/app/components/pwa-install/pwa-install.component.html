@@ -1,0 +1,33 @@
+<div class="pwa-install-banner" *ngIf="!isStandalone">
+  <div class="container-fluid">
+    <div class="alert alert-info d-flex align-items-center" role="alert">
+      <i class="bi bi-phone me-2 fs-4"></i>
+      <div class="flex-grow-1">
+        <strong>📱 Para mejor experiencia</strong><br>
+        <small>Agregue esta app a su pantalla de inicio para usar sin barra de URL</small>
+      </div>
+      <button type="button" class="btn btn-sm btn-outline-primary" (click)="showInstructions = !showInstructions">
+        <i class="bi bi-question-circle"></i>
+      </button>
+      <button type="button" class="btn-close ms-2" (click)="dismissBanner()"></button>
+    </div>
+    
+    <div class="card mt-2" *ngIf="showInstructions">
+      <div class="card-body">
+        <h6 class="card-title">
+          <i class="bi bi-apple me-2"></i>
+          Instrucciones para iOS (iPhone/iPad)
+        </h6>
+        <ol class="mb-0">
+          <li>Toque el botón <strong>"Compartir"</strong> <i class="bi bi-share"></i> en Safari</li>
+          <li>Seleccione <strong>"Agregar a pantalla de inicio"</strong></li>
+          <li>Confirme el nombre y toque <strong>"Agregar"</strong></li>
+          <li>Abra la app desde el ícono en su pantalla de inicio</li>
+        </ol>
+        <div class="alert alert-success mt-2 mb-0">
+          <small><i class="bi bi-check-circle me-1"></i> La app se abrirá en pantalla completa sin barra de URL</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -7,9 +7,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
   <meta name="description" content="HealthPredict - Sistema de monitoreo de salud predictivo">
   
-  <!-- Configuración PWA para iOS -->
+  <!-- Configuración CRÍTICA para PWA iOS - Eliminar barra URL -->
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HealthPredict">
   
   <!-- Configuración PWA general -->
@@ -18,22 +18,20 @@
   <meta name="msapplication-navbutton-color" content="#007bff">
   <meta name="msapplication-TileColor" content="#007bff">
   
-  <!-- Prevenir zoom y selección en iOS -->
+  <!-- Prevenir comportamientos no deseados en iOS -->
   <meta name="format-detection" content="telephone=no">
   <meta name="format-detection" content="email=no">
+  <meta name="apple-touch-fullscreen" content="yes">
   
-  <!-- Icons para diferentes dispositivos -->
+  <!-- Icons específicos para iOS -->
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+  <link rel="apple-touch-icon" href="assets/icons/icon-180x180.png">
   <link rel="apple-touch-icon" sizes="152x152" href="assets/icons/icon-152x152.png">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-180x180.png">
   <link rel="apple-touch-icon" sizes="167x167" href="assets/icons/icon-167x167.png">
   
   <!-- Manifest para PWA -->
   <link rel="manifest" href="manifest.json">
-  
-  <!-- Splash screens para iOS -->
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
@@ -54,6 +52,26 @@
           });
       });
     }
+    
+    // Debug PWA - Verificar si está ejecutándose como app standalone
+    window.addEventListener('DOMContentLoaded', function() {
+      console.log('=== DEBUG PWA HEALTHPREDICT ===');
+      console.log('Display mode:', window.matchMedia('(display-mode: standalone)').matches ? 'STANDALONE' : 'BROWSER');
+      console.log('Navigator standalone:', navigator.standalone);
+      console.log('User Agent:', navigator.userAgent);
+      console.log('Screen:', window.screen.width + 'x' + window.screen.height);
+      console.log('Viewport:', window.innerWidth + 'x' + window.innerHeight);
+      
+      // Verificar si se está ejecutando como PWA
+      if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
+        console.log('✅ APP EJECUTÁNDOSE EN MODO STANDALONE - SIN URL BAR');
+        document.body.classList.add('pwa-standalone');
+      } else {
+        console.log('❌ APP EJECUTÁNDOSE EN NAVEGADOR - CON URL BAR');
+        console.log('💡 INSTRUCCIÓN: Agregue a pantalla de inicio desde Safari');
+        document.body.classList.add('pwa-browser');
+      }
+    });
   </script>
 </body>
 </html>
