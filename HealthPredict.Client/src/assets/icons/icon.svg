@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Fondo circular -->
+  <circle cx="256" cy="256" r="240" fill="#007bff" stroke="#0056b3" stroke-width="8"/>
+  
+  <!-- Cruz médica -->
+  <rect x="230" y="160" width="52" height="192" fill="white" rx="8"/>
+  <rect x="160" y="230" width="192" height="52" fill="white" rx="8"/>
+  
+  <!-- Corazón médico -->
+  <path d="M256 380c-20-20-60-60-60-100 0-20 16-36 36-36 12 0 22 6 28 14 6-8 16-14 28-14 20 0 36 16 36 36 0 40-40 80-60 100z" fill="#ff4757"/>
+  
+  <!-- Pulso cardíaco -->
+  <path d="M150 220 L180 220 L190 200 L200 240 L210 180 L220 260 L230 200 L240 220 L270 220" stroke="white" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg> 
