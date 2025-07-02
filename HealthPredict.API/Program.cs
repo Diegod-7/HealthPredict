@@ -51,27 +51,50 @@ builder.Services.AddScoped<AlertaService>();
 builder.Services.AddScoped<ReporteService>();
 builder.Services.AddScoped<InteligenciaPredictiva>();
 
-// Configuración de CORS
+// Configuración de CORS - SOLUCIÓN COMPLETA PARA VERCEL
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAngularApp", policy => {
         if (builder.Environment.IsDevelopment())
         {
+            // En desarrollo, permitir cualquier origen
             policy.AllowAnyOrigin()
                   .AllowAnyMethod()
                   .AllowAnyHeader();
         }
         else
         {
-            policy.WithOrigins(
-                    "http://localhost:4200", 
+            // En producción, configuración específica y flexible
+            policy.SetIsOriginAllowed(origin => {
+                if (string.IsNullOrEmpty(origin)) return false;
+                
+                // Lista de dominios exactos permitidos
+                var allowedExactOrigins = new[]
+                {
+                    "http://localhost:4200",
+                    "https://localhost:4200", 
                     "https://healthpredict-l1hu.onrender.com",
                     "https://health-predict-eggtvl0sc-diego-diazs-projects-dabcb856.vercel.app",
-                    "https://health-predict.vercel.app",
-                    "https://*.vercel.app"
-                  )
-                  .AllowAnyMethod()
-                  .AllowAnyHeader()
-                  .AllowCredentials();
+                    "https://health-predict.vercel.app"
+                };
+                
+                // Verificar dominios exactos
+                if (allowedExactOrigins.Contains(origin))
+                    return true;
+                
+                // Verificar patrones de Vercel
+                if (origin.StartsWith("https://") && origin.EndsWith(".vercel.app"))
+                {
+                    // Permitir subdominios de vercel que contengan "health-predict"
+                    var uri = new Uri(origin);
+                    return uri.Host.Contains("health-predict") || 
+                           uri.Host.Contains("diego-diaz");
+                }
+                
+                return false;
+            })
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
         }
     });
 });
@@ -107,6 +130,30 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+// Middleware personalizado para logging CORS
+app.Use(async (context, next) =>
+{
+    var origin = context.Request.Headers["Origin"].FirstOrDefault();
+    if (!string.IsNullOrEmpty(origin))
+    {
+        Console.WriteLine($"🌐 CORS Request from: {origin}");
+        Console.WriteLine($"🔧 Method: {context.Request.Method}");
+        Console.WriteLine($"📍 Path: {context.Request.Path}");
+    }
+    
+    await next();
+    
+    // Log response headers
+    if (context.Response.Headers.ContainsKey("Access-Control-Allow-Origin"))
+    {
+        Console.WriteLine($"✅ CORS Response: Access-Control-Allow-Origin = {context.Response.Headers["Access-Control-Allow-Origin"]}");
+    }
+    else if (!string.IsNullOrEmpty(origin))
+    {
+        Console.WriteLine($"❌ CORS Response: No Access-Control-Allow-Origin header for {origin}");
+    }
+});
+
 app.UseCors("AllowAngularApp");
 app.UseAuthorization();
 
@@ -115,15 +162,32 @@ app.MapGet("/", () => new {
     message = "HealthPredict API", 
     version = "1.0.0",
     status = "Funcionando correctamente",
-            endpoints = new {
-            swagger = "/swagger",
-            usuarios = "/api/Usuarios",
-            datosVitales = "/api/DatosVitales",
-            alertas = "/api/Alertas",
-            graficos = "/api/Graficos",
-            reportes = "/api/Reportes",
-            inteligenciaIA = "/api/InteligenciaPredictiva"
-        }
+    endpoints = new {
+        swagger = "/swagger",
+        usuarios = "/api/Usuarios",
+        datosVitales = "/api/DatosVitales",
+        alertas = "/api/Alertas",
+        graficos = "/api/Graficos",
+        reportes = "/api/Reportes",
+        inteligenciaIA = "/api/InteligenciaPredictiva",
+        corsTest = "/api/cors-test"
+    }
+});
+
+// ✅ ENDPOINT PARA TESTING CORS
+app.MapGet("/api/cors-test", (HttpContext context) => {
+    var origin = context.Request.Headers["Origin"].FirstOrDefault();
+    var userAgent = context.Request.Headers["User-Agent"].FirstOrDefault();
+    
+    return new {
+        message = "CORS Test Endpoint",
+        timestamp = DateTime.UtcNow,
+        origin = origin ?? "No origin header",
+        userAgent = userAgent ?? "No user agent",
+        method = context.Request.Method,
+        headers = context.Request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString()),
+        corsEnabled = true
+    };
 });
 
 app.MapControllers();
