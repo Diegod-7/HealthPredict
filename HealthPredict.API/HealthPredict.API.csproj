@@ -30,4 +30,16 @@
     <ProjectReference Include="..\HealthPredict.Models\HealthPredict.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="../sync_pasos_simple.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="credentials.json" Condition="Exists('credentials.json')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../credentials.json" Condition="Exists('../credentials.json')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

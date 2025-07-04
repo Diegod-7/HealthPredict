@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Text.Json;
 using HealthPredict.API.Services;
 using System.Diagnostics;
+using System.IO;
 
 namespace HealthPredict.API.Controllers
 {
@@ -669,11 +670,6 @@ namespace HealthPredict.API.Controllers
         }
 
         /// <summary>
-        /// Endpoint específico para guardar datos de pasos (step_count)
-        /// </summary>
-        /// <param name="jsonData">JSON con datos de pasos en formato Health Auto Export</param>
-        /// <returns>Respuesta simple</returns>
-        /// <summary>
         /// Endpoint para ejecutar la sincronización desde Google Drive
         /// </summary>
         /// <returns>Resultado de la sincronización</returns>
@@ -726,8 +722,11 @@ namespace HealthPredict.API.Controllers
             }
         }
 
-
-
+        /// <summary>
+        /// Endpoint para guardar datos de pasos (step_count)
+        /// </summary>
+        /// <param name="jsonData">JSON con datos de pasos en formato Health Auto Export</param>
+        /// <returns>Respuesta simple</returns>
         [HttpPost("pasos")]
         public async Task<ActionResult> GuardarPasos([FromBody] object jsonData)
         {
@@ -811,14 +810,12 @@ namespace HealthPredict.API.Controllers
                 });
             }
         }
-    
 
-
-/// <summary>
-/// Obtener información de la última sincronización
-/// </summary>
-/// <returns>Información de la última sincronización</returns>
-[HttpGet("ultima-sincronizacion")]
+        /// <summary>
+        /// Obtener información de la última sincronización
+        /// </summary>
+        /// <returns>Información de la última sincronización</returns>
+        [HttpGet("ultima-sincronizacion")]
         public async Task<ActionResult<object>> GetUltimaSincronizacion()
         {
             try
@@ -853,12 +850,19 @@ namespace HealthPredict.API.Controllers
             {
                 _logger.LogInformation("Iniciando sincronización de pasos con script Python");
 
+                // Detectar el comando Python correcto según el sistema operativo
+                string pythonCommand = GetPythonCommand();
+                string scriptPath = GetScriptPath();
+
+                _logger.LogInformation($"Usando comando Python: {pythonCommand}");
+                _logger.LogInformation($"Ruta del script: {scriptPath}");
+
                 // Ejecutar el script de Python
                 var processStartInfo = new System.Diagnostics.ProcessStartInfo
                 {
-                    FileName = "python",
-                    Arguments = "sync_pasos_simple.py",
-                    WorkingDirectory = Directory.GetCurrentDirectory(),
+                    FileName = pythonCommand,
+                    Arguments = $"\"{scriptPath}\"",
+                    WorkingDirectory = GetWorkingDirectory(),
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
@@ -902,6 +906,13 @@ namespace HealthPredict.API.Controllers
                 var output = outputBuilder.ToString().Trim();
                 var error = errorBuilder.ToString().Trim();
 
+                _logger.LogInformation($"Código de salida del script: {process.ExitCode}");
+                _logger.LogInformation($"Salida del script: {output}");
+                if (!string.IsNullOrEmpty(error))
+                {
+                    _logger.LogWarning($"Error del script: {error}");
+                }
+
                 if (process.ExitCode == 0 && !string.IsNullOrEmpty(output))
                 {
                     try
@@ -933,7 +944,10 @@ namespace HealthPredict.API.Controllers
                         error = "script_error",
                         message = !string.IsNullOrEmpty(error) ? error : "Error ejecutando el script de sincronización",
                         exitCode = process.ExitCode,
-                        output = output
+                        output = output,
+                        pythonCommand = pythonCommand,
+                        scriptPath = scriptPath,
+                        workingDirectory = GetWorkingDirectory()
                     });
                 }
             }
@@ -944,9 +958,67 @@ namespace HealthPredict.API.Controllers
                 {
                     success = false,
                     error = "execution_error",
-                    message = $"Error interno: {ex.Message}"
+                    message = $"Error interno: {ex.Message}",
+                    pythonCommand = GetPythonCommand(),
+                    workingDirectory = GetWorkingDirectory()
                 });
             }
+        }
+
+        /// <summary>
+        /// Obtener el comando Python correcto según el sistema operativo
+        /// </summary>
+        private string GetPythonCommand()
+        {
+            // En Linux/Docker, usar python3
+            if (Environment.OSVersion.Platform == PlatformID.Unix)
+            {
+                return "python3";
+            }
+            
+            // En Windows, usar python
+            return "python";
+        }
+
+        /// <summary>
+        /// Obtener la ruta del script
+        /// </summary>
+        private string GetScriptPath()
+        {
+            var workingDir = GetWorkingDirectory();
+            var scriptName = "sync_pasos_simple.py";
+            
+            // Buscar el script en diferentes ubicaciones
+            var possiblePaths = new[]
+            {
+                Path.Combine(workingDir, scriptName),
+                Path.Combine(workingDir, "..", scriptName),
+                Path.Combine(workingDir, "..", "..", scriptName),
+                Path.Combine("/app", scriptName), // Ruta típica en Docker
+                scriptName // Ruta relativa
+            };
+
+            foreach (var path in possiblePaths)
+            {
+                if (File.Exists(path))
+                {
+                    _logger.LogInformation($"Script encontrado en: {path}");
+                    return path;
+                }
+            }
+
+            _logger.LogWarning($"Script no encontrado en ninguna ubicación. Usando: {scriptName}");
+            return scriptName;
+        }
+
+        /// <summary>
+        /// Obtener el directorio de trabajo
+        /// </summary>
+        private string GetWorkingDirectory()
+        {
+            var currentDir = Directory.GetCurrentDirectory();
+            _logger.LogInformation($"Directorio de trabajo actual: {currentDir}");
+            return currentDir;
         }
 
         /// <summary>
