@@ -872,7 +872,7 @@ namespace HealthPredict.API.Controllers
                 _logger.LogInformation("Iniciando sincronización desde Google Drive usando el servicio C#");
 
                 // Usar el servicio real de Google Drive
-                var result = await _googleDriveService.SyncFromGoogleDriveCsharp();
+                var result = await _googleDriveService.SyncFromGoogleDrive();
                 
                 if (result.Success)
                 {
