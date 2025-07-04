@@ -16,7 +16,6 @@ namespace HealthPredict.API.Services
 
         // Configuración fija como solicitaste
         private const string ARCHIVO_FIJO = "HealthAutoExport-2025-07-04.json";
-        private const string CARPETA_FIJA = "Mi unidad/HealthAutoExport/Health";
         private const int USUARIO_ID = 7; // Usuario fijo
 
         public GoogleDriveService(
@@ -116,15 +115,15 @@ namespace HealthPredict.API.Services
                     };
                 }
 
-                // Buscar archivo
-                var fileInfo = await FindFileInFolder(ARCHIVO_FIJO, CARPETA_FIJA);
+                // Buscar archivo por nombre en toda la unidad
+                var fileInfo = await FindFileByName(ARCHIVO_FIJO);
                 if (fileInfo == null)
                 {
                     return new SyncResult
                     {
                         Success = false,
                         Error = "file_not_found",
-                        Message = $"No se encontró el archivo {ARCHIVO_FIJO} en {CARPETA_FIJA}"
+                        Message = $"No se encontró el archivo {ARCHIVO_FIJO}"
                     };
                 }
 
@@ -173,49 +172,23 @@ namespace HealthPredict.API.Services
         }
 
         /// <summary>
-        /// Busca un archivo en una carpeta específica
+        /// Busca un archivo por nombre en toda la unidad de Google Drive
         /// </summary>
-        private async Task<Google.Apis.Drive.v3.Data.File?> FindFileInFolder(string fileName, string folderPath)
+        private async Task<Google.Apis.Drive.v3.Data.File?> FindFileByName(string fileName)
         {
             try
             {
                 if (_driveService == null)
                     return null;
 
-                // Dividir la ruta en carpetas
-                var folders = folderPath.Split('/').Where(f => !string.IsNullOrWhiteSpace(f)).ToList();
-                
-                // Empezar desde la raíz
-                string currentFolderId = "root";
+                // Buscar el archivo por nombre en toda la unidad
+                var query = $"name='{fileName}' and trashed=false";
+                var request = _driveService.Files.List();
+                request.Q = query;
+                request.Fields = "files(id, name, modifiedTime, size)";
 
-                // Navegar por cada carpeta
-                foreach (var folderName in folders)
-                {
-                    var folderQuery = $"name='{folderName}' and parents in '{currentFolderId}' and mimeType='application/vnd.google-apps.folder' and trashed=false";
-                    var folderRequest = _driveService.Files.List();
-                    folderRequest.Q = folderQuery;
-                    folderRequest.Fields = "files(id, name)";
-
-                    var folderResults = await folderRequest.ExecuteAsync();
-                    var foundFolders = folderResults.Files;
-
-                    if (foundFolders == null || !foundFolders.Any())
-                    {
-                        _logger.LogWarning($"No se encontró la carpeta: {folderName}");
-                        return null;
-                    }
-
-                    currentFolderId = foundFolders.First().Id;
-                }
-
-                // Buscar el archivo en la carpeta final
-                var fileQuery = $"name='{fileName}' and parents in '{currentFolderId}' and trashed=false";
-                var fileRequest = _driveService.Files.List();
-                fileRequest.Q = fileQuery;
-                fileRequest.Fields = "files(id, name, modifiedTime, size)";
-
-                var fileResults = await fileRequest.ExecuteAsync();
-                var files = fileResults.Files;
+                var results = await request.ExecuteAsync();
+                var files = results.Files;
 
                 if (files == null || !files.Any())
                 {
@@ -223,12 +196,15 @@ namespace HealthPredict.API.Services
                     return null;
                 }
 
-                _logger.LogInformation($"Archivo encontrado: {fileName} (ID: {files.First().Id})");
-                return files.First();
+                // Si hay múltiples archivos con el mismo nombre, tomar el más reciente
+                var selectedFile = files.OrderByDescending(f => f.ModifiedTime).First();
+
+                _logger.LogInformation($"Archivo encontrado: {fileName} (ID: {selectedFile.Id})");
+                return selectedFile;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error buscando archivo {fileName} en {folderPath}");
+                _logger.LogError(ex, $"Error buscando archivo {fileName}");
                 return null;
             }
         }

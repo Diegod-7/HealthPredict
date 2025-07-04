@@ -23,7 +23,6 @@ CREDENTIALS_FILE = 'credentials.json'
 TOKEN_FILE = 'token.json'
 API_URL = 'https://healthpredict-l1hu.onrender.com/api/HealthAutoExport/pasos'
 ARCHIVO_FIJO = "HealthAutoExport-2025-07-04.json"
-CARPETA_FIJA = "Mi unidad/HealthAutoExport/Health"
 
 class SyncPasosSimple:
     def __init__(self):
@@ -57,43 +56,28 @@ class SyncPasosSimple:
         
         self.service = build('drive', 'v3', credentials=creds)
     
-    def find_file_in_folder(self, filename, folder_path):
-        """Busca un archivo en una ruta específica de carpetas"""
+    def find_file_by_name(self, filename):
+        """Busca un archivo por nombre en toda la unidad de Google Drive"""
         try:
-            # Dividir la ruta en carpetas
-            folders = [f.strip() for f in folder_path.split('/') if f.strip()]
-            
-            # Empezar desde la raíz
-            current_folder_id = 'root'
-            
-            # Navegar por cada carpeta en la ruta
-            for folder_name in folders:
-                folder_query = f"name='{folder_name}' and parents in '{current_folder_id}' and mimeType='application/vnd.google-apps.folder' and trashed=false"
-                folder_results = self.service.files().list(
-                    q=folder_query,
-                    fields="files(id, name)"
-                ).execute()
-                
-                folders_found = folder_results.get('files', [])
-                if not folders_found:
-                    return None
-                
-                current_folder_id = folders_found[0]['id']
-            
-            # Buscar el archivo en la carpeta final
-            file_query = f"name='{filename}' and parents in '{current_folder_id}' and trashed=false"
-            file_results = self.service.files().list(
-                q=file_query,
+            # Buscar el archivo por nombre en toda la unidad
+            query = f"name='{filename}' and trashed=false"
+            results = self.service.files().list(
+                q=query,
                 fields="files(id, name, modifiedTime, size, parents)"
             ).execute()
             
-            files = file_results.get('files', [])
+            files = results.get('files', [])
             if not files:
                 return None
             
+            # Si hay múltiples archivos con el mismo nombre, tomar el más reciente
+            if len(files) > 1:
+                files.sort(key=lambda x: x.get('modifiedTime', ''), reverse=True)
+            
             return files[0]
             
-        except HttpError:
+        except HttpError as e:
+            print(f"Error al buscar archivo: {e}")
             return None
     
     def download_file_content(self, file_id):
@@ -111,7 +95,8 @@ class SyncPasosSimple:
             content = file_content.read().decode('utf-8')
             return content
             
-        except HttpError:
+        except HttpError as e:
+            print(f"Error al descargar archivo: {e}")
             return None
     
     def send_to_api(self, data):
@@ -168,8 +153,8 @@ class SyncPasosSimple:
                     "message": "No se pudo configurar el servicio de Google Drive"
                 }
             
-            # Buscar archivo
-            file_info = self.find_file_in_folder(ARCHIVO_FIJO, CARPETA_FIJA)
+            # Buscar archivo por nombre en toda la unidad
+            file_info = self.find_file_by_name(ARCHIVO_FIJO)
             if not file_info:
                 return {
                     "success": False,
@@ -199,32 +184,52 @@ class SyncPasosSimple:
             # Enviar a la API
             result = self.send_to_api(data)
             
-            # Agregar información del archivo
-            result["file_info"] = {
-                "name": file_info['name'],
-                "modified": file_info['modifiedTime'],
-                "size": file_info.get('size', 'N/A')
-            }
-            
-            return result
-            
+            if result["success"]:
+                return {
+                    "success": True,
+                    "message": f"Archivo {ARCHIVO_FIJO} sincronizado exitosamente",
+                    "file_info": {
+                        "name": file_info['name'],
+                        "id": file_info['id'],
+                        "modified": file_info.get('modifiedTime', 'N/A'),
+                        "size": file_info.get('size', 'N/A')
+                    },
+                    "api_response": result["response"]
+                }
+            else:
+                return result
+                
         except Exception as e:
             return {
                 "success": False,
                 "error": "sync_error",
-                "message": str(e)
+                "message": f"Error durante la sincronización: {str(e)}"
             }
 
 def main():
     """Función principal"""
-    sync = SyncPasosSimple()
-    result = sync.sync()
-    
-    # Imprimir resultado como JSON para que la app lo pueda leer
-    print(json.dumps(result, indent=2))
-    
-    # Código de salida: 0 para éxito, 1 para error
-    sys.exit(0 if result["success"] else 1)
+    try:
+        syncer = SyncPasosSimple()
+        result = syncer.sync()
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+        
+        # Código de salida basado en el resultado
+        sys.exit(0 if result["success"] else 1)
+        
+    except KeyboardInterrupt:
+        print(json.dumps({
+            "success": False,
+            "error": "interrupted",
+            "message": "Operación cancelada por el usuario"
+        }))
+        sys.exit(1)
+    except Exception as e:
+        print(json.dumps({
+            "success": False,
+            "error": "unexpected_error",
+            "message": f"Error inesperado: {str(e)}"
+        }))
+        sys.exit(1)
 
 if __name__ == "__main__":
     main() 
