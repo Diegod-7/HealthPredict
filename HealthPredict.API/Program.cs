@@ -50,6 +50,15 @@ builder.Services.AddScoped<DatoVitalService>();
 builder.Services.AddScoped<AlertaService>();
 builder.Services.AddScoped<ReporteService>();
 builder.Services.AddScoped<InteligenciaPredictiva>();
+builder.Services.AddScoped<FitnessSyncerService>();
+builder.Services.AddScoped<HealthAutoExportService>();
+
+// Configuración de HttpClient para FitnessSyncer
+builder.Services.AddHttpClient<FitnessSyncerService>(client =>
+{
+    client.Timeout = TimeSpan.FromMinutes(5);
+    client.DefaultRequestHeaders.Add("User-Agent", "HealthPredict/1.0");
+});
 
 // Configuración de CORS - SOLUCIÓN COMPLETA PARA VERCEL
 builder.Services.AddCors(options => {

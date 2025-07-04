@@ -24,6 +24,9 @@ import { AnalyticsEmpresarialComponent } from './components/analytics-empresaria
 // Módulo de reportes
 import { ReportesModule } from './components/reportes/reportes.module';
 
+// ✅ COMPONENTE DE SENSORES DE SALUD
+import { HealthSensorComponent } from './components/health-sensor/health-sensor.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -38,7 +41,9 @@ import { ReportesModule } from './components/reportes/reportes.module';
     LoginComponent,
     DashboardJefeComponent,
     InteligenciaPredictivaComponent,
-    AnalyticsEmpresarialComponent
+    AnalyticsEmpresarialComponent,
+    // ✅ COMPONENTE DE SENSORES DE SALUD
+    HealthSensorComponent
   ],
   imports: [
     BrowserModule,

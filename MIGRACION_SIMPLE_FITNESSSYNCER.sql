@@ -1,0 +1,38 @@
+-- =========================================================================
+-- MIGRACIÓN SIMPLE: FitnessSyncer Integration
+-- Base de Datos: PostgreSQL - HealthPredict
+-- =========================================================================
+
+-- Crear tabla FITNESS_SYNCER_CONFIGS
+CREATE TABLE "FITNESS_SYNCER_CONFIGS" (
+    "ID" SERIAL PRIMARY KEY,
+    "USUARIO_ID" INTEGER NOT NULL,
+    "ACCESS_TOKEN" VARCHAR(1000) NOT NULL,
+    "REFRESH_TOKEN" VARCHAR(1000) NOT NULL,
+    "TOKEN_EXPIRY" TIMESTAMP NOT NULL,
+    "IS_ACTIVE" BOOLEAN NOT NULL DEFAULT true,
+    "FECHA_CREACION" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "ULTIMA_SINCRONIZACION" TIMESTAMP NULL
+);
+
+-- Agregar llave foránea
+ALTER TABLE "FITNESS_SYNCER_CONFIGS" 
+ADD CONSTRAINT "FK_FITNESS_SYNCER_CONFIGS_USUARIOS" 
+FOREIGN KEY ("USUARIO_ID") REFERENCES "USUARIOS"("ID") ON DELETE CASCADE;
+
+-- Crear índices
+CREATE UNIQUE INDEX "IX_FITNESS_SYNCER_CONFIGS_USUARIO_ACTIVE" 
+ON "FITNESS_SYNCER_CONFIGS" ("USUARIO_ID", "IS_ACTIVE");
+
+CREATE INDEX "IX_FITNESS_SYNCER_CONFIGS_USUARIO_ID" 
+ON "FITNESS_SYNCER_CONFIGS" ("USUARIO_ID");
+
+CREATE INDEX "IX_FITNESS_SYNCER_CONFIGS_ULTIMA_SINCRONIZACION" 
+ON "FITNESS_SYNCER_CONFIGS" ("ULTIMA_SINCRONIZACION");
+
+-- Verificar que se creó correctamente
+SELECT 'Tabla creada exitosamente' as resultado;
+SELECT COUNT(*) as total_columnas FROM information_schema.columns 
+WHERE table_name = 'FITNESS_SYNCER_CONFIGS';
+
+-- ========================================================================= 

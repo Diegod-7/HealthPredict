@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración Health Auto Export - HealthPredict</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .step {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #3498db;
+        }
+
+        .step h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+        }
+
+        .step-number {
+            background: #3498db;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+        }
+
+        .endpoint {
+            background: #e8f4f8;
+            border: 1px solid #3498db;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .endpoint-method {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .endpoint-url {
+            font-family: monospace;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            color: #856404;
+        }
+
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            color: #155724;
+        }
+
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            color: #0c5460;
+        }
+
+        .data-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .data-type {
+            background: #e8f4f8;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.9em;
+            border: 1px solid #3498db;
+        }
+
+        .json-example {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.85em;
+            overflow-x: auto;
+        }
+
+        .json-key {
+            color: #3498db;
+        }
+
+        .json-string {
+            color: #e74c3c;
+        }
+
+        .json-number {
+            color: #f39c12;
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            background: #27ae60;
+        }
+
+        .btn-success:hover {
+            background: #219a52;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .step {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Health Auto Export + HealthPredict</h1>
+            <p>Guía completa para integrar tu aplicación iOS con tu sistema de salud</p>
+        </div>
+
+        <div class="content">
+            <div class="success">
+                <strong>✅ Integración Completada</strong><br>
+                Tu backend HealthPredict ya está listo para recibir datos de Health Auto Export. Todos los datos se almacenarán automáticamente para el usuario ID: 7.
+            </div>
+
+            <div class="step">
+                <h2>
+                    <span class="step-number">1</span>
+                    Ejecutar Migración de Base de Datos
+                </h2>
+                <p>Primero, ejecuta estos comandos SQL en tu base de datos PostgreSQL:</p>
+                <div class="code-block">
+-- Agregar nuevos campos a DATOS_VITALES
+ALTER TABLE DATOS_VITALES ADD COLUMN FECHA_MEDICION TIMESTAMP;
+ALTER TABLE DATOS_VITALES ADD COLUMN DISPOSITIVO VARCHAR(100);
+ALTER TABLE DATOS_VITALES ADD COLUMN FUENTE VARCHAR(100);
+
+-- Actualizar registros existentes
+UPDATE DATOS_VITALES SET FECHA_MEDICION = FECHA_REGISTRO WHERE FECHA_MEDICION IS NULL;
+
+-- Crear tabla de configuración
+CREATE TABLE HEALTH_AUTO_EXPORT_CONFIGS (
+    ID SERIAL PRIMARY KEY,
+    USUARIO_ID INTEGER NOT NULL,
+    API_KEY VARCHAR(100) NOT NULL,
+    IS_ACTIVE BOOLEAN NOT NULL DEFAULT TRUE,
+    CREATED_AT TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    LAST_SYNC_AT TIMESTAMP NULL,
+    ALLOWED_DATA_TYPES VARCHAR(1000) NULL,
+    DEVICE_INFO VARCHAR(500) NULL,
+    SYNC_INTERVAL_MINUTES INTEGER NOT NULL DEFAULT 60,
+    CONSTRAINT FK_HEALTH_AUTO_EXPORT_CONFIGS_USUARIOS 
+        FOREIGN KEY (USUARIO_ID) REFERENCES USUARIOS(ID) ON DELETE CASCADE
+);
+
+-- Crear índices
+CREATE UNIQUE INDEX IX_HEALTH_AUTO_EXPORT_CONFIGS_API_KEY 
+ON HEALTH_AUTO_EXPORT_CONFIGS (API_KEY);
+                </div>
+            </div>
+
+            <div class="step">
+                <h2>
+                    <span class="step-number">2</span>
+                    Descargar Health Auto Export
+                </h2>
+                <p>Descarga la aplicación Health Auto Export desde el App Store:</p>
+                <div class="info">
+                    <strong>📱 Health Auto Export</strong><br>
+                    Desarrollador: HealthyApps.dev<br>
+                    Precio: ~$10-30 USD (compra única)<br>
+                    Compatibilidad: iOS 14.0 o superior
+                </div>
+                <a href="https://apps.apple.com/app/health-auto-export/id1115567069" class="btn" target="_blank">
+                    📲 Descargar desde App Store
+                </a>
+            </div>
+
+            <div class="step">
+                <h2>
+                    <span class="step-number">3</span>
+                    Configurar Endpoints en tu API
+                </h2>
+                <p>Tu API HealthPredict ya tiene estos endpoints disponibles:</p>
+                
+                <div class="endpoint">
+                    <span class="endpoint-method">POST</span>
+                    <span class="endpoint-url">/api/HealthAutoExport/simple</span>
+                    <p>Endpoint principal para recibir datos (sin autenticación)</p>
+                </div>
+
+                <div class="endpoint">
+                    <span class="endpoint-method">POST</span>
+                    <span class="endpoint-url">/api/HealthAutoExport/data</span>
+                    <p>Endpoint con autenticación por API Key</p>
+                </div>
+
+                <div class="endpoint">
+                    <span class="endpoint-method">POST</span>
+                    <span class="endpoint-url">/api/HealthAutoExport/batch</span>
+                    <p>Para recibir múltiples datos en un solo envío</p>
+                </div>
+
+                <div class="endpoint">
+                    <span class="endpoint-method">GET</span>
+                    <span class="endpoint-url">/api/HealthAutoExport/test</span>
+                    <p>Probar conectividad con la API</p>
+                </div>
+
+                <div class="endpoint">
+                    <span class="endpoint-method">GET</span>
+                    <span class="endpoint-url">/api/HealthAutoExport/stats</span>
+                    <p>Ver estadísticas de sincronización</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <h2>
+                    <span class="step-number">4</span>
+                    Configurar Health Auto Export
+                </h2>
+                <p>En la aplicación Health Auto Export, configura la exportación automática:</p>
+                
+                <div class="warning">
+                    <strong>⚠️ Configuración Importante</strong><br>
+                    Asegúrate de reemplazar "tu-dominio.com" con tu URL real de producción.
+                </div>
+
+                <h3>Configuración REST API:</h3>
+                <div class="code-block">
+URL: https://tu-dominio.com/api/HealthAutoExport/simple
+Método: POST
+Content-Type: application/json
+Intervalo: 60 minutos (recomendado)
+                </div>
+
+                <h3>Tipos de datos soportados:</h3>
+                <div class="data-types">
+                    <div class="data-type">Pasos</div>
+                    <div class="data-type">Frecuencia Cardíaca</div>
+                    <div class="data-type">Presión Arterial</div>
+                    <div class="data-type">Glucosa</div>
+                    <div class="data-type">Peso</div>
+                    <div class="data-type">Temperatura</div>
+                    <div class="data-type">Saturación O2</div>
+                    <div class="data-type">Sueño</div>
+                    <div class="data-type">Calorías</div>
+                    <div class="data-type">Distancia</div>
+                    <div class="data-type">VO2 Max</div>
+                    <div class="data-type">Frecuencia Respiratoria</div>
+                </div>
+            </div>
+
+            <div class="step">
+                <h2>
+                    <span class="step-number">5</span>
+                    Ejemplo de Datos JSON
+                </h2>
+                <p>Health Auto Export enviará datos en este formato:</p>
+                <div class="json-example">
+{
+  <span class="json-key">"DataType"</span>: <span class="json-string">"stepcount"</span>,
+  <span class="json-key">"Source"</span>: <span class="json-string">"Apple Health"</span>,
+  <span class="json-key">"StartDate"</span>: <span class="json-string">"2025-01-17T10:00:00Z"</span>,
+  <span class="json-key">"EndDate"</span>: <span class="json-string">"2025-01-17T10:59:59Z"</span>,
+  <span class="json-key">"Value"</span>: <span class="json-number">1250</span>,
+  <span class="json-key">"Unit"</span>: <span class="json-string">"steps"</span>,
+  <span class="json-key">"DeviceModel"</span>: <span class="json-string">"iPhone 15 Pro"</span>,
+  <span class="json-key">"DeviceManufacturer"</span>: <span class="json-string">"Apple"</span>,
+  <span class="json-key">"Metadata"</span>: {
+    <span class="json-key">"source"</span>: <span class="json-string">"Apple Watch"</span>,
+    <span class="json-key">"workout"</span>: <span class="json-string">"false"</span>
+  }
+}
+                </div>
+            </div>
+
+            <div class="step">
+                <h2>
+                    <span class="step-number">6</span>
+                    Probar la Integración
+                </h2>
+                <p>Prueba que todo funcione correctamente:</p>
+                
+                <div class="info">
+                    <strong>🧪 Pasos de Prueba:</strong><br>
+                    1. Visita: <code>https://tu-dominio.com/api/HealthAutoExport/test</code><br>
+                    2. Deberías ver una respuesta JSON con "success": true<br>
+                    3. Configura Health Auto Export con tu URL<br>
+                    4. Espera 1 hora o fuerza una sincronización<br>
+                    5. Verifica los datos en: <code>https://tu-dominio.com/api/HealthAutoExport/stats</code>
+                </div>
+
+                <a href="#" class="btn btn-success" onclick="testAPI()">
+                    🧪 Probar API Ahora
+                </a>
+            </div>
+
+            <div class="step">
+                <h2>
+                    <span class="step-number">7</span>
+                    Monitoreo y Estadísticas
+                </h2>
+                <p>Puedes monitorear el estado de la sincronización:</p>
+                
+                <div class="endpoint">
+                    <span class="endpoint-method">GET</span>
+                    <span class="endpoint-url">/api/HealthAutoExport/stats</span>
+                    <p>Ver estadísticas de datos recibidos</p>
+                </div>
+
+                <div class="endpoint">
+                    <span class="endpoint-method">GET</span>
+                    <span class="endpoint-url">/api/DatosVitales?usuarioId=7</span>
+                    <p>Ver todos los datos vitales del usuario 7</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <h2>
+                    <span class="step-number">8</span>
+                    Configuración Avanzada (Opcional)
+                </h2>
+                <p>Para mayor seguridad, puedes generar una API Key:</p>
+                
+                <div class="code-block">
+POST /api/HealthAutoExport/generate-api-key
+                </div>
+
+                <p>Luego configura Health Auto Export con:</p>
+                <div class="code-block">
+URL: https://tu-dominio.com/api/HealthAutoExport/data
+Headers: X-API-Key: TU_API_KEY_GENERADA
+                </div>
+            </div>
+
+            <div class="success">
+                <strong>🎉 ¡Configuración Completada!</strong><br>
+                Tu sistema HealthPredict ahora puede recibir datos automáticamente de Health Auto Export. Los datos se almacenarán para el usuario ID: 7 y estarán disponibles en tu dashboard.
+            </div>
+        </div>
+
+        <div class="footer">
+            <h3>📞 Soporte</h3>
+            <p>Si tienes problemas con la configuración, verifica:</p>
+            <ul style="text-align: left; display: inline-block; margin: 10px 0;">
+                <li>✅ Base de datos migrada correctamente</li>
+                <li>✅ API funcionando (endpoint /test)</li>
+                <li>✅ CORS configurado para tu dominio</li>
+                <li>✅ Health Auto Export con URL correcta</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function testAPI() {
+            const currentDomain = window.location.origin;
+            const testUrl = currentDomain.replace('localhost:4200', 'localhost:5000') + '/api/HealthAutoExport/test';
+            
+            fetch(testUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('✅ API funcionando correctamente!\n\nMensaje: ' + data.message);
+                    } else {
+                        alert('❌ Error en la API:\n' + JSON.stringify(data, null, 2));
+                    }
+                })
+                .catch(error => {
+                    alert('❌ Error de conexión:\n' + error.message + '\n\nAsegúrate de que tu API esté funcionando.');
+                });
+        }
+    </script>
+</body>
+</html> 

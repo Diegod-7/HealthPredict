@@ -77,4 +77,16 @@ export class DatoVitalService {
     console.log('🌐 [REAL DATA] Generando resumen desde servidor para usuario:', usuarioId);
     return this.http.get<any>(`${environment.apiUrl}/Graficos/ResumenDatosVitales/${usuarioId}`);
   }
+
+  // ✅ MÉTODO PARA SINCRONIZAR DATOS DE HEALTHKIT/SENSORES
+  syncHealthKitData(healthKitData: any[]): Observable<any> {
+    console.log('🌐 [HEALTH SYNC] Sincronizando datos de sensores al servidor:', healthKitData);
+    return this.http.post<any>(`${this.apiUrl}/Sync/HealthKit`, healthKitData);
+  }
+
+  // ✅ MÉTODO PARA OBTENER ÚLTIMA FECHA DE SINCRONIZACIÓN
+  getLastSyncDate(usuarioId: number): Observable<Date | null> {
+    console.log('🌐 [HEALTH SYNC] Obteniendo última fecha de sincronización para usuario:', usuarioId);
+    return this.http.get<Date | null>(`${this.apiUrl}/LastSync/${usuarioId}`);
+  }
 }

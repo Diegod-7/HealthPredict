@@ -1,4 +1,21 @@
 {
     "liveServer.settings.port": 5501,
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "sqltools.connections": [
+        {
+            "pgOptions": {
+                "ssl": {
+                    "rejectUnauthorized": true
+                }
+            },
+            "previewLimit": 50,
+            "server": "ep-royal-dream-a4izfmtv-pooler.us-east-1.aws.neon.tech",
+            "port": 5432,
+            "askForPassword": true,
+            "driver": "PostgreSQL",
+            "name": "Health",
+            "database": "neondb",
+            "username": "neondb_owner"
+        }
+    ]
 }

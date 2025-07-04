@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "XRmL+XnYc7vQCwntcIjxF6B+W+ZtijdYEW/wuxFynRZ3g0/Mo5qqg8CDWNg7ASU+bdhYF6fPSaxbMY7BWvXZ3A==",
+  "dgSpecHash": "uzYpcWrHqrlV28MODOVJjsISRZcB6HgqxzkBO4AcvNbAEqhmGUnw8w43i6izVsN140mPv0jkyhcdoAW8IKXsLg==",
   "success": true,
   "projectFilePath": "C:\\Users\\Diego\\OneDrive\\Escritorio\\ProyectoPortafolio\\HealthPredict\\HealthPredict.BLL\\HealthPredict.BLL.csproj",
   "expectedPackageFiles": [
@@ -13,6 +13,7 @@
     "C:\\Users\\Diego\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\7.0.0\\microsoft.extensions.configuration.abstractions.7.0.0.nupkg.sha512",
     "C:\\Users\\Diego\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\7.0.0\\microsoft.extensions.dependencyinjection.7.0.0.nupkg.sha512",
     "C:\\Users\\Diego\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\7.0.0\\microsoft.extensions.dependencyinjection.abstractions.7.0.0.nupkg.sha512",
+    "C:\\Users\\Diego\\.nuget\\packages\\microsoft.extensions.http\\7.0.0\\microsoft.extensions.http.7.0.0.nupkg.sha512",
     "C:\\Users\\Diego\\.nuget\\packages\\microsoft.extensions.logging\\7.0.0\\microsoft.extensions.logging.7.0.0.nupkg.sha512",
     "C:\\Users\\Diego\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\7.0.0\\microsoft.extensions.logging.abstractions.7.0.0.nupkg.sha512",
     "C:\\Users\\Diego\\.nuget\\packages\\microsoft.extensions.options\\7.0.0\\microsoft.extensions.options.7.0.0.nupkg.sha512",

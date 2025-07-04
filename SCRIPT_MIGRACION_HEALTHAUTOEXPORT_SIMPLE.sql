@@ -1,0 +1,199 @@
+-- ===============================================
+-- SCRIPT DE MIGRACIÓN SIMPLE PARA HEALTH AUTO EXPORT
+-- HealthPredict - Integración con HealthyApps.dev
+-- Fecha: 2025-01-17
+-- ===============================================
+
+-- 1. Crear tabla USUARIOS si no existe
+CREATE TABLE IF NOT EXISTS USUARIOS (
+    ID SERIAL PRIMARY KEY,
+    NOMBRE VARCHAR(100) NOT NULL,
+    APELLIDO VARCHAR(100),
+    EMAIL VARCHAR(150) UNIQUE NOT NULL,
+    PASSWORD VARCHAR(255) NOT NULL,
+    PASSWORD_HASH VARCHAR(255),
+    FECHA_REGISTRO TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ULTIMO_ACCESO TIMESTAMP,
+    ACTIVO BOOLEAN DEFAULT TRUE,
+    ES_ACTIVO BOOLEAN DEFAULT TRUE,
+    ROL VARCHAR(50) DEFAULT 'Usuario',
+    ES_PROFESIONAL_MEDICO BOOLEAN DEFAULT FALSE,
+    DEPARTAMENTO VARCHAR(100),
+    CARGO VARCHAR(100),
+    TELEFONO VARCHAR(20),
+    FECHA_NACIMIENTO DATE,
+    GENERO VARCHAR(10),
+    ALTURA DECIMAL(5,2),
+    PESO DECIMAL(5,2),
+    PESO_INICIAL DECIMAL(5,2),
+    CONDICIONES_MEDICAS TEXT,
+    MEDICAMENTOS TEXT,
+    CONTACTO_EMERGENCIA_NOMBRE VARCHAR(100),
+    CONTACTO_EMERGENCIA_TELEFONO VARCHAR(20),
+    PREFERENCIAS_NOTIFICACION TEXT,
+    ZONA_HORARIA VARCHAR(50) DEFAULT 'UTC',
+    IDIOMA VARCHAR(10) DEFAULT 'es'
+);
+
+-- 2. Crear tabla DATOS_VITALES si no existe
+CREATE TABLE IF NOT EXISTS DATOS_VITALES (
+    ID SERIAL PRIMARY KEY,
+    USUARIO_ID INTEGER NOT NULL REFERENCES USUARIOS(ID) ON DELETE CASCADE,
+    TIPO_DATO VARCHAR(50) NOT NULL,
+    VALOR DECIMAL(10,2) NOT NULL,
+    UNIDAD VARCHAR(20),
+    FECHA_REGISTRO TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FECHA_MEDICION TIMESTAMP,
+    DISPOSITIVO VARCHAR(100),
+    FUENTE VARCHAR(100),
+    NOTAS TEXT,
+    VALIDADO BOOLEAN DEFAULT FALSE,
+    FECHA_VALIDACION TIMESTAMP,
+    VALIDADO_POR INTEGER REFERENCES USUARIOS(ID),
+    METADATOS TEXT,
+    UBICACION_GPS VARCHAR(100),
+    CALIDAD_DATO INTEGER DEFAULT 100,
+    SINCRONIZADO BOOLEAN DEFAULT FALSE,
+    FECHA_SINCRONIZACION TIMESTAMP
+);
+
+-- 3. Crear tabla ALERTAS si no existe
+CREATE TABLE IF NOT EXISTS ALERTAS (
+    ID SERIAL PRIMARY KEY,
+    USUARIO_ID INTEGER NOT NULL REFERENCES USUARIOS(ID) ON DELETE CASCADE,
+    TIPO_ALERTA VARCHAR(50) NOT NULL,
+    TITULO VARCHAR(200) NOT NULL,
+    DESCRIPCION TEXT NOT NULL,
+    NIVEL_SEVERIDAD VARCHAR(20) NOT NULL,
+    FECHA_CREACION TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FECHA_RESOLUCION TIMESTAMP,
+    ESTADO VARCHAR(20) DEFAULT 'Pendiente',
+    RESUELTO_POR INTEGER REFERENCES USUARIOS(ID),
+    NOTAS_RESOLUCION TEXT,
+    VALOR_TRIGGER DECIMAL(10,2),
+    UMBRAL_CONFIGURADO DECIMAL(10,2),
+    ACCIONES_RECOMENDADAS TEXT,
+    PRIORIDAD INTEGER DEFAULT 1,
+    NOTIFICADO BOOLEAN DEFAULT FALSE,
+    FECHA_NOTIFICACION TIMESTAMP,
+    CANAL_NOTIFICACION VARCHAR(50),
+    METADATOS TEXT,
+    REQUIERE_ATENCION_MEDICA BOOLEAN DEFAULT FALSE
+);
+
+-- 4. Agregar campos a DATOS_VITALES si no existen
+DO $$ 
+BEGIN
+    -- Verificar y agregar FECHA_MEDICION
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'datos_vitales' AND column_name = 'fecha_medicion') THEN
+        ALTER TABLE DATOS_VITALES ADD COLUMN FECHA_MEDICION TIMESTAMP;
+    END IF;
+    
+    -- Verificar y agregar DISPOSITIVO
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'datos_vitales' AND column_name = 'dispositivo') THEN
+        ALTER TABLE DATOS_VITALES ADD COLUMN DISPOSITIVO VARCHAR(100);
+    END IF;
+    
+    -- Verificar y agregar FUENTE
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'datos_vitales' AND column_name = 'fuente') THEN
+        ALTER TABLE DATOS_VITALES ADD COLUMN FUENTE VARCHAR(100);
+    END IF;
+END $$;
+
+-- 5. Actualizar registros existentes
+UPDATE DATOS_VITALES SET FECHA_MEDICION = FECHA_REGISTRO WHERE FECHA_MEDICION IS NULL;
+
+-- 6. Crear tabla de configuración Health Auto Export
+CREATE TABLE IF NOT EXISTS HEALTH_AUTO_EXPORT_CONFIGS (
+    ID SERIAL PRIMARY KEY,
+    USUARIO_ID INTEGER NOT NULL,
+    API_KEY VARCHAR(100) NOT NULL,
+    IS_ACTIVE BOOLEAN NOT NULL DEFAULT TRUE,
+    CREATED_AT TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    LAST_SYNC_AT TIMESTAMP NULL,
+    ALLOWED_DATA_TYPES VARCHAR(1000) NULL,
+    DEVICE_INFO VARCHAR(500) NULL,
+    SYNC_INTERVAL_MINUTES INTEGER NOT NULL DEFAULT 60,
+    CONSTRAINT FK_HEALTH_AUTO_EXPORT_CONFIGS_USUARIOS 
+        FOREIGN KEY (USUARIO_ID) REFERENCES USUARIOS(ID) ON DELETE CASCADE
+);
+
+-- 7. Crear índices
+CREATE UNIQUE INDEX IF NOT EXISTS IX_HEALTH_AUTO_EXPORT_CONFIGS_API_KEY 
+ON HEALTH_AUTO_EXPORT_CONFIGS (API_KEY);
+
+CREATE INDEX IF NOT EXISTS IX_HEALTH_AUTO_EXPORT_CONFIGS_USUARIO 
+ON HEALTH_AUTO_EXPORT_CONFIGS (USUARIO_ID);
+
+-- Crear índices adicionales para optimizar consultas
+CREATE INDEX IF NOT EXISTS idx_usuarios_email ON USUARIOS(EMAIL);
+CREATE INDEX IF NOT EXISTS idx_usuarios_activo ON USUARIOS(ACTIVO);
+CREATE INDEX IF NOT EXISTS idx_datos_vitales_usuario_fecha ON DATOS_VITALES(USUARIO_ID, FECHA_REGISTRO);
+CREATE INDEX IF NOT EXISTS idx_datos_vitales_tipo ON DATOS_VITALES(TIPO_DATO);
+CREATE INDEX IF NOT EXISTS idx_datos_vitales_fecha_medicion ON DATOS_VITALES(FECHA_MEDICION);
+CREATE INDEX IF NOT EXISTS idx_alertas_usuario_estado ON ALERTAS(USUARIO_ID, ESTADO);
+
+-- 8. Crear usuario 7 si no existe
+INSERT INTO USUARIOS (
+    ID, NOMBRE, APELLIDO, EMAIL, PASSWORD, 
+    FECHA_NACIMIENTO, GENERO, ALTURA, PESO, 
+    FECHA_REGISTRO, ULTIMO_ACCESO, ES_PROFESIONAL_MEDICO,
+    ROL, ES_ACTIVO, ACTIVO
+) 
+VALUES (
+    7, 'Usuario', 'Health Auto Export', 'healthautoexport@healthpredict.com', 
+    'password123', '1990-01-01', 'Otro', 170, 70, 
+    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, FALSE,
+    'Usuario', TRUE, TRUE
+)
+ON CONFLICT (ID) DO NOTHING;
+
+-- 9. Crear configuración inicial para Health Auto Export
+INSERT INTO HEALTH_AUTO_EXPORT_CONFIGS (
+    USUARIO_ID, API_KEY, IS_ACTIVE, ALLOWED_DATA_TYPES
+)
+VALUES (
+    7, 
+    'HAE' || EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)::TEXT || 'USER7', 
+    TRUE,
+    '["stepcount","heartrate","bloodpressuresystolic","bloodpressurediastolic","bloodglucose","bodyweight","bodytemperature","oxygensaturation","sleepanalysis","activeenergyburned","distancewalking","vo2max","restingheartrate","walkingheartrateaverage","respiratoryrate"]'
+)
+ON CONFLICT (USUARIO_ID) DO NOTHING;
+
+-- 10. Mostrar configuración
+SELECT 
+    'Health Auto Export configurado correctamente' as MENSAJE,
+    u.NOMBRE,
+    u.EMAIL,
+    c.API_KEY,
+    c.CREATED_AT,
+    c.IS_ACTIVE
+FROM HEALTH_AUTO_EXPORT_CONFIGS c
+JOIN USUARIOS u ON c.USUARIO_ID = u.ID
+WHERE c.USUARIO_ID = 7;
+
+-- ===============================================
+-- ENDPOINTS DISPONIBLES DESPUÉS DE LA MIGRACIÓN
+-- ===============================================
+
+/*
+Endpoints disponibles para Health Auto Export:
+
+POST /api/HealthAutoExport/data - Recibir datos individuales
+POST /api/HealthAutoExport/batch - Recibir lotes de datos  
+POST /api/HealthAutoExport/simple - Recibir datos sin autenticación
+POST /api/HealthAutoExport/json - Recibir datos en JSON genérico
+GET /api/HealthAutoExport/test - Probar conectividad
+GET /api/HealthAutoExport/stats - Ver estadísticas
+GET /api/HealthAutoExport/config - Ver configuración
+POST /api/HealthAutoExport/generate-api-key - Generar nueva API Key
+
+CONFIGURACIÓN EN HEALTH AUTO EXPORT:
+1. URL Base: https://tu-dominio.com/api/HealthAutoExport/simple
+2. Método: POST
+3. Content-Type: application/json
+4. Datos soportados: pasos, frecuencia cardíaca, presión arterial, glucosa, peso, temperatura, oxígeno, sueño, calorías, distancia, VO2 Max, etc.
+*/ 

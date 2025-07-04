@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía de Configuración - FitnessSyncer API | HealthPredict</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .step {
+            background: #f8f9fa;
+            border-left: 5px solid #667eea;
+            margin: 30px 0;
+            padding: 25px;
+            border-radius: 0 10px 10px 0;
+            transition: transform 0.3s ease;
+        }
+
+        .step:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+
+        .step-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .step-content {
+            margin-left: 55px;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: "💻 Código";
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background: #667eea;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .warning::before {
+            content: "⚠️ ";
+            font-weight: bold;
+        }
+
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .success::before {
+            content: "✅ ";
+            font-weight: bold;
+        }
+
+        .info {
+            background: #cce7ff;
+            border: 1px solid #99d6ff;
+            color: #004085;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .info::before {
+            content: "ℹ️ ";
+            font-weight: bold;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+            font-weight: bold;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .checklist {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .checklist li {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .checklist li::before {
+            content: "☐ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .table th {
+            background: #667eea;
+            color: white;
+        }
+
+        .table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .step-content {
+                margin-left: 0;
+            }
+            
+            .step-title {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .step-number {
+                margin-bottom: 10px;
+            }
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .copy-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .endpoint-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .endpoint-method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .method-get { background: #28a745; color: white; }
+        .method-post { background: #007bff; color: white; }
+        .method-put { background: #ffc107; color: black; }
+        .method-delete { background: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏃‍♂️ Configuración FitnessSyncer API</h1>
+            <p>Guía completa para integrar datos de fitness en HealthPredict</p>
+        </div>
+
+        <div class="content">
+            <div class="info">
+                <strong>¿Qué es FitnessSyncer?</strong><br>
+                FitnessSyncer es una plataforma que conecta con más de 100 aplicaciones de fitness (Mi Fitness, Google Fit, Samsung Health, Apple Health, Strava, etc.) permitiendo sincronizar todos los datos de salud en un solo lugar.
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress"></div>
+            </div>
+
+            <!-- PASO 1 -->
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">1</span>
+                    Ejecutar Migración de Base de Datos
+                </div>
+                <div class="step-content">
+                    <p>Primero necesitas crear la tabla para almacenar las configuraciones de FitnessSyncer.</p>
+                    
+                    <div class="warning">
+                        <strong>Importante:</strong> Detén tu aplicación HealthPredict antes de ejecutar la migración para evitar conflictos de archivos.
+                    </div>
+
+                    <h4>Opción A: Script SQL Directo</h4>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard('sql1')">Copiar</button>
+                        <div id="sql1">-- Conectar a PostgreSQL y ejecutar:
+psql -h ep-royal-dream-a4izfmtv-pooler.us-east-1.aws.neon.tech -d neondb -U neondb_owner -f MIGRACION_SIMPLE_FITNESSSYNCER.sql</div>
+                    </div>
+
+                    <h4>Opción B: Entity Framework (Cuando la app no esté corriendo)</h4>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard('ef1')">Copiar</button>
+                        <div id="ef1">dotnet ef migrations add AddFitnessSyncerIntegration --project HealthPredict.DAL --startup-project HealthPredict.API
+dotnet ef database update --project HealthPredict.DAL --startup-project HealthPredict.API</div>
+                    </div>
+
+                    <div class="success">
+                        Después de ejecutar, deberías ver la tabla <strong>FITNESS_SYNCER_CONFIGS</strong> en tu base de datos.
+                    </div>
+                </div>
+            </div>
+
+            <!-- PASO 2 -->
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">2</span>
+                    Registrarse en FitnessSyncer
+                </div>
+                <div class="step-content">
+                    <p>Necesitas crear una cuenta de desarrollador en FitnessSyncer para obtener las credenciales de API.</p>
+                    
+                    <a href="https://www.fitnesssyncer.com/developers" target="_blank" class="btn">
+                        🔗 Ir a FitnessSyncer Developers
+                    </a>
+
+                    <h4>Pasos en FitnessSyncer:</h4>
+                    <ul class="checklist">
+                        <li>Crear cuenta de desarrollador</li>
+                        <li>Crear nueva aplicación</li>
+                        <li>Configurar Redirect URI: <code>https://tu-dominio.com/api/fitnesssyncer/auth/callback</code></li>
+                        <li>Obtener Client ID y Client Secret</li>
+                        <li>Configurar permisos: sources, read</li>
+                    </ul>
+
+                    <div class="info">
+                        <strong>Redirect URI para desarrollo local:</strong><br>
+                        <code>http://localhost:5000/api/fitnesssyncer/auth/callback</code><br>
+                        <code>https://localhost:5001/api/fitnesssyncer/auth/callback</code>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PASO 3 -->
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">3</span>
+                    Configurar appsettings.json
+                </div>
+                <div class="step-content">
+                    <p>Agrega las credenciales de FitnessSyncer a tu archivo de configuración.</p>
+                    
+                    <h4>HealthPredict.API/appsettings.json</h4>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard('config1')">Copiar</button>
+                        <div id="config1">{
+  "ConnectionStrings": {
+    "PostgreSQLConnection": "tu-connection-string"
+  },
+  "FitnessSyncer": {
+    "ClientId": "TU_CLIENT_ID_AQUI",
+    "ClientSecret": "TU_CLIENT_SECRET_AQUI",
+    "BaseUrl": "https://api.fitnesssyncer.com/api",
+    "AuthUrl": "https://www.fitnesssyncer.com/api/oauth"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information"
+    }
+  }
+}</div>
+                    </div>
+
+                    <h4>Para Producción (appsettings.Production.json)</h4>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard('config2')">Copiar</button>
+                        <div id="config2">{
+  "FitnessSyncer": {
+    "ClientId": "TU_CLIENT_ID_PRODUCCION",
+    "ClientSecret": "TU_CLIENT_SECRET_PRODUCCION",
+    "BaseUrl": "https://api.fitnesssyncer.com/api",
+    "AuthUrl": "https://www.fitnesssyncer.com/api/oauth"
+  }
+}</div>
+                    </div>
+
+                    <div class="warning">
+                        <strong>Seguridad:</strong> Nunca subas las credenciales reales al control de versiones. Usa variables de entorno en producción.
+                    </div>
+                </div>
+            </div>
+
+            <!-- PASO 4 -->
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">4</span>
+                    Probar la Aplicación
+                </div>
+                <div class="step-content">
+                    <p>Reinicia tu aplicación y prueba los nuevos endpoints de FitnessSyncer.</p>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard('run1')">Copiar</button>
+                        <div id="run1">cd HealthPredict.API
+dotnet run</div>
+                    </div>
+
+                    <div class="success">
+                        Si todo está bien configurado, deberías ver la aplicación iniciarse sin errores y los nuevos endpoints disponibles en <code>/swagger</code>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PASO 5 -->
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">5</span>
+                    Endpoints Disponibles
+                </div>
+                <div class="step-content">
+                    <p>Una vez configurado, tendrás acceso a estos endpoints:</p>
+                    
+                    <div class="endpoint-card">
+                        <span class="endpoint-method method-get">GET</span>
+                        <strong>/api/fitnesssyncer/auth/url</strong>
+                        <p>Obtiene la URL de autorización OAuth para conectar con FitnessSyncer</p>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <span class="endpoint-method method-get">GET</span>
+                        <strong>/api/fitnesssyncer/auth/callback</strong>
+                        <p>Callback automático de OAuth (manejado por FitnessSyncer)</p>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <span class="endpoint-method method-get">GET</span>
+                        <strong>/api/fitnesssyncer/status</strong>
+                        <p>Verifica si el usuario está conectado a FitnessSyncer</p>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <span class="endpoint-method method-post">POST</span>
+                        <strong>/api/fitnesssyncer/sync</strong>
+                        <p>Sincroniza datos de fitness del usuario</p>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <span class="endpoint-method method-get">GET</span>
+                        <strong>/api/fitnesssyncer/stats</strong>
+                        <p>Obtiene estadísticas de sincronización</p>
+                    </div>
+
+                    <div class="endpoint-card">
+                        <span class="endpoint-method method-post">POST</span>
+                        <strong>/api/fitnesssyncer/disconnect</strong>
+                        <p>Desconecta al usuario de FitnessSyncer</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PASO 6 -->
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">6</span>
+                    Prueba de Conexión
+                </div>
+                <div class="step-content">
+                    <p>Realiza una prueba completa del flujo de autenticación.</p>
+                    
+                    <h4>Usando Postman o curl:</h4>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard('test1')">Copiar</button>
+                        <div id="test1"># 1. Obtener URL de autorización
+curl -X GET "https://tu-api.com/api/fitnesssyncer/auth/url" \
+  -H "Authorization: Bearer TU_JWT_TOKEN"
+
+# 2. Verificar estado de conexión
+curl -X GET "https://tu-api.com/api/fitnesssyncer/status" \
+  -H "Authorization: Bearer TU_JWT_TOKEN"
+
+# 3. Sincronizar datos (después de conectar)
+curl -X POST "https://tu-api.com/api/fitnesssyncer/sync" \
+  -H "Authorization: Bearer TU_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "maxItemsPerSync": 50,
+    "daysToSync": 7,
+    "syncActivity": true,
+    "syncWeight": true
+  }'</div>
+                    </div>
+
+                    <h4>Flujo de Usuario Frontend:</h4>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard('frontend1')">Copiar</button>
+                        <div id="frontend1">// JavaScript/TypeScript para Angular
+async conectarFitnessSyncer() {
+  try {
+    // 1. Obtener URL de autorización
+    const response = await fetch('/api/fitnesssyncer/auth/url', {
+      headers: {
+        'Authorization': `Bearer ${this.authToken}`
+      }
+    });
+    
+    const { authUrl } = await response.json();
+    
+    // 2. Redirigir al usuario a FitnessSyncer
+    window.location.href = authUrl;
+    
+  } catch (error) {
+    console.error('Error conectando con FitnessSyncer:', error);
+  }
+}
+
+async sincronizarDatos() {
+  try {
+    const response = await fetch('/api/fitnesssyncer/sync', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.authToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        maxItemsPerSync: 100,
+        daysToSync: 30,
+        syncActivity: true,
+        syncWeight: true,
+        syncBloodPressure: true
+      })
+    });
+    
+    const result = await response.json();
+    console.log(`Sincronizados ${result.result.newItems} nuevos elementos`);
+    
+  } catch (error) {
+    console.error('Error sincronizando datos:', error);
+  }
+}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PASO 7 -->
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">7</span>
+                    Aplicaciones Compatibles
+                </div>
+                <div class="step-content">
+                    <p>FitnessSyncer se conecta con más de 100 aplicaciones de fitness:</p>
+                    
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Aplicación</th>
+                                <th>Tipo de Datos</th>
+                                <th>Popularidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>🤖 Google Fit</td>
+                                <td>Actividad, Peso, Sueño</td>
+                                <td>⭐⭐⭐⭐⭐</td>
+                            </tr>
+                            <tr>
+                                <td>📱 Apple Health</td>
+                                <td>Todos los tipos</td>
+                                <td>⭐⭐⭐⭐⭐</td>
+                            </tr>
+                            <tr>
+                                <td>🏃‍♂️ Mi Fitness (Xiaomi)</td>
+                                <td>Actividad, Peso, Sueño</td>
+                                <td>⭐⭐⭐⭐</td>
+                            </tr>
+                            <tr>
+                                <td>💪 Samsung Health</td>
+                                <td>Actividad, Salud, Sueño</td>
+                                <td>⭐⭐⭐⭐</td>
+                            </tr>
+                            <tr>
+                                <td>🏃‍♀️ Strava</td>
+                                <td>Actividades deportivas</td>
+                                <td>⭐⭐⭐⭐</td>
+                            </tr>
+                            <tr>
+                                <td>🍎 MyFitnessPal</td>
+                                <td>Nutrición, Peso</td>
+                                <td>⭐⭐⭐⭐⭐</td>
+                            </tr>
+                            <tr>
+                                <td>⚖️ Fitbit</td>
+                                <td>Actividad, Sueño, Peso</td>
+                                <td>⭐⭐⭐⭐</td>
+                            </tr>
+                            <tr>
+                                <td>🏋️‍♀️ Garmin Connect</td>
+                                <td>Deportes, Salud</td>
+                                <td>⭐⭐⭐⭐</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PASO 8 -->
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">8</span>
+                    Solución de Problemas
+                </div>
+                <div class="step-content">
+                    <h4>Problemas Comunes y Soluciones:</h4>
+                    
+                    <div class="warning">
+                        <strong>Error: "Build failed"</strong><br>
+                        Solución: Detén la aplicación que está corriendo antes de compilar.
+                    </div>
+
+                    <div class="warning">
+                        <strong>Error: "Table already exists"</strong><br>
+                        Solución: La tabla ya fue creada. Continúa con la configuración.
+                    </div>
+
+                    <div class="warning">
+                        <strong>Error: "Client ID not found"</strong><br>
+                        Solución: Verifica que las credenciales estén correctas en appsettings.json
+                    </div>
+
+                    <div class="warning">
+                        <strong>Error: "Invalid redirect URI"</strong><br>
+                        Solución: Verifica que el redirect URI en FitnessSyncer coincida exactamente con tu dominio.
+                    </div>
+
+                    <h4>Logs Útiles:</h4>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyToClipboard('logs1')">Copiar</button>
+                        <div id="logs1"># Ver logs de la aplicación
+dotnet run --verbosity detailed
+
+# Ver logs específicos de FitnessSyncer
+# (Los verás en la consola cuando uses los endpoints)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="success">
+                <strong>🎉 ¡Felicitaciones!</strong><br>
+                Has configurado exitosamente FitnessSyncer API en HealthPredict. Ahora puedes sincronizar datos de más de 100 aplicaciones de fitness automáticamente.
+            </div>
+
+            <div class="info">
+                <strong>Próximos Pasos:</strong><br>
+                • Implementa la interfaz de usuario en Angular para gestionar conexiones<br>
+                • Configura sincronización automática con background jobs<br>
+                • Añade notificaciones cuando falle la sincronización<br>
+                • Implementa análisis predictivo con los datos agregados
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>
+                <strong>HealthPredict</strong> - Sistema de Predicción de Salud<br>
+                Documentación creada para la integración con FitnessSyncer API<br>
+                <a href="https://www.fitnesssyncer.com/developers" target="_blank">Documentación FitnessSyncer</a> |
+                <a href="mailto:soporte@healthpredict.com">Soporte</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Función para copiar código al portapapeles
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                // Mostrar feedback visual
+                const btn = element.parentNode.querySelector('.copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = '¡Copiado!';
+                btn.style.background = '#28a745';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#667eea';
+                }, 2000);
+            });
+        }
+
+        // Simular progreso de configuración
+        function updateProgress() {
+            const steps = document.querySelectorAll('.step');
+            const progressBar = document.getElementById('progress');
+            let completedSteps = 0;
+            
+            steps.forEach((step, index) => {
+                step.addEventListener('click', () => {
+                    step.style.opacity = '0.7';
+                    completedSteps = index + 1;
+                    const percentage = (completedSteps / steps.length) * 100;
+                    progressBar.style.width = percentage + '%';
+                });
+            });
+        }
+
+        // Inicializar cuando se carga la página
+        document.addEventListener('DOMContentLoaded', () => {
+            updateProgress();
+            
+            // Animar la barra de progreso al cargar
+            setTimeout(() => {
+                document.getElementById('progress').style.width = '10%';
+            }, 500);
+        });
+
+        // Efectos de hover para las tarjetas de endpoints
+        document.addEventListener('DOMContentLoaded', () => {
+            const endpointCards = document.querySelectorAll('.endpoint-card');
+            endpointCards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-2px)';
+                    card.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                    card.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
