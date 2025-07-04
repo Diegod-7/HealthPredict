@@ -24,9 +24,19 @@ export class GoogleDriveSyncService {
   constructor(private http: HttpClient) { }
 
   /**
-   * Sincroniza datos de pasos desde Google Drive
-   * Nota: En un entorno real, esto requeriría un endpoint en el backend
-   * que ejecute el script de Python
+   * Sincroniza datos de pasos usando el script de Python
+   */
+  syncPasos(): Observable<SyncResult> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
+    // Endpoint que ejecuta el script de Python para sincronizar pasos
+    return this.http.post<SyncResult>(`${this.apiUrl}/HealthAutoExport/sync-pasos`, {}, { headers });
+  }
+
+  /**
+   * Sincroniza datos de pasos desde Google Drive (método alternativo)
    */
   syncPasosFromGoogleDrive(): Observable<SyncResult> {
     const headers = new HttpHeaders({
@@ -36,8 +46,6 @@ export class GoogleDriveSyncService {
     // Endpoint que ejecutará el script de sincronización
     return this.http.post<SyncResult>(`${this.apiUrl}/HealthAutoExport/sync-google-drive`, {}, { headers });
   }
-
-
 
   /**
    * Obtener estado de la última sincronización

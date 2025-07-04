@@ -6,6 +6,7 @@ using HealthPredict.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Text.Json;
 using HealthPredict.API.Services;
+using System.Diagnostics;
 
 namespace HealthPredict.API.Controllers
 {
@@ -754,88 +755,160 @@ namespace HealthPredict.API.Controllers
             }
         }
 
-
-
-        [HttpPost("pasos")]
-        public async Task<ActionResult> GuardarPasos([FromBody] object jsonData)
+        /// <summary>
+        /// Sincronizar pasos ejecutando el script de Python
+        /// </summary>
+        [HttpPost("sync-pasos")]
+        public async Task<ActionResult<object>> SyncPasos()
         {
             try
             {
-                const int usuarioId = 7;
-                var jsonString = System.Text.Json.JsonSerializer.Serialize(jsonData);
-                
-                _logger.LogInformation($"Recibiendo datos de pasos para usuario {usuarioId}");
-                
-                var jsonDoc = System.Text.Json.JsonDocument.Parse(jsonString);
-                var root = jsonDoc.RootElement;
-                
-                int pasosGuardados = 0;
-                
-                // Buscar métricas en data.metrics
-                if (root.TryGetProperty("data", out var dataElement) && 
-                    dataElement.TryGetProperty("metrics", out var metricsElement))
+                _logger.LogInformation("Iniciando sincronización de pasos con script Python");
+
+                // Ejecutar el script de Python
+                var processStartInfo = new System.Diagnostics.ProcessStartInfo
                 {
-                    foreach (var metric in metricsElement.EnumerateArray())
+                    FileName = "python",
+                    Arguments = "sync_pasos_simple.py",
+                    WorkingDirectory = Directory.GetCurrentDirectory(),
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                using var process = new System.Diagnostics.Process();
+                process.StartInfo = processStartInfo;
+                
+                var outputBuilder = new System.Text.StringBuilder();
+                var errorBuilder = new System.Text.StringBuilder();
+                
+                process.OutputDataReceived += (sender, e) =>
+                {
+                    if (!string.IsNullOrEmpty(e.Data))
+                        outputBuilder.AppendLine(e.Data);
+                };
+                
+                process.ErrorDataReceived += (sender, e) =>
+                {
+                    if (!string.IsNullOrEmpty(e.Data))
+                        errorBuilder.AppendLine(e.Data);
+                };
+
+                process.Start();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+                
+                // Esperar hasta 60 segundos
+                if (!process.WaitForExit(60000))
+                {
+                    process.Kill();
+                    return StatusCode(408, new
                     {
-                        // Solo procesar step_count
-                        var nombreMetrica = metric.TryGetProperty("name", out var nameElement) ? nameElement.GetString() : "";
-                        
-                        if (nombreMetrica == "step_count" && metric.TryGetProperty("data", out var dataPoints))
+                        success = false,
+                        error = "timeout",
+                        message = "La sincronización tardó demasiado tiempo"
+                    });
+                }
+
+                var output = outputBuilder.ToString().Trim();
+                var error = errorBuilder.ToString().Trim();
+
+                if (process.ExitCode == 0 && !string.IsNullOrEmpty(output))
+                {
+                    try
+                    {
+                        // Intentar parsear la respuesta JSON del script
+                        var result = JsonSerializer.Deserialize<object>(output);
+                        _logger.LogInformation("Sincronización de pasos completada exitosamente");
+                        return Ok(result);
+                    }
+                    catch (JsonException)
+                    {
+                        _logger.LogWarning("La respuesta del script no es JSON válido: {Output}", output);
+                        return Ok(new
                         {
-                            foreach (var point in dataPoints.EnumerateArray())
-                            {
-                                // Extraer qty, date y source
-                                var pasos = point.TryGetProperty("qty", out var qtyElement) ? qtyElement.GetDouble() : 0;
-                                var fechaStr = point.TryGetProperty("date", out var dateElement) ? dateElement.GetString() : "";
-                                var fuente = point.TryGetProperty("source", out var sourceElement) ? sourceElement.GetString() : "iPhone";
-                                
-                                // Convertir fecha
-                                DateTime fechaMedicion = DateTime.UtcNow;
-                                if (!string.IsNullOrEmpty(fechaStr))
-                                {
-                                    if (DateTime.TryParse(fechaStr, out var parsedDate))
-                                    {
-                                        fechaMedicion = parsedDate;
-                                    }
-                                }
-                                
-                                var datoVital = new DatoVital
-                                {
-                                    UsuarioId = usuarioId,
-                                    TipoDato = "Pasos",
-                                    Valor = (decimal)pasos,
-                                    Unidad = "pasos",
-                                    FechaMedicion = fechaMedicion,
-                                    FechaRegistro = DateTime.UtcNow,
-                                    Fuente = $"Health Auto Export - {fuente}",
-                                    Dispositivo = fuente
-                                };
-                                
-                                _context.DatosVitales.Add(datoVital);
-                                pasosGuardados++;
-                            }
-                        }
+                            success = true,
+                            message = "Sincronización completada",
+                            output = output
+                        });
                     }
                 }
-                
-                await _context.SaveChangesAsync();
-                
-                return Ok(new 
+                else
                 {
-                    success = true,
-                    message = $"Datos de pasos guardados exitosamente",
-                    pasosGuardados = pasosGuardados,
-                    usuarioId = usuarioId,
-                    tipoMetrica = "Pasos"
-                });
+                    _logger.LogError("Error en el script de Python. Exit Code: {ExitCode}, Error: {Error}", 
+                        process.ExitCode, error);
+                    
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = "script_error",
+                        message = !string.IsNullOrEmpty(error) ? error : "Error ejecutando el script de sincronización",
+                        exitCode = process.ExitCode,
+                        output = output
+                    });
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error guardando datos de pasos");
-                return StatusCode(500, new 
+                _logger.LogError(ex, "Error ejecutando sincronización de pasos");
+                return StatusCode(500, new
                 {
                     success = false,
-                    message = $"Error: {ex.Message}"
+                    error = "execution_error",
+                    message = $"Error interno: {ex.Message}"
+                });
+            }
+        }
+
+        /// <summary>
+        /// Sincronizar desde Google Drive usando el servicio C#
+        /// </summary>
+        [HttpPost("sync-google-drive-csharp")]
+        public async Task<ActionResult<object>> SyncFromGoogleDriveCsharp()
+        {
+            try
+            {
+                _logger.LogInformation("Iniciando sincronización desde Google Drive usando el servicio C#");
+
+                // Usar el servicio real de Google Drive
+                var result = await _googleDriveService.SyncFromGoogleDriveCsharp();
+                
+                if (result.Success)
+                {
+                    _logger.LogInformation("Sincronización completada exitosamente");
+                    return Ok(new
+                    {
+                        success = result.Success,
+                        message = result.Message,
+                        file_info = result.FileInfo != null ? new
+                        {
+                            name = result.FileInfo.Name,
+                            modified = result.FileInfo.Modified,
+                            size = result.FileInfo.Size
+                        } : null,
+                        processed_records = result.ProcessedRecords
+                    });
+                }
+                else
+                {
+                    _logger.LogWarning($"Error en sincronización: {result.Message}");
+                    return BadRequest(new
+                    {
+                        success = result.Success,
+                        error = result.Error,
+                        message = result.Message
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error ejecutando sincronización desde Google Drive usando el servicio C#");
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = "sync_error",
+                    message = $"Error interno: {ex.Message}"
                 });
             }
         }

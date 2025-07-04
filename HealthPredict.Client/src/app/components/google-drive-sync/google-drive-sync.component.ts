@@ -25,12 +25,12 @@ export class GoogleDriveSyncComponent implements OnInit {
     if (this.sincronizando) return;
 
     this.sincronizando = true;
-    this.snackBar.open('🔄 Sincronizando datos de pasos desde Google Drive...', '', {
+    this.snackBar.open('🔄 Sincronizando datos de pasos...', '', {
       duration: 0 // No se cierra automáticamente
     });
 
-    // Usar el endpoint real de sincronización con Google Drive
-    this.googleDriveSyncService.syncPasosFromGoogleDrive().subscribe({
+    // Usar el endpoint de sincronización de pasos
+    this.googleDriveSyncService.syncPasos().subscribe({
       next: (resultado: SyncResult) => {
         this.sincronizando = false;
         this.ultimoResultado = resultado;
