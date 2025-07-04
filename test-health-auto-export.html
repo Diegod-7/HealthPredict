@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test HealthAutoExport API - Datos de Pasos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .config-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .config-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: #e9ecef;
+            transition: all 0.3s;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .json-editor {
+            background: #2d3748;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            padding: 15px;
+            border-radius: 8px;
+            height: 300px;
+            resize: vertical;
+            white-space: pre-wrap;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .response-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .response-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .response-content {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-success {
+            background: #28a745;
+        }
+
+        .status-error {
+            background: #dc3545;
+        }
+
+        .status-warning {
+            background: #ffc107;
+        }
+
+        .examples-section {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .examples-section h3 {
+            color: #1976d2;
+            margin-bottom: 15px;
+        }
+
+        .example-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .example-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .example-item h4 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .example-item p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏃‍♂️ HealthAutoExport API Tester</h1>
+            <p>Prueba la API de HealthAutoExport para cargar datos de pasos</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Configuración -->
+            <div class="config-section">
+                <h3>⚙️ Configuración de la API</h3>
+                <div class="grid">
+                    <div class="form-group">
+                        <label for="apiUrl">URL de la API:</label>
+                        <input type="text" id="apiUrl" value="https://localhost:7295/api/HealthAutoExport" placeholder="https://tu-api.com/api/HealthAutoExport">
+                    </div>
+                    <div class="form-group">
+                        <label for="apiKey">API Key (opcional):</label>
+                        <input type="text" id="apiKey" placeholder="Tu API Key">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ejemplos Predefinidos -->
+            <div class="examples-section">
+                <h3>📋 Ejemplos Predefinidos</h3>
+                <div class="example-item" onclick="loadExample('simple')">
+                    <h4>Datos de Pasos Simples</h4>
+                    <p>Ejemplo básico con datos de pasos del día actual</p>
+                </div>
+                <div class="example-item" onclick="loadExample('batch')">
+                    <h4>Lote de Datos de Pasos</h4>
+                    <p>Múltiples registros de pasos de diferentes días</p>
+                </div>
+                <div class="example-item" onclick="loadExample('healthAutoExport')">
+                    <h4>Formato HealthAutoExport Estándar</h4>
+                    <p>Formato completo con métricas de pasos</p>
+                </div>
+                <div class="example-item" onclick="loadExample('custom')">
+                    <h4>Datos Personalizados</h4>
+                    <p>Permite editar manualmente los datos JSON</p>
+                </div>
+            </div>
+
+            <!-- Tabs para diferentes endpoints -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('simple')">Datos Simples</button>
+                <button class="tab" onclick="switchTab('batch')">Lote de Datos</button>
+                <button class="tab" onclick="switchTab('healthData')">Health Data</button>
+                <button class="tab" onclick="switchTab('json')">JSON Libre</button>
+                <button class="tab" onclick="switchTab('pasos')">Endpoint Pasos</button>
+            </div>
+
+            <!-- Contenido de las tabs -->
+            <div id="simple-tab" class="tab-content active">
+                <h3>📊 Datos Simples (/simple)</h3>
+                <div class="form-group">
+                    <label for="simple-json">JSON de Datos:</label>
+                    <textarea id="simple-json" class="json-editor" placeholder="Ingresa los datos JSON aquí..."></textarea>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="sendRequest('simple')">Enviar Datos</button>
+                    <button class="btn btn-secondary" onclick="generateSampleData('simple')">Generar Ejemplo</button>
+                </div>
+            </div>
+
+            <div id="batch-tab" class="tab-content">
+                <h3>📦 Lote de Datos (/batch)</h3>
+                <div class="form-group">
+                    <label for="batch-json">JSON de Lote:</label>
+                    <textarea id="batch-json" class="json-editor" placeholder="Ingresa el lote de datos JSON aquí..."></textarea>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="sendRequest('batch')">Enviar Lote</button>
+                    <button class="btn btn-secondary" onclick="generateSampleData('batch')">Generar Ejemplo</button>
+                </div>
+            </div>
+
+            <div id="healthData-tab" class="tab-content">
+                <h3>🏥 Health Data (/health-data)</h3>
+                <div class="form-group">
+                    <label for="healthData-json">JSON de Health Data:</label>
+                    <textarea id="healthData-json" class="json-editor" placeholder="Ingresa los datos de salud JSON aquí..."></textarea>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="sendRequest('healthData')">Enviar Health Data</button>
+                    <button class="btn btn-secondary" onclick="generateSampleData('healthData')">Generar Ejemplo</button>
+                </div>
+            </div>
+
+            <div id="json-tab" class="tab-content">
+                <h3>🔧 JSON Libre (/json)</h3>
+                <div class="form-group">
+                    <label for="json-json">JSON Personalizado:</label>
+                    <textarea id="json-json" class="json-editor" placeholder="Ingresa cualquier JSON aquí..."></textarea>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="sendRequest('json')">Enviar JSON</button>
+                    <button class="btn btn-secondary" onclick="generateSampleData('json')">Generar Ejemplo</button>
+                </div>
+            </div>
+
+            <div id="pasos-tab" class="tab-content">
+                <h3>👣 Endpoint Pasos (/pasos)</h3>
+                <div class="form-group">
+                    <label for="pasos-json">JSON de Pasos:</label>
+                    <textarea id="pasos-json" class="json-editor" placeholder="Ingresa los datos de pasos JSON aquí..."></textarea>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="sendRequest('pasos')">Enviar Pasos</button>
+                    <button class="btn btn-secondary" onclick="generateSampleData('pasos')">Generar Ejemplo</button>
+                </div>
+            </div>
+
+            <!-- Loading indicator -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Enviando datos...</p>
+            </div>
+
+            <!-- Response section -->
+            <div class="response-section">
+                <h3 id="response-title">📤 Respuesta de la API</h3>
+                <div id="response-content" class="response-content">
+                    Aquí aparecerá la respuesta de la API...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Ejemplos de datos predefinidos
+        const examples = {
+            simple: {
+                DataType: "HKQuantityTypeIdentifierStepCount",
+                Source: "Health Auto Export",
+                StartDate: new Date().toISOString(),
+                EndDate: new Date().toISOString(),
+                Value: 8547,
+                Unit: "count",
+                Metadata: {
+                    "HKWasUserEntered": false,
+                    "HKMetadataKeyTimeZone": "America/Mexico_City"
+                },
+                DeviceModel: "iPhone 14 Pro",
+                DeviceManufacturer: "Apple",
+                AppVersion: "1.0.0"
+            },
+            batch: {
+                Data: [
+                    {
+                        DataType: "HKQuantityTypeIdentifierStepCount",
+                        Source: "Health Auto Export",
+                        StartDate: new Date(Date.now() - 86400000).toISOString(),
+                        EndDate: new Date(Date.now() - 86400000).toISOString(),
+                        Value: 7234,
+                        Unit: "count",
+                        Metadata: {},
+                        DeviceModel: "iPhone 14 Pro",
+                        DeviceManufacturer: "Apple",
+                        AppVersion: "1.0.0"
+                    },
+                    {
+                        DataType: "HKQuantityTypeIdentifierStepCount",
+                        Source: "Health Auto Export",
+                        StartDate: new Date().toISOString(),
+                        EndDate: new Date().toISOString(),
+                        Value: 8547,
+                        Unit: "count",
+                        Metadata: {},
+                        DeviceModel: "iPhone 14 Pro",
+                        DeviceManufacturer: "Apple",
+                        AppVersion: "1.0.0"
+                    }
+                ],
+                ExportTimestamp: new Date().toISOString(),
+                ExportVersion: "1.0.0",
+                DeviceInfo: "iPhone 14 Pro - iOS 17.0"
+            },
+            healthAutoExport: {
+                Data: {
+                    Metrics: [
+                        {
+                            Name: "step_count",
+                            Units: "count",
+                            Data: [
+                                {
+                                    Qty: 8547,
+                                    Date: new Date().toISOString()
+                                },
+                                {
+                                    Qty: 7234,
+                                    Date: new Date(Date.now() - 86400000).toISOString()
+                                },
+                                {
+                                    Qty: 9876,
+                                    Date: new Date(Date.now() - 2*86400000).toISOString()
+                                }
+                            ]
+                        }
+                    ],
+                    Workouts: []
+                }
+            },
+            pasos: {
+                data: [
+                    {
+                        date: new Date().toISOString().split('T')[0],
+                        steps: 8547,
+                        distance: 6.2,
+                        calories: 245
+                    },
+                    {
+                        date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
+                        steps: 7234,
+                        distance: 5.8,
+                        calories: 210
+                    }
+                ]
+            }
+        };
+
+        // Función para cambiar de tab
+        function switchTab(tabName) {
+            // Ocultar todas las tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Ocultar todos los botones de tab
+            const tabButtons = document.querySelectorAll('.tab');
+            tabButtons.forEach(button => button.classList.remove('active'));
+            
+            // Mostrar la tab seleccionada
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Función para cargar ejemplos
+        function loadExample(type) {
+            const example = examples[type];
+            if (example) {
+                const jsonString = JSON.stringify(example, null, 2);
+                
+                // Determinar qué textarea usar basado en el tipo
+                let textareaId;
+                switch(type) {
+                    case 'simple':
+                        textareaId = 'simple-json';
+                        switchTab('simple');
+                        break;
+                    case 'batch':
+                        textareaId = 'batch-json';
+                        switchTab('batch');
+                        break;
+                    case 'healthAutoExport':
+                        textareaId = 'healthData-json';
+                        switchTab('healthData');
+                        break;
+                    case 'custom':
+                        textareaId = 'json-json';
+                        switchTab('json');
+                        break;
+                    default:
+                        textareaId = 'simple-json';
+                }
+                
+                document.getElementById(textareaId).value = jsonString;
+            }
+        }
+
+        // Función para generar datos de ejemplo
+        function generateSampleData(endpoint) {
+            const textareaId = endpoint + '-json';
+            const textarea = document.getElementById(textareaId);
+            
+            if (examples[endpoint]) {
+                textarea.value = JSON.stringify(examples[endpoint], null, 2);
+            } else {
+                // Generar datos básicos si no hay ejemplo específico
+                const basicExample = {
+                    DataType: "HKQuantityTypeIdentifierStepCount",
+                    Source: "Health Auto Export",
+                    StartDate: new Date().toISOString(),
+                    EndDate: new Date().toISOString(),
+                    Value: Math.floor(Math.random() * 10000) + 5000,
+                    Unit: "count",
+                    Metadata: {},
+                    DeviceModel: "iPhone",
+                    DeviceManufacturer: "Apple",
+                    AppVersion: "1.0.0"
+                };
+                textarea.value = JSON.stringify(basicExample, null, 2);
+            }
+        }
+
+        // Función para enviar petición a la API
+        async function sendRequest(endpoint) {
+            const apiUrl = document.getElementById('apiUrl').value;
+            const apiKey = document.getElementById('apiKey').value;
+            const textareaId = endpoint + '-json';
+            const jsonData = document.getElementById(textareaId).value;
+            
+            if (!jsonData.trim()) {
+                alert('Por favor, ingresa los datos JSON');
+                return;
+            }
+
+            // Mostrar loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('response-content').textContent = '';
+
+            try {
+                // Parsear JSON
+                const data = JSON.parse(jsonData);
+                
+                // Configurar headers
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                
+                if (apiKey) {
+                    headers['X-API-Key'] = apiKey;
+                }
+
+                // Configurar URL del endpoint
+                const endpointUrl = `${apiUrl}/${endpoint}`;
+                
+                // Realizar petición
+                const response = await fetch(endpointUrl, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(data)
+                });
+
+                // Procesar respuesta
+                const responseData = await response.json();
+                
+                // Mostrar respuesta
+                displayResponse(response.status, responseData, endpointUrl);
+                
+            } catch (error) {
+                displayError(error.message);
+            } finally {
+                // Ocultar loading
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // Función para mostrar respuesta
+        function displayResponse(status, data, url) {
+            const responseTitle = document.getElementById('response-title');
+            const responseContent = document.getElementById('response-content');
+            
+            let statusClass = 'status-success';
+            let statusText = 'Éxito';
+            
+            if (status >= 400) {
+                statusClass = 'status-error';
+                statusText = 'Error';
+            } else if (status >= 300) {
+                statusClass = 'status-warning';
+                statusText = 'Advertencia';
+            }
+            
+            responseTitle.innerHTML = `
+                <span class="status-indicator ${statusClass}"></span>
+                📤 Respuesta de la API - ${statusText} (${status})
+            `;
+            
+            const responseInfo = {
+                url: url,
+                status: status,
+                timestamp: new Date().toISOString(),
+                data: data
+            };
+            
+            responseContent.textContent = JSON.stringify(responseInfo, null, 2);
+        }
+
+        // Función para mostrar error
+        function displayError(errorMessage) {
+            const responseTitle = document.getElementById('response-title');
+            const responseContent = document.getElementById('response-content');
+            
+            responseTitle.innerHTML = `
+                <span class="status-indicator status-error"></span>
+                📤 Error en la petición
+            `;
+            
+            responseContent.textContent = `Error: ${errorMessage}`;
+        }
+
+        // Inicializar con ejemplo simple
+        document.addEventListener('DOMContentLoaded', function() {
+            loadExample('simple');
+        });
+    </script>
+</body>
+</html>
