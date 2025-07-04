@@ -4,6 +4,14 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ChartsModule } from '@rinminase/ng-charts';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+// Angular Material
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -27,6 +35,9 @@ import { ReportesModule } from './components/reportes/reportes.module';
 // ✅ COMPONENTE DE SENSORES DE SALUD
 import { HealthSensorComponent } from './components/health-sensor/health-sensor.component';
 
+// ✅ COMPONENTE DE SINCRONIZACIÓN CON GOOGLE DRIVE
+import { GoogleDriveSyncComponent } from './components/google-drive-sync/google-drive-sync.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -43,7 +54,9 @@ import { HealthSensorComponent } from './components/health-sensor/health-sensor.
     InteligenciaPredictivaComponent,
     AnalyticsEmpresarialComponent,
     // ✅ COMPONENTE DE SENSORES DE SALUD
-    HealthSensorComponent
+    HealthSensorComponent,
+    // ✅ COMPONENTE DE SINCRONIZACIÓN CON GOOGLE DRIVE
+    GoogleDriveSyncComponent
   ],
   imports: [
     BrowserModule,
@@ -53,7 +66,14 @@ import { HealthSensorComponent } from './components/health-sensor/health-sensor.
     FormsModule,
     ReactiveFormsModule,
     ChartsModule,
-    ReportesModule
+    ReportesModule,
+    BrowserAnimationsModule,
+    // Angular Material
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule
   ],
   providers: [],
   bootstrap: [AppComponent]

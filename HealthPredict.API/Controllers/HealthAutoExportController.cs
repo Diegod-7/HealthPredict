@@ -668,6 +668,165 @@ namespace HealthPredict.API.Controllers
         /// </summary>
         /// <param name="jsonData">JSON con datos de pasos en formato Health Auto Export</param>
         /// <returns>Respuesta simple</returns>
+        /// <summary>
+        /// Endpoint para ejecutar la sincronización desde Google Drive
+        /// </summary>
+        /// <returns>Resultado de la sincronización</returns>
+        [HttpPost("sync-google-drive")]
+        public async Task<ActionResult<object>> SyncFromGoogleDrive()
+        {
+            try
+            {
+                _logger.LogInformation("Iniciando sincronización desde Google Drive");
+
+                var result = await ExecutePythonSyncScript();
+                
+                if (result.Success)
+                {
+                    _logger.LogInformation("Sincronización completada exitosamente");
+                    return Ok(result);
+                }
+                else
+                {
+                    _logger.LogWarning($"Error en sincronización: {result.Message}");
+                    return BadRequest(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error ejecutando sincronización desde Google Drive");
+                return StatusCode(500, new
+                {
+                    success = false,
+                    error = "sync_error",
+                    message = $"Error interno: {ex.Message}"
+                });
+            }
+        }
+
+        /// <summary>
+        /// Obtener información de la última sincronización
+        /// </summary>
+        /// <returns>Información de la última sincronización</returns>
+        [HttpGet("ultima-sincronizacion")]
+        public async Task<ActionResult<object>> GetUltimaSincronizacion()
+        {
+            try
+            {
+                // Por simplicidad, retornamos información básica
+                // En una implementación real, esto se guardaría en la base de datos
+                return Ok(new
+                {
+                    ultimaSincronizacion = DateTime.UtcNow.AddHours(-1), // Ejemplo
+                    estado = "completada",
+                    archivo = "HealthAutoExport-2025-07-04.json"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo información de última sincronización");
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = $"Error interno: {ex.Message}"
+                });
+            }
+        }
+
+        /// <summary>
+        /// Ejecuta el script de Python para sincronizar desde Google Drive
+        /// </summary>
+        /// <returns>Resultado de la ejecución</returns>
+        private async Task<dynamic> ExecutePythonSyncScript()
+        {
+            try
+            {
+                var projectRoot = Directory.GetCurrentDirectory();
+                var parentDirectory = Directory.GetParent(projectRoot)?.FullName;
+                var scriptPath = Path.Combine(parentDirectory ?? projectRoot, "sync_pasos_simple.py");
+
+                if (!System.IO.File.Exists(scriptPath))
+                {
+                    return new
+                    {
+                        Success = false,
+                        Error = "script_not_found",
+                        Message = $"Script no encontrado en: {scriptPath}"
+                    };
+                }
+
+                var processInfo = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "python",
+                    Arguments = $"\"{scriptPath}\"",
+                    WorkingDirectory = parentDirectory ?? projectRoot,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                };
+
+                using var process = System.Diagnostics.Process.Start(processInfo);
+                if (process == null)
+                {
+                    return new
+                    {
+                        Success = false,
+                        Error = "process_start_failed",
+                        Message = "No se pudo iniciar el proceso de Python"
+                    };
+                }
+
+                var output = await process.StandardOutput.ReadToEndAsync();
+                var error = await process.StandardError.ReadToEndAsync();
+                await process.WaitForExitAsync();
+
+                if (process.ExitCode == 0)
+                {
+                    // Intentar parsear la salida como JSON
+                    try
+                    {
+                        var result = JsonSerializer.Deserialize<dynamic>(output);
+                        return result ?? new
+                        {
+                            Success = true,
+                            Message = "Sincronización completada",
+                            Output = output
+                        };
+                    }
+                    catch
+                    {
+                        return new
+                        {
+                            Success = true,
+                            Message = "Sincronización completada",
+                            Output = output
+                        };
+                    }
+                }
+                else
+                {
+                    return new
+                    {
+                        Success = false,
+                        Error = "script_execution_failed",
+                        Message = $"Error ejecutando script: {error}",
+                        Output = output,
+                        ExitCode = process.ExitCode
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new
+                {
+                    Success = false,
+                    Error = "execution_exception",
+                    Message = $"Excepción ejecutando script: {ex.Message}"
+                };
+            }
+        }
+
         [HttpPost("pasos")]
         public async Task<ActionResult> GuardarPasos([FromBody] object jsonData)
         {

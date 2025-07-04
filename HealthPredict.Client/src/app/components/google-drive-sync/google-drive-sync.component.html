@@ -1,0 +1,70 @@
+<div class="google-drive-sync-container">
+  <!-- Botón principal de sincronización -->
+  <div class="sync-button-container">
+    <button 
+      mat-raised-button 
+      color="primary" 
+      [disabled]="sincronizando"
+      (click)="sincronizarPasos()"
+      class="sync-button">
+      
+      <mat-icon *ngIf="!sincronizando">cloud_sync</mat-icon>
+      <mat-spinner 
+        *ngIf="sincronizando" 
+        diameter="20" 
+        color="accent">
+      </mat-spinner>
+      
+      <span class="button-text">
+        {{ sincronizando ? 'Sincronizando...' : 'Sincronizar desde Google Drive' }}
+      </span>
+    </button>
+  </div>
+
+  <!-- Información de última sincronización -->
+  <div class="sync-info" *ngIf="ultimaSincronizacion">
+    <mat-icon class="info-icon">schedule</mat-icon>
+    <span class="info-text">
+      Última sincronización: {{ formatearTiempo(ultimaSincronizacion) }}
+    </span>
+  </div>
+
+  <!-- Resultado de la última sincronización -->
+  <div class="sync-result" *ngIf="ultimoResultado">
+    <mat-card class="result-card" [ngClass]="{'success': ultimoResultado.success, 'error': !ultimoResultado.success}">
+      <mat-card-content>
+        <div class="result-header">
+          <mat-icon [ngClass]="{'success-icon': ultimoResultado.success, 'error-icon': !ultimoResultado.success}">
+            {{ ultimoResultado.success ? 'check_circle' : 'error' }}
+          </mat-icon>
+          <span class="result-message">{{ ultimoResultado.message }}</span>
+        </div>
+        
+        <div class="file-info" *ngIf="ultimoResultado.file_info">
+          <p><strong>Archivo:</strong> {{ ultimoResultado.file_info.name }}</p>
+          <p><strong>Tamaño:</strong> {{ ultimoResultado.file_info.size }} bytes</p>
+          <p><strong>Modificado:</strong> {{ ultimoResultado.file_info.modified | date:'medium' }}</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Información adicional -->
+  <div class="sync-description">
+    <mat-card class="description-card">
+      <mat-card-content>
+        <h3>📱 Sincronización con Google Drive</h3>
+        <p>
+          Este botón sincroniza automáticamente tus datos de pasos desde el archivo 
+          <code>HealthAutoExport-2025-07-04.json</code> almacenado en tu Google Drive.
+        </p>
+        <ul>
+          <li>✅ Descarga automática desde Google Drive</li>
+          <li>✅ Procesamiento de datos de pasos</li>
+          <li>✅ Integración directa con HealthPredict</li>
+          <li>✅ Sincronización segura y rápida</li>
+        </ul>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div> 
