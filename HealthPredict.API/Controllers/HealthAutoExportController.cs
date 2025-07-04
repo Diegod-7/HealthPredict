@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using HealthPredict.Models.HealthAutoExport;
 using HealthPredict.BLL;
+using HealthPredict.DAL;
+using HealthPredict.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Text.Json;
 
 namespace HealthPredict.API.Controllers
 {
@@ -11,13 +14,16 @@ namespace HealthPredict.API.Controllers
     {
         private readonly HealthAutoExportService _healthAutoExportService;
         private readonly ILogger<HealthAutoExportController> _logger;
+        private readonly HealthPredictContext _context;
 
         public HealthAutoExportController(
             HealthAutoExportService healthAutoExportService,
-            ILogger<HealthAutoExportController> logger)
+            ILogger<HealthAutoExportController> logger,
+            HealthPredictContext context)
         {
             _healthAutoExportService = healthAutoExportService;
             _logger = logger;
+            _context = context;
         }
 
         /// <summary>
@@ -308,7 +314,29 @@ namespace HealthPredict.API.Controllers
             {
                 const int usuarioId = 7;
 
-                _logger.LogInformation($"Recibiendo datos de Health Auto Export: {payload.Data.Metrics.Count} métricas, {payload.Data.Workouts.Count} entrenamientos");
+                // Validar que el payload no sea null
+                if (payload == null)
+                {
+                    return BadRequest(new HealthAutoExportResponse
+                    {
+                        Success = false,
+                        Message = "El payload es requerido",
+                        ProcessedAt = DateTime.UtcNow
+                    });
+                }
+
+                // Validar que tenga datos
+                if (payload.Data == null)
+                {
+                    return BadRequest(new HealthAutoExportResponse
+                    {
+                        Success = false,
+                        Message = "El campo 'data' es requerido en el payload",
+                        ProcessedAt = DateTime.UtcNow
+                    });
+                }
+
+                _logger.LogInformation($"Recibiendo datos de Health Auto Export: {payload.Data.Metrics?.Count ?? 0} métricas, {payload.Data.Workouts?.Count ?? 0} entrenamientos");
 
                 // Validar API Key si se proporciona
                 if (!string.IsNullOrEmpty(apiKey))
@@ -342,7 +370,7 @@ namespace HealthPredict.API.Controllers
         }
 
         /// <summary>
-        /// Endpoint para recibir datos en formato JSON genérico
+        /// Endpoint para recibir datos en formato JSON genérico (compatible con Swagger)
         /// </summary>
         /// <param name="jsonData">Datos en formato JSON</param>
         /// <returns>Respuesta del procesamiento</returns>
@@ -357,22 +385,45 @@ namespace HealthPredict.API.Controllers
 
                 _logger.LogInformation("Recibiendo datos JSON de Health Auto Export");
 
-                // Intentar deserializar como HealthAutoExportData
                 var jsonString = System.Text.Json.JsonSerializer.Serialize(jsonData);
-                var data = System.Text.Json.JsonSerializer.Deserialize<HealthAutoExportData>(jsonString);
+                _logger.LogInformation($"JSON recibido: {jsonString}");
 
-                if (data == null)
+                // Intentar deserializar como HealthAutoExportPayload primero
+                try
                 {
-                    return BadRequest(new HealthAutoExportResponse
+                    var payload = System.Text.Json.JsonSerializer.Deserialize<HealthAutoExportPayload>(jsonString);
+                    if (payload?.Data != null)
                     {
-                        Success = false,
-                        Message = "No se pudo procesar los datos JSON",
-                        ProcessedAt = DateTime.UtcNow
-                    });
+                        var response = await _healthAutoExportService.ProcessHealthAutoExportDataAsync(payload, usuarioId);
+                        return Ok(response);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogInformation($"No se pudo deserializar como HealthAutoExportPayload: {ex.Message}");
                 }
 
-                var response = await _healthAutoExportService.ProcessHealthDataAsync(data, usuarioId);
-                return Ok(response);
+                // Si no funciona, intentar como HealthAutoExportData
+                try
+                {
+                    var data = System.Text.Json.JsonSerializer.Deserialize<HealthAutoExportData>(jsonString);
+                    if (data != null)
+                    {
+                        var response = await _healthAutoExportService.ProcessHealthDataAsync(data, usuarioId);
+                        return Ok(response);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogInformation($"No se pudo deserializar como HealthAutoExportData: {ex.Message}");
+                }
+
+                return BadRequest(new HealthAutoExportResponse
+                {
+                    Success = false,
+                    Message = "No se pudo procesar los datos JSON. Formato no reconocido.",
+                    ProcessedAt = DateTime.UtcNow
+                });
             }
             catch (Exception ex)
             {
@@ -382,6 +433,321 @@ namespace HealthPredict.API.Controllers
                     Success = false,
                     Message = $"Error procesando datos JSON: {ex.Message}",
                     ProcessedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        /// <summary>
+        /// Endpoint simplificado para Swagger - recibe JSON directo en formato Health Auto Export
+        /// Formato esperado: { "data": { "metrics": [...], "workouts": [...] } }
+        /// </summary>
+        /// <param name="healthData">Datos de Health Auto Export en formato JSON estándar</param>
+        /// <returns>Respuesta del procesamiento</returns>
+        [HttpPost("swagger")]
+        public async Task<ActionResult<HealthAutoExportResponse>> ReceiveSwaggerData(
+            [FromBody] HealthAutoExportPayload healthData)
+        {
+            try
+            {
+                const int usuarioId = 7;
+
+                _logger.LogInformation("Recibiendo datos desde Swagger");
+
+                // Validar que los datos no sean null
+                if (healthData?.Data == null)
+                {
+                    return BadRequest(new HealthAutoExportResponse
+                    {
+                        Success = false,
+                        Message = "Se requiere un objeto con estructura { \"data\": { \"metrics\": [], \"workouts\": [] } }",
+                        ProcessedAt = DateTime.UtcNow
+                    });
+                }
+
+                _logger.LogInformation($"Procesando {healthData.Data.Metrics?.Count ?? 0} métricas y {healthData.Data.Workouts?.Count ?? 0} entrenamientos");
+
+                var response = await _healthAutoExportService.ProcessHealthAutoExportDataAsync(healthData, usuarioId);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error procesando datos desde Swagger");
+                return StatusCode(500, new HealthAutoExportResponse
+                {
+                    Success = false,
+                    Message = $"Error interno del servidor: {ex.Message}",
+                    ProcessedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        /// <summary>
+        /// Endpoint para formato Health Auto Export real - acepta cualquier estructura JSON
+        /// </summary>
+        /// <param name="rawData">Datos en formato JSON tal como los exporta Health Auto Export</param>
+        /// <returns>Respuesta del procesamiento</returns>
+        [HttpPost("raw")]
+        public async Task<ActionResult<HealthAutoExportResponse>> ReceiveRawHealthData(
+            [FromBody] object rawData)
+        {
+            try
+            {
+                const int usuarioId = 7;
+
+                _logger.LogInformation("Recibiendo datos raw de Health Auto Export");
+
+                var jsonString = System.Text.Json.JsonSerializer.Serialize(rawData);
+                _logger.LogInformation($"JSON recibido (primeros 500 chars): {jsonString.Substring(0, Math.Min(500, jsonString.Length))}...");
+
+                // Intentar convertir al formato esperado
+                var convertedPayload = ConvertRawDataToPayload(rawData);
+                
+                if (convertedPayload?.Data == null)
+                {
+                    return BadRequest(new HealthAutoExportResponse
+                    {
+                        Success = false,
+                        Message = "No se pudo convertir el JSON al formato esperado. Verifique la estructura de datos.",
+                        ProcessedAt = DateTime.UtcNow
+                    });
+                }
+
+                var response = await _healthAutoExportService.ProcessHealthAutoExportDataAsync(convertedPayload, usuarioId);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error procesando datos raw");
+                return StatusCode(500, new HealthAutoExportResponse
+                {
+                    Success = false,
+                    Message = $"Error interno del servidor: {ex.Message}",
+                    ProcessedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        private HealthAutoExportPayload? ConvertRawDataToPayload(object rawData)
+        {
+            try
+            {
+                var jsonString = System.Text.Json.JsonSerializer.Serialize(rawData);
+                var jsonDoc = System.Text.Json.JsonDocument.Parse(jsonString);
+                var root = jsonDoc.RootElement;
+
+                // Si ya tiene el formato correcto
+                if (root.TryGetProperty("data", out var dataElement))
+                {
+                    return System.Text.Json.JsonSerializer.Deserialize<HealthAutoExportPayload>(jsonString);
+                }
+
+                // Si tiene métricas y entrenamientos directamente en la raíz
+                var payload = new HealthAutoExportPayload
+                {
+                    Data = new HealthAutoExportPayloadData()
+                };
+
+                if (root.TryGetProperty("metrics", out var metricsElement))
+                {
+                    payload.Data.Metrics = System.Text.Json.JsonSerializer.Deserialize<List<HealthMetric>>(metricsElement.GetRawText()) ?? new List<HealthMetric>();
+                }
+
+                if (root.TryGetProperty("workouts", out var workoutsElement))
+                {
+                    payload.Data.Workouts = System.Text.Json.JsonSerializer.Deserialize<List<WorkoutMetric>>(workoutsElement.GetRawText()) ?? new List<WorkoutMetric>();
+                }
+
+                return payload;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error convirtiendo datos raw a payload");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Endpoint SIMPLE - acepta cualquier JSON y guarda en datos vitales
+        /// </summary>
+        /// <param name="jsonData">Cualquier JSON de Health Auto Export</param>
+        /// <returns>Respuesta simple</returns>
+        [HttpPost("guardar")]
+        public async Task<ActionResult> GuardarDatosSimple([FromBody] object jsonData)
+        {
+            try
+            {
+                const int usuarioId = 7;
+                var jsonString = System.Text.Json.JsonSerializer.Serialize(jsonData);
+                
+                _logger.LogInformation($"Recibiendo JSON simple para usuario {usuarioId}");
+                
+                // Parsear el JSON para extraer métricas
+                var jsonDoc = System.Text.Json.JsonDocument.Parse(jsonString);
+                var root = jsonDoc.RootElement;
+                
+                int registrosGuardados = 0;
+                
+                // Buscar métricas en data.metrics
+                if (root.TryGetProperty("data", out var dataElement) && 
+                    dataElement.TryGetProperty("metrics", out var metricsElement))
+                {
+                    foreach (var metric in metricsElement.EnumerateArray())
+                    {
+                        var nombreMetrica = metric.TryGetProperty("name", out var nameElement) ? nameElement.GetString() : "Unknown";
+                        var unidades = metric.TryGetProperty("units", out var unitsElement) ? unitsElement.GetString() : "";
+                        
+                        if (metric.TryGetProperty("data", out var dataPoints))
+                        {
+                            foreach (var point in dataPoints.EnumerateArray())
+                            {
+                                var datoVital = new DatoVital
+                                {
+                                    UsuarioId = usuarioId,
+                                    TipoDato = nombreMetrica ?? "Unknown",
+                                    Valor = (decimal)ExtractValue(point),
+                                    Unidad = unidades ?? "",
+                                    FechaMedicion = ExtractDate(point),
+                                    FechaRegistro = DateTime.UtcNow,
+                                    Fuente = "Health Auto Export"
+                                };
+                                
+                                _context.DatosVitales.Add(datoVital);
+                                registrosGuardados++;
+                            }
+                        }
+                    }
+                }
+                
+                await _context.SaveChangesAsync();
+                
+                return Ok(new 
+                {
+                    success = true,
+                    message = $"Datos guardados exitosamente",
+                    registrosGuardados = registrosGuardados,
+                    usuarioId = usuarioId
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error guardando datos simples");
+                return StatusCode(500, new 
+                {
+                    success = false,
+                    message = $"Error: {ex.Message}"
+                });
+            }
+        }
+        
+        private double ExtractValue(JsonElement point)
+        {
+            if (point.TryGetProperty("qty", out var qty) && qty.TryGetDouble(out var qtyValue))
+                return qtyValue;
+            if (point.TryGetProperty("avg", out var avg) && avg.TryGetDouble(out var avgValue))
+                return avgValue;
+            if (point.TryGetProperty("max", out var max) && max.TryGetDouble(out var maxValue))
+                return maxValue;
+            if (point.TryGetProperty("min", out var min) && min.TryGetDouble(out var minValue))
+                return minValue;
+            if (point.TryGetProperty("systolic", out var sys) && sys.TryGetDouble(out var sysValue))
+                return sysValue;
+            
+            return 0.0;
+        }
+        
+        private DateTime ExtractDate(JsonElement point)
+        {
+            if (point.TryGetProperty("date", out var date) && date.TryGetDateTime(out var dateValue))
+                return dateValue;
+            
+            return DateTime.UtcNow;
+        }
+
+        /// <summary>
+        /// Endpoint específico para guardar datos de pasos (step_count)
+        /// </summary>
+        /// <param name="jsonData">JSON con datos de pasos en formato Health Auto Export</param>
+        /// <returns>Respuesta simple</returns>
+        [HttpPost("pasos")]
+        public async Task<ActionResult> GuardarPasos([FromBody] object jsonData)
+        {
+            try
+            {
+                const int usuarioId = 7;
+                var jsonString = System.Text.Json.JsonSerializer.Serialize(jsonData);
+                
+                _logger.LogInformation($"Recibiendo datos de pasos para usuario {usuarioId}");
+                
+                var jsonDoc = System.Text.Json.JsonDocument.Parse(jsonString);
+                var root = jsonDoc.RootElement;
+                
+                int pasosGuardados = 0;
+                
+                // Buscar métricas en data.metrics
+                if (root.TryGetProperty("data", out var dataElement) && 
+                    dataElement.TryGetProperty("metrics", out var metricsElement))
+                {
+                    foreach (var metric in metricsElement.EnumerateArray())
+                    {
+                        // Solo procesar step_count
+                        var nombreMetrica = metric.TryGetProperty("name", out var nameElement) ? nameElement.GetString() : "";
+                        
+                        if (nombreMetrica == "step_count" && metric.TryGetProperty("data", out var dataPoints))
+                        {
+                            foreach (var point in dataPoints.EnumerateArray())
+                            {
+                                // Extraer qty, date y source
+                                var pasos = point.TryGetProperty("qty", out var qtyElement) ? qtyElement.GetDouble() : 0;
+                                var fechaStr = point.TryGetProperty("date", out var dateElement) ? dateElement.GetString() : "";
+                                var fuente = point.TryGetProperty("source", out var sourceElement) ? sourceElement.GetString() : "iPhone";
+                                
+                                // Convertir fecha
+                                DateTime fechaMedicion = DateTime.UtcNow;
+                                if (!string.IsNullOrEmpty(fechaStr))
+                                {
+                                    if (DateTime.TryParse(fechaStr, out var parsedDate))
+                                    {
+                                        fechaMedicion = parsedDate;
+                                    }
+                                }
+                                
+                                var datoVital = new DatoVital
+                                {
+                                    UsuarioId = usuarioId,
+                                    TipoDato = "Pasos",
+                                    Valor = (decimal)pasos,
+                                    Unidad = "pasos",
+                                    FechaMedicion = fechaMedicion,
+                                    FechaRegistro = DateTime.UtcNow,
+                                    Fuente = $"Health Auto Export - {fuente}",
+                                    Dispositivo = fuente
+                                };
+                                
+                                _context.DatosVitales.Add(datoVital);
+                                pasosGuardados++;
+                            }
+                        }
+                    }
+                }
+                
+                await _context.SaveChangesAsync();
+                
+                return Ok(new 
+                {
+                    success = true,
+                    message = $"Datos de pasos guardados exitosamente",
+                    pasosGuardados = pasosGuardados,
+                    usuarioId = usuarioId,
+                    tipoMetrica = "Pasos"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error guardando datos de pasos");
+                return StatusCode(500, new 
+                {
+                    success = false,
+                    message = $"Error: {ex.Message}"
                 });
             }
         }
