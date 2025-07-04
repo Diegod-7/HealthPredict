@@ -1000,7 +1000,7 @@ namespace HealthPredict.API.Controllers
 
             foreach (var path in possiblePaths)
             {
-                if (File.Exists(path))
+                if (System.IO.File.Exists(path))
                 {
                     _logger.LogInformation($"Script encontrado en: {path}");
                     return path;
