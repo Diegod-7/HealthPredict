@@ -60,51 +60,13 @@ builder.Services.AddHttpClient<FitnessSyncerService>(client =>
     client.DefaultRequestHeaders.Add("User-Agent", "HealthPredict/1.0");
 });
 
-// Configuración de CORS - SOLUCIÓN COMPLETA PARA VERCEL
+// Configuración de CORS - PERMITIR TODOS LOS ORÍGENES
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAngularApp", policy => {
-        if (builder.Environment.IsDevelopment())
-        {
-            // En desarrollo, permitir cualquier origen
-            policy.AllowAnyOrigin()
-                  .AllowAnyMethod()
-                  .AllowAnyHeader();
-        }
-        else
-        {
-            // En producción, configuración específica y flexible
-            policy.SetIsOriginAllowed(origin => {
-                if (string.IsNullOrEmpty(origin)) return false;
-                
-                // Lista de dominios exactos permitidos
-                var allowedExactOrigins = new[]
-                {
-                    "http://localhost:4200",
-                    "https://localhost:4200", 
-                    "https://healthpredict-l1hu.onrender.com",
-                    "https://health-predict-eggtvl0sc-diego-diazs-projects-dabcb856.vercel.app",
-                    "https://health-predict.vercel.app"
-                };
-                
-                // Verificar dominios exactos
-                if (allowedExactOrigins.Contains(origin))
-                    return true;
-                
-                // Verificar patrones de Vercel
-                if (origin.StartsWith("https://") && origin.EndsWith(".vercel.app"))
-                {
-                    // Permitir subdominios de vercel que contengan "health-predict"
-                    var uri = new Uri(origin);
-                    return uri.Host.Contains("health-predict") || 
-                           uri.Host.Contains("diego-diaz");
-                }
-                
-                return false;
-            })
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials();
-        }
+        // Permitir cualquier origen en todos los entornos
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
     });
 });
 
