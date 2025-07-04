@@ -170,4 +170,110 @@ namespace HealthPredict.Models.HealthAutoExport
         public DateTime LastSync { get; set; }
         public Dictionary<string, int> DataTypeBreakdown { get; set; } = new();
     }
+
+    // ===== NUEVOS MODELOS PARA FORMATO ESTÁNDAR DE HEALTH AUTO EXPORT =====
+
+    // Modelo para el formato principal de Health Auto Export
+    public class HealthAutoExportPayload
+    {
+        public HealthAutoExportPayloadData Data { get; set; } = new();
+    }
+
+    public class HealthAutoExportPayloadData
+    {
+        public List<HealthMetric> Metrics { get; set; } = new();
+        public List<WorkoutMetric> Workouts { get; set; } = new();
+    }
+
+    public class HealthMetric
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Units { get; set; } = string.Empty;
+        public List<MetricDataPoint> Data { get; set; } = new();
+    }
+
+    public class MetricDataPoint
+    {
+        public double? Qty { get; set; }
+        public DateTime Date { get; set; }
+        
+        // Para presión arterial
+        public double? Systolic { get; set; }
+        public double? Diastolic { get; set; }
+        
+        // Para frecuencia cardíaca
+        public double? Min { get; set; }
+        public double? Avg { get; set; }
+        public double? Max { get; set; }
+        
+        // Para análisis de sueño
+        public double? Asleep { get; set; }
+        public DateTime? SleepStart { get; set; }
+        public DateTime? SleepEnd { get; set; }
+        public string SleepSource { get; set; } = string.Empty;
+        public double? InBed { get; set; }
+        public DateTime? InBedStart { get; set; }
+        public DateTime? InBedEnd { get; set; }
+        public string InBedSource { get; set; } = string.Empty;
+        
+        // Para glucosa
+        public string MealTime { get; set; } = string.Empty;
+        
+        // Para otros tipos específicos
+        public string Value { get; set; } = string.Empty;
+        public string Reason { get; set; } = string.Empty;
+    }
+
+    public class WorkoutMetric
+    {
+        public string Name { get; set; } = string.Empty;
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
+        public List<HeartRateDataPoint> HeartRateData { get; set; } = new();
+        public List<HeartRateDataPoint> HeartRateRecovery { get; set; } = new();
+        public List<RoutePoint> Route { get; set; } = new();
+        public QuantityValue TotalEnergy { get; set; } = new();
+        public QuantityValue ActiveEnergy { get; set; } = new();
+        public QuantityValue MaxHeartRate { get; set; } = new();
+        public QuantityValue AvgHeartRate { get; set; } = new();
+        public QuantityValue StepCount { get; set; } = new();
+        public QuantityValue StepCadence { get; set; } = new();
+        public QuantityValue TotalSwimmingStrokeCount { get; set; } = new();
+        public QuantityValue SwimCadence { get; set; } = new();
+        public QuantityValue Distance { get; set; } = new();
+        public QuantityValue Speed { get; set; } = new();
+        public QuantityValue FlightsClimbed { get; set; } = new();
+        public QuantityValue Intensity { get; set; } = new();
+        public QuantityValue Temperature { get; set; } = new();
+        public QuantityValue Humidity { get; set; } = new();
+        public ElevationData Elevation { get; set; } = new();
+    }
+
+    public class HeartRateDataPoint
+    {
+        public DateTime Date { get; set; }
+        public double Qty { get; set; }
+        public string Units { get; set; } = "count";
+    }
+
+    public class RoutePoint
+    {
+        public double Lat { get; set; }
+        public double Lon { get; set; }
+        public double Altitude { get; set; }
+        public DateTime Timestamp { get; set; }
+    }
+
+    public class QuantityValue
+    {
+        public double Qty { get; set; }
+        public string Units { get; set; } = string.Empty;
+    }
+
+    public class ElevationData
+    {
+        public double Ascent { get; set; }
+        public double Descent { get; set; }
+        public string Units { get; set; } = string.Empty;
+    }
 } 

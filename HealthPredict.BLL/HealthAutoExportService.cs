@@ -338,7 +338,555 @@ namespace HealthPredict.BLL
         // Generar nueva API Key
         public string GenerateApiKey()
         {
-            return Guid.NewGuid().ToString("N")[..32].ToUpper();
+            return "HAE" + Guid.NewGuid().ToString("N")[..20].ToUpper();
+        }
+
+        // ===== NUEVOS MÉTODOS PARA FORMATO ESTÁNDAR DE HEALTH AUTO EXPORT =====
+
+        public async Task<HealthAutoExportResponse> ProcessHealthAutoExportDataAsync(HealthAutoExportPayload payload, int usuarioId = 7)
+        {
+            var response = new HealthAutoExportResponse
+            {
+                ProcessedAt = DateTime.UtcNow
+            };
+
+            try
+            {
+                _logger.LogInformation($"Procesando payload con {payload.Data.Metrics.Count} métricas y {payload.Data.Workouts.Count} entrenamientos");
+
+                // Procesar métricas de salud
+                foreach (var metric in payload.Data.Metrics)
+                {
+                    var metricResponse = await ProcessHealthMetricAsync(metric, usuarioId);
+                    response.ProcessedRecords += metricResponse.ProcessedRecords;
+                    response.SkippedRecords += metricResponse.SkippedRecords;
+                    response.Errors.AddRange(metricResponse.Errors);
+                }
+
+                // Procesar entrenamientos
+                foreach (var workout in payload.Data.Workouts)
+                {
+                    var workoutResponse = await ProcessWorkoutAsync(workout, usuarioId);
+                    response.ProcessedRecords += workoutResponse.ProcessedRecords;
+                    response.SkippedRecords += workoutResponse.SkippedRecords;
+                    response.Errors.AddRange(workoutResponse.Errors);
+                }
+
+                response.Success = response.Errors.Count == 0;
+                response.Message = $"Procesados {response.ProcessedRecords} registros, omitidos {response.SkippedRecords}";
+
+                await UpdateSyncStatsAsync(usuarioId, response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"Error procesando payload: {ex.Message}";
+                response.Errors.Add(ex.Message);
+                _logger.LogError(ex, "Error procesando payload de Health Auto Export");
+            }
+
+            return response;
+        }
+
+        private async Task<HealthAutoExportResponse> ProcessHealthMetricAsync(HealthMetric metric, int usuarioId)
+        {
+            var response = new HealthAutoExportResponse { ProcessedAt = DateTime.UtcNow };
+
+            try
+            {
+                foreach (var dataPoint in metric.Data)
+                {
+                    var datosVitales = ConvertMetricToHealthPredictFormat(metric, dataPoint, usuarioId);
+                    
+                    foreach (var datoVital in datosVitales)
+                    {
+                        var existingRecord = await _context.DatosVitales
+                            .FirstOrDefaultAsync(d => 
+                                d.UsuarioId == usuarioId &&
+                                d.TipoDato == datoVital.TipoDato &&
+                                d.FechaMedicion == datoVital.FechaMedicion &&
+                                Math.Abs(d.Valor - datoVital.Valor) < 0.01m);
+
+                        if (existingRecord == null)
+                        {
+                            _context.DatosVitales.Add(datoVital);
+                            response.ProcessedRecords++;
+                        }
+                        else
+                        {
+                            response.SkippedRecords++;
+                        }
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                response.Success = true;
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                response.Errors.Add(ex.Message);
+                _logger.LogError(ex, $"Error procesando métrica {metric.Name}");
+            }
+
+            return response;
+        }
+
+        private List<DatoVital> ConvertMetricToHealthPredictFormat(HealthMetric metric, MetricDataPoint dataPoint, int usuarioId)
+        {
+            var datosVitales = new List<DatoVital>();
+
+            switch (metric.Name.ToLower())
+            {
+                case "stepcount":
+                case "steps":
+                    if (dataPoint.Qty.HasValue)
+                    {
+                        datosVitales.Add(new DatoVital
+                        {
+                            UsuarioId = usuarioId,
+                            TipoDato = "Pasos",
+                            Valor = (decimal)dataPoint.Qty.Value,
+                            Unidad = "pasos",
+                            FechaMedicion = dataPoint.Date,
+                            FechaRegistro = DateTime.UtcNow,
+                            Fuente = "Health Auto Export",
+                            Dispositivo = "iPhone/Apple Watch"
+                        });
+                    }
+                    break;
+
+                case "heartrate":
+                    if (dataPoint.Avg.HasValue)
+                    {
+                        datosVitales.Add(new DatoVital
+                        {
+                            UsuarioId = usuarioId,
+                            TipoDato = "Frecuencia Cardíaca",
+                            Valor = (decimal)dataPoint.Avg.Value,
+                            Unidad = "bpm",
+                            FechaMedicion = dataPoint.Date,
+                            FechaRegistro = DateTime.UtcNow,
+                            Fuente = "Health Auto Export",
+                            Dispositivo = "iPhone/Apple Watch",
+                            Notas = $"Min: {dataPoint.Min}, Max: {dataPoint.Max}"
+                        });
+                    }
+                    break;
+
+                case "bloodpressure":
+                    if (dataPoint.Systolic.HasValue)
+                    {
+                        datosVitales.Add(new DatoVital
+                        {
+                            UsuarioId = usuarioId,
+                            TipoDato = "Presión Arterial Sistólica",
+                            Valor = (decimal)dataPoint.Systolic.Value,
+                            Unidad = "mmHg",
+                            FechaMedicion = dataPoint.Date,
+                            FechaRegistro = DateTime.UtcNow,
+                            Fuente = "Health Auto Export",
+                            Dispositivo = "iPhone/Apple Watch"
+                        });
+                    }
+                    if (dataPoint.Diastolic.HasValue)
+                    {
+                        datosVitales.Add(new DatoVital
+                        {
+                            UsuarioId = usuarioId,
+                            TipoDato = "Presión Arterial Diastólica",
+                            Valor = (decimal)dataPoint.Diastolic.Value,
+                            Unidad = "mmHg",
+                            FechaMedicion = dataPoint.Date,
+                            FechaRegistro = DateTime.UtcNow,
+                            Fuente = "Health Auto Export",
+                            Dispositivo = "iPhone/Apple Watch"
+                        });
+                    }
+                    break;
+
+                case "sleepanalysis":
+                    if (dataPoint.Asleep.HasValue)
+                    {
+                        datosVitales.Add(new DatoVital
+                        {
+                            UsuarioId = usuarioId,
+                            TipoDato = "Análisis de Sueño",
+                            Valor = (decimal)dataPoint.Asleep.Value,
+                            Unidad = "minutos",
+                            FechaMedicion = dataPoint.Date,
+                            FechaRegistro = DateTime.UtcNow,
+                            Fuente = "Health Auto Export",
+                            Dispositivo = "iPhone/Apple Watch",
+                            Notas = $"Inicio: {dataPoint.SleepStart}, Fin: {dataPoint.SleepEnd}, Fuente: {dataPoint.SleepSource}"
+                        });
+                    }
+                    break;
+
+                case "bloodglucose":
+                    if (dataPoint.Qty.HasValue)
+                    {
+                        datosVitales.Add(new DatoVital
+                        {
+                            UsuarioId = usuarioId,
+                            TipoDato = "Glucosa",
+                            Valor = (decimal)dataPoint.Qty.Value,
+                            Unidad = metric.Units,
+                            FechaMedicion = dataPoint.Date,
+                            FechaRegistro = DateTime.UtcNow,
+                            Fuente = "Health Auto Export",
+                            Dispositivo = "iPhone/Apple Watch",
+                            Notas = $"Momento de comida: {dataPoint.MealTime}"
+                        });
+                    }
+                    break;
+
+                case "bodyweight":
+                case "weight":
+                    if (dataPoint.Qty.HasValue)
+                    {
+                        datosVitales.Add(new DatoVital
+                        {
+                            UsuarioId = usuarioId,
+                            TipoDato = "Peso",
+                            Valor = (decimal)dataPoint.Qty.Value,
+                            Unidad = metric.Units,
+                            FechaMedicion = dataPoint.Date,
+                            FechaRegistro = DateTime.UtcNow,
+                            Fuente = "Health Auto Export",
+                            Dispositivo = "iPhone/Apple Watch"
+                        });
+                    }
+                    break;
+
+                case "bodytemperature":
+                case "temperature":
+                    if (dataPoint.Qty.HasValue)
+                    {
+                        datosVitales.Add(new DatoVital
+                        {
+                            UsuarioId = usuarioId,
+                            TipoDato = "Temperatura Corporal",
+                            Valor = (decimal)dataPoint.Qty.Value,
+                            Unidad = metric.Units,
+                            FechaMedicion = dataPoint.Date,
+                            FechaRegistro = DateTime.UtcNow,
+                            Fuente = "Health Auto Export",
+                            Dispositivo = "iPhone/Apple Watch"
+                        });
+                    }
+                    break;
+
+                case "oxygensaturation":
+                case "oxygen_saturation":
+                    if (dataPoint.Qty.HasValue)
+                    {
+                        datosVitales.Add(new DatoVital
+                        {
+                            UsuarioId = usuarioId,
+                            TipoDato = "Saturación de Oxígeno",
+                            Valor = (decimal)dataPoint.Qty.Value,
+                            Unidad = "%",
+                            FechaMedicion = dataPoint.Date,
+                            FechaRegistro = DateTime.UtcNow,
+                            Fuente = "Health Auto Export",
+                            Dispositivo = "iPhone/Apple Watch"
+                        });
+                    }
+                    break;
+
+                case "activeenergyburned":
+                case "active_energy":
+                    if (dataPoint.Qty.HasValue)
+                    {
+                        datosVitales.Add(new DatoVital
+                        {
+                            UsuarioId = usuarioId,
+                            TipoDato = "Energía Activa Quemada",
+                            Valor = (decimal)dataPoint.Qty.Value,
+                            Unidad = metric.Units,
+                            FechaMedicion = dataPoint.Date,
+                            FechaRegistro = DateTime.UtcNow,
+                            Fuente = "Health Auto Export",
+                            Dispositivo = "iPhone/Apple Watch"
+                        });
+                    }
+                    break;
+
+                case "distancewalking":
+                case "distance_walking":
+                    if (dataPoint.Qty.HasValue)
+                    {
+                        datosVitales.Add(new DatoVital
+                        {
+                            UsuarioId = usuarioId,
+                            TipoDato = "Distancia Caminando",
+                            Valor = (decimal)dataPoint.Qty.Value,
+                            Unidad = metric.Units,
+                            FechaMedicion = dataPoint.Date,
+                            FechaRegistro = DateTime.UtcNow,
+                            Fuente = "Health Auto Export",
+                            Dispositivo = "iPhone/Apple Watch"
+                        });
+                    }
+                    break;
+
+                case "vo2max":
+                    if (dataPoint.Qty.HasValue)
+                    {
+                        datosVitales.Add(new DatoVital
+                        {
+                            UsuarioId = usuarioId,
+                            TipoDato = "VO2 Max",
+                            Valor = (decimal)dataPoint.Qty.Value,
+                            Unidad = metric.Units,
+                            FechaMedicion = dataPoint.Date,
+                            FechaRegistro = DateTime.UtcNow,
+                            Fuente = "Health Auto Export",
+                            Dispositivo = "iPhone/Apple Watch"
+                        });
+                    }
+                    break;
+
+                case "restingheartrate":
+                case "resting_heart_rate":
+                    if (dataPoint.Qty.HasValue)
+                    {
+                        datosVitales.Add(new DatoVital
+                        {
+                            UsuarioId = usuarioId,
+                            TipoDato = "Frecuencia Cardíaca en Reposo",
+                            Valor = (decimal)dataPoint.Qty.Value,
+                            Unidad = "bpm",
+                            FechaMedicion = dataPoint.Date,
+                            FechaRegistro = DateTime.UtcNow,
+                            Fuente = "Health Auto Export",
+                            Dispositivo = "iPhone/Apple Watch"
+                        });
+                    }
+                    break;
+
+                case "walkingheartrateaverage":
+                case "walking_heart_rate_average":
+                    if (dataPoint.Qty.HasValue)
+                    {
+                        datosVitales.Add(new DatoVital
+                        {
+                            UsuarioId = usuarioId,
+                            TipoDato = "Frecuencia Cardíaca Promedio Caminando",
+                            Valor = (decimal)dataPoint.Qty.Value,
+                            Unidad = "bpm",
+                            FechaMedicion = dataPoint.Date,
+                            FechaRegistro = DateTime.UtcNow,
+                            Fuente = "Health Auto Export",
+                            Dispositivo = "iPhone/Apple Watch"
+                        });
+                    }
+                    break;
+
+                case "respiratoryrate":
+                case "respiratory_rate":
+                    if (dataPoint.Qty.HasValue)
+                    {
+                        datosVitales.Add(new DatoVital
+                        {
+                            UsuarioId = usuarioId,
+                            TipoDato = "Frecuencia Respiratoria",
+                            Valor = (decimal)dataPoint.Qty.Value,
+                            Unidad = metric.Units,
+                            FechaMedicion = dataPoint.Date,
+                            FechaRegistro = DateTime.UtcNow,
+                            Fuente = "Health Auto Export",
+                            Dispositivo = "iPhone/Apple Watch"
+                        });
+                    }
+                    break;
+
+                // Caso por defecto para tipos de datos no reconocidos
+                default:
+                    if (dataPoint.Qty.HasValue)
+                    {
+                        datosVitales.Add(new DatoVital
+                        {
+                            UsuarioId = usuarioId,
+                            TipoDato = metric.Name,
+                            Valor = (decimal)dataPoint.Qty.Value,
+                            Unidad = metric.Units,
+                            FechaMedicion = dataPoint.Date,
+                            FechaRegistro = DateTime.UtcNow,
+                            Fuente = "Health Auto Export",
+                            Dispositivo = "iPhone/Apple Watch"
+                        });
+                    }
+                    break;
+            }
+
+            return datosVitales;
+        }
+
+        private async Task<HealthAutoExportResponse> ProcessWorkoutAsync(WorkoutMetric workout, int usuarioId)
+        {
+            var response = new HealthAutoExportResponse { ProcessedAt = DateTime.UtcNow };
+
+            try
+            {
+                // Procesar datos del entrenamiento como datos vitales
+                var datosVitales = new List<DatoVital>();
+
+                // Energía activa
+                if (workout.ActiveEnergy.Qty > 0)
+                {
+                    datosVitales.Add(new DatoVital
+                    {
+                        UsuarioId = usuarioId,
+                        TipoDato = "Energía Activa Quemada",
+                        Valor = (decimal)workout.ActiveEnergy.Qty,
+                        Unidad = workout.ActiveEnergy.Units,
+                        FechaMedicion = workout.Start,
+                        FechaRegistro = DateTime.UtcNow,
+                        Fuente = "Health Auto Export - Entrenamiento",
+                        Dispositivo = "iPhone/Apple Watch",
+                        Notas = $"Entrenamiento: {workout.Name}, Duración: {(workout.End - workout.Start).TotalMinutes:F0} min"
+                    });
+                }
+
+                // Energía total
+                if (workout.TotalEnergy.Qty > 0)
+                {
+                    datosVitales.Add(new DatoVital
+                    {
+                        UsuarioId = usuarioId,
+                        TipoDato = "Energía Total Quemada",
+                        Valor = (decimal)workout.TotalEnergy.Qty,
+                        Unidad = workout.TotalEnergy.Units,
+                        FechaMedicion = workout.Start,
+                        FechaRegistro = DateTime.UtcNow,
+                        Fuente = "Health Auto Export - Entrenamiento",
+                        Dispositivo = "iPhone/Apple Watch",
+                        Notas = $"Entrenamiento: {workout.Name}"
+                    });
+                }
+
+                // Pasos del entrenamiento
+                if (workout.StepCount.Qty > 0)
+                {
+                    datosVitales.Add(new DatoVital
+                    {
+                        UsuarioId = usuarioId,
+                        TipoDato = "Pasos de Entrenamiento",
+                        Valor = (decimal)workout.StepCount.Qty,
+                        Unidad = workout.StepCount.Units,
+                        FechaMedicion = workout.Start,
+                        FechaRegistro = DateTime.UtcNow,
+                        Fuente = "Health Auto Export - Entrenamiento",
+                        Dispositivo = "iPhone/Apple Watch",
+                        Notas = $"Entrenamiento: {workout.Name}"
+                    });
+                }
+
+                // Distancia
+                if (workout.Distance.Qty > 0)
+                {
+                    datosVitales.Add(new DatoVital
+                    {
+                        UsuarioId = usuarioId,
+                        TipoDato = "Distancia de Entrenamiento",
+                        Valor = (decimal)workout.Distance.Qty,
+                        Unidad = workout.Distance.Units,
+                        FechaMedicion = workout.Start,
+                        FechaRegistro = DateTime.UtcNow,
+                        Fuente = "Health Auto Export - Entrenamiento",
+                        Dispositivo = "iPhone/Apple Watch",
+                        Notas = $"Entrenamiento: {workout.Name}"
+                    });
+                }
+
+                // Frecuencia cardíaca promedio
+                if (workout.AvgHeartRate.Qty > 0)
+                {
+                    datosVitales.Add(new DatoVital
+                    {
+                        UsuarioId = usuarioId,
+                        TipoDato = "Frecuencia Cardíaca Promedio Entrenamiento",
+                        Valor = (decimal)workout.AvgHeartRate.Qty,
+                        Unidad = workout.AvgHeartRate.Units,
+                        FechaMedicion = workout.Start,
+                        FechaRegistro = DateTime.UtcNow,
+                        Fuente = "Health Auto Export - Entrenamiento",
+                        Dispositivo = "iPhone/Apple Watch",
+                        Notas = $"Entrenamiento: {workout.Name}"
+                    });
+                }
+
+                // Frecuencia cardíaca máxima
+                if (workout.MaxHeartRate.Qty > 0)
+                {
+                    datosVitales.Add(new DatoVital
+                    {
+                        UsuarioId = usuarioId,
+                        TipoDato = "Frecuencia Cardíaca Máxima Entrenamiento",
+                        Valor = (decimal)workout.MaxHeartRate.Qty,
+                        Unidad = workout.MaxHeartRate.Units,
+                        FechaMedicion = workout.Start,
+                        FechaRegistro = DateTime.UtcNow,
+                        Fuente = "Health Auto Export - Entrenamiento",
+                        Dispositivo = "iPhone/Apple Watch",
+                        Notas = $"Entrenamiento: {workout.Name}"
+                    });
+                }
+
+                // Velocidad
+                if (workout.Speed.Qty > 0)
+                {
+                    datosVitales.Add(new DatoVital
+                    {
+                        UsuarioId = usuarioId,
+                        TipoDato = "Velocidad Entrenamiento",
+                        Valor = (decimal)workout.Speed.Qty,
+                        Unidad = workout.Speed.Units,
+                        FechaMedicion = workout.Start,
+                        FechaRegistro = DateTime.UtcNow,
+                        Fuente = "Health Auto Export - Entrenamiento",
+                        Dispositivo = "iPhone/Apple Watch",
+                        Notas = $"Entrenamiento: {workout.Name}"
+                    });
+                }
+
+                // Guardar todos los datos vitales
+                foreach (var datoVital in datosVitales)
+                {
+                    // Verificar si ya existe un registro similar
+                    var existingRecord = await _context.DatosVitales
+                        .FirstOrDefaultAsync(d => 
+                            d.UsuarioId == usuarioId &&
+                            d.TipoDato == datoVital.TipoDato &&
+                            d.FechaMedicion == datoVital.FechaMedicion &&
+                            Math.Abs(d.Valor - datoVital.Valor) < 0.01m);
+
+                    if (existingRecord == null)
+                    {
+                        _context.DatosVitales.Add(datoVital);
+                        response.ProcessedRecords++;
+                    }
+                    else
+                    {
+                        response.SkippedRecords++;
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                response.Success = true;
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                response.Errors.Add(ex.Message);
+                _logger.LogError(ex, $"Error procesando entrenamiento {workout.Name}");
+            }
+
+            return response;
         }
     }
 } 

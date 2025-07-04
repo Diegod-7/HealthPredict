@@ -1,0 +1,330 @@
+{
+  "data": {
+    "metrics": [
+      {
+        "name": "stepcount",
+        "units": "count",
+        "data": [
+          {
+            "qty": 8532,
+            "date": "2024-01-15 14:30:00 +0000"
+          },
+          {
+            "qty": 12847,
+            "date": "2024-01-16 14:30:00 +0000"
+          }
+        ]
+      },
+      {
+        "name": "heartrate",
+        "units": "bpm",
+        "data": [
+          {
+            "date": "2024-01-15 14:30:00 +0000",
+            "min": 65,
+            "avg": 72,
+            "max": 85
+          },
+          {
+            "date": "2024-01-16 14:30:00 +0000",
+            "min": 68,
+            "avg": 75,
+            "max": 88
+          }
+        ]
+      },
+      {
+        "name": "bloodpressure",
+        "units": "mmHg",
+        "data": [
+          {
+            "date": "2024-01-15 08:00:00 +0000",
+            "systolic": 120,
+            "diastolic": 80
+          },
+          {
+            "date": "2024-01-16 08:00:00 +0000",
+            "systolic": 118,
+            "diastolic": 78
+          }
+        ]
+      },
+      {
+        "name": "bodyweight",
+        "units": "kg",
+        "data": [
+          {
+            "qty": 75.5,
+            "date": "2024-01-15 07:00:00 +0000"
+          }
+        ]
+      },
+      {
+        "name": "bloodglucose",
+        "units": "mg/dL",
+        "data": [
+          {
+            "date": "2024-01-15 12:00:00 +0000",
+            "qty": 95,
+            "mealTime": "Before Meal"
+          },
+          {
+            "date": "2024-01-15 14:00:00 +0000",
+            "qty": 140,
+            "mealTime": "After Meal"
+          }
+        ]
+      },
+      {
+        "name": "sleepanalysis",
+        "units": "minutes",
+        "data": [
+          {
+            "date": "2024-01-15",
+            "asleep": 420,
+            "sleepStart": "2024-01-15 23:00:00 +0000",
+            "sleepEnd": "2024-01-16 07:00:00 +0000",
+            "sleepSource": "Apple Watch",
+            "inBed": 480,
+            "inBedStart": "2024-01-15 22:30:00 +0000",
+            "inBedEnd": "2024-01-16 07:30:00 +0000",
+            "inBedSource": "Apple Watch"
+          }
+        ]
+      },
+      {
+        "name": "bodytemperature",
+        "units": "°C",
+        "data": [
+          {
+            "qty": 36.5,
+            "date": "2024-01-15 08:00:00 +0000"
+          }
+        ]
+      },
+      {
+        "name": "oxygensaturation",
+        "units": "%",
+        "data": [
+          {
+            "qty": 98,
+            "date": "2024-01-15 14:30:00 +0000"
+          }
+        ]
+      },
+      {
+        "name": "activeenergyburned",
+        "units": "kcal",
+        "data": [
+          {
+            "qty": 2450,
+            "date": "2024-01-15 23:59:59 +0000"
+          }
+        ]
+      },
+      {
+        "name": "distancewalking",
+        "units": "km",
+        "data": [
+          {
+            "qty": 6.8,
+            "date": "2024-01-15 23:59:59 +0000"
+          }
+        ]
+      },
+      {
+        "name": "vo2max",
+        "units": "mL/kg/min",
+        "data": [
+          {
+            "qty": 42.5,
+            "date": "2024-01-15 10:00:00 +0000"
+          }
+        ]
+      },
+      {
+        "name": "restingheartrate",
+        "units": "bpm",
+        "data": [
+          {
+            "qty": 58,
+            "date": "2024-01-15 07:00:00 +0000"
+          }
+        ]
+      },
+      {
+        "name": "walkingheartrateaverage",
+        "units": "bpm",
+        "data": [
+          {
+            "qty": 85,
+            "date": "2024-01-15 15:00:00 +0000"
+          }
+        ]
+      },
+      {
+        "name": "respiratoryrate",
+        "units": "breaths/min",
+        "data": [
+          {
+            "qty": 16,
+            "date": "2024-01-15 14:30:00 +0000"
+          }
+        ]
+      }
+    ],
+    "workouts": [
+      {
+        "name": "Running",
+        "start": "2024-01-15 08:00:00 +0000",
+        "end": "2024-01-15 09:00:00 +0000",
+        "heartRateData": [],
+        "heartRateRecovery": [],
+        "route": [
+          {
+            "lat": 40.7128,
+            "lon": -74.0060,
+            "altitude": 10,
+            "timestamp": "2024-01-15 08:00:00 +0000"
+          },
+          {
+            "lat": 40.7130,
+            "lon": -74.0058,
+            "altitude": 12,
+            "timestamp": "2024-01-15 08:05:00 +0000"
+          }
+        ],
+        "totalEnergy": {
+          "qty": 520,
+          "units": "kcal"
+        },
+        "activeEnergy": {
+          "qty": 450,
+          "units": "kcal"
+        },
+        "maxHeartRate": {
+          "qty": 165,
+          "units": "bpm"
+        },
+        "avgHeartRate": {
+          "qty": 145,
+          "units": "bpm"
+        },
+        "stepCount": {
+          "qty": 6800,
+          "units": "steps"
+        },
+        "stepCadence": {
+          "qty": 180,
+          "units": "spm"
+        },
+        "totalSwimmingStrokeCount": {
+          "qty": 0,
+          "units": "count"
+        },
+        "swimCadence": {
+          "qty": 0,
+          "units": "spm"
+        },
+        "distance": {
+          "qty": 5.2,
+          "units": "km"
+        },
+        "speed": {
+          "qty": 5.2,
+          "units": "km/h"
+        },
+        "flightsClimbed": {
+          "qty": 0,
+          "units": "count"
+        },
+        "intensity": {
+          "qty": 8.5,
+          "units": "MET"
+        },
+        "temperature": {
+          "qty": 22,
+          "units": "°C"
+        },
+        "humidity": {
+          "qty": 65,
+          "units": "%"
+        },
+        "elevation": {
+          "ascent": 45,
+          "descent": 38,
+          "units": "m"
+        }
+      },
+      {
+        "name": "Cycling",
+        "start": "2024-01-16 17:00:00 +0000",
+        "end": "2024-01-16 18:30:00 +0000",
+        "heartRateData": [],
+        "heartRateRecovery": [],
+        "route": [],
+        "totalEnergy": {
+          "qty": 680,
+          "units": "kcal"
+        },
+        "activeEnergy": {
+          "qty": 620,
+          "units": "kcal"
+        },
+        "maxHeartRate": {
+          "qty": 155,
+          "units": "bpm"
+        },
+        "avgHeartRate": {
+          "qty": 135,
+          "units": "bpm"
+        },
+        "stepCount": {
+          "qty": 0,
+          "units": "steps"
+        },
+        "stepCadence": {
+          "qty": 0,
+          "units": "spm"
+        },
+        "totalSwimmingStrokeCount": {
+          "qty": 0,
+          "units": "count"
+        },
+        "swimCadence": {
+          "qty": 0,
+          "units": "spm"
+        },
+        "distance": {
+          "qty": 22.5,
+          "units": "km"
+        },
+        "speed": {
+          "qty": 15,
+          "units": "km/h"
+        },
+        "flightsClimbed": {
+          "qty": 0,
+          "units": "count"
+        },
+        "intensity": {
+          "qty": 7.2,
+          "units": "MET"
+        },
+        "temperature": {
+          "qty": 18,
+          "units": "°C"
+        },
+        "humidity": {
+          "qty": 70,
+          "units": "%"
+        },
+        "elevation": {
+          "ascent": 120,
+          "descent": 115,
+          "units": "m"
+        }
+      }
+    ]
+  }
+} 

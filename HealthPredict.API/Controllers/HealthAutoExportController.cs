@@ -294,6 +294,54 @@ namespace HealthPredict.API.Controllers
         }
 
         /// <summary>
+        /// Endpoint principal para recibir datos de Health Auto Export en formato estándar
+        /// </summary>
+        /// <param name="payload">Payload con datos de salud de Health Auto Export</param>
+        /// <param name="apiKey">API Key para autenticación</param>
+        /// <returns>Respuesta del procesamiento</returns>
+        [HttpPost("health-data")]
+        public async Task<ActionResult<HealthAutoExportResponse>> ReceiveHealthAutoExportData(
+            [FromBody] HealthAutoExportPayload payload,
+            [FromHeader(Name = "X-API-Key")] string? apiKey = null)
+        {
+            try
+            {
+                const int usuarioId = 7;
+
+                _logger.LogInformation($"Recibiendo datos de Health Auto Export: {payload.Data.Metrics.Count} métricas, {payload.Data.Workouts.Count} entrenamientos");
+
+                // Validar API Key si se proporciona
+                if (!string.IsNullOrEmpty(apiKey))
+                {
+                    var isValidKey = await _healthAutoExportService.ValidateApiKeyAsync(apiKey, usuarioId);
+                    if (!isValidKey)
+                    {
+                        return Unauthorized(new HealthAutoExportResponse
+                        {
+                            Success = false,
+                            Message = "API Key inválida",
+                            ProcessedAt = DateTime.UtcNow
+                        });
+                    }
+                }
+
+                var response = await _healthAutoExportService.ProcessHealthAutoExportDataAsync(payload, usuarioId);
+                
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error procesando datos de Health Auto Export");
+                return StatusCode(500, new HealthAutoExportResponse
+                {
+                    Success = false,
+                    Message = $"Error interno del servidor: {ex.Message}",
+                    ProcessedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        /// <summary>
         /// Endpoint para recibir datos en formato JSON genérico
         /// </summary>
         /// <param name="jsonData">Datos en formato JSON</param>
