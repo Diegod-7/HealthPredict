@@ -726,11 +726,99 @@ namespace HealthPredict.API.Controllers
             }
         }
 
-        /// <summary>
-        /// Obtener información de la última sincronización
-        /// </summary>
-        /// <returns>Información de la última sincronización</returns>
-        [HttpGet("ultima-sincronizacion")]
+
+
+        [HttpPost("pasos")]
+        public async Task<ActionResult> GuardarPasos([FromBody] object jsonData)
+        {
+            try
+            {
+                const int usuarioId = 7;
+                var jsonString = System.Text.Json.JsonSerializer.Serialize(jsonData);
+
+                _logger.LogInformation($"Recibiendo datos de pasos para usuario {usuarioId}");
+
+                var jsonDoc = System.Text.Json.JsonDocument.Parse(jsonString);
+                var root = jsonDoc.RootElement;
+
+                int pasosGuardados = 0;
+
+                // Buscar métricas en data.metrics
+                if (root.TryGetProperty("data", out var dataElement) &&
+                    dataElement.TryGetProperty("metrics", out var metricsElement))
+                {
+                    foreach (var metric in metricsElement.EnumerateArray())
+                    {
+                        // Solo procesar step_count
+                        var nombreMetrica = metric.TryGetProperty("name", out var nameElement) ? nameElement.GetString() : "";
+
+                        if (nombreMetrica == "step_count" && metric.TryGetProperty("data", out var dataPoints))
+                        {
+                            foreach (var point in dataPoints.EnumerateArray())
+                            {
+                                // Extraer qty, date y source
+                                var pasos = point.TryGetProperty("qty", out var qtyElement) ? qtyElement.GetDouble() : 0;
+                                var fechaStr = point.TryGetProperty("date", out var dateElement) ? dateElement.GetString() : "";
+                                var fuente = point.TryGetProperty("source", out var sourceElement) ? sourceElement.GetString() : "iPhone";
+
+                                // Convertir fecha
+                                DateTime fechaMedicion = DateTime.UtcNow;
+                                if (!string.IsNullOrEmpty(fechaStr))
+                                {
+                                    if (DateTime.TryParse(fechaStr, out var parsedDate))
+                                    {
+                                        fechaMedicion = parsedDate;
+                                    }
+                                }
+
+                                var datoVital = new DatoVital
+                                {
+                                    UsuarioId = usuarioId,
+                                    TipoDato = "Pasos",
+                                    Valor = (decimal)pasos,
+                                    Unidad = "pasos",
+                                    FechaMedicion = fechaMedicion,
+                                    FechaRegistro = DateTime.UtcNow,
+                                    Fuente = $"Health Auto Export - {fuente}",
+                                    Dispositivo = fuente
+                                };
+
+                                _context.DatosVitales.Add(datoVital);
+                                pasosGuardados++;
+                            }
+                        }
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    message = $"Datos de pasos guardados exitosamente",
+                    pasosGuardados = pasosGuardados,
+                    usuarioId = usuarioId,
+                    tipoMetrica = "Pasos"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error guardando datos de pasos");
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = $"Error: {ex.Message}"
+                });
+            }
+        }
+    
+
+
+/// <summary>
+/// Obtener información de la última sincronización
+/// </summary>
+/// <returns>Información de la última sincronización</returns>
+[HttpGet("ultima-sincronizacion")]
         public async Task<ActionResult<object>> GetUltimaSincronizacion()
         {
             try
