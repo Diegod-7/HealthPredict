@@ -52,6 +52,7 @@ builder.Services.AddScoped<ReporteService>();
 builder.Services.AddScoped<InteligenciaPredictiva>();
 builder.Services.AddScoped<FitnessSyncerService>();
 builder.Services.AddScoped<HealthAutoExportService>();
+builder.Services.AddScoped<GoogleDriveService>();
 
 // Configuración de HttpClient para FitnessSyncer
 builder.Services.AddHttpClient<FitnessSyncerService>(client =>

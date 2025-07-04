@@ -5,6 +5,7 @@ using HealthPredict.DAL;
 using HealthPredict.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Text.Json;
+using HealthPredict.API.Services;
 
 namespace HealthPredict.API.Controllers
 {
@@ -15,15 +16,18 @@ namespace HealthPredict.API.Controllers
         private readonly HealthAutoExportService _healthAutoExportService;
         private readonly ILogger<HealthAutoExportController> _logger;
         private readonly HealthPredictContext _context;
+        private readonly GoogleDriveService _googleDriveService;
 
         public HealthAutoExportController(
             HealthAutoExportService healthAutoExportService,
             ILogger<HealthAutoExportController> logger,
-            HealthPredictContext context)
+            HealthPredictContext context,
+            GoogleDriveService googleDriveService)
         {
             _healthAutoExportService = healthAutoExportService;
             _logger = logger;
             _context = context;
+            _googleDriveService = googleDriveService;
         }
 
         /// <summary>
@@ -679,17 +683,34 @@ namespace HealthPredict.API.Controllers
             {
                 _logger.LogInformation("Iniciando sincronización desde Google Drive");
 
-                var result = await ExecutePythonSyncScript();
+                // Usar el servicio real de Google Drive
+                var result = await _googleDriveService.SyncFromGoogleDrive();
                 
                 if (result.Success)
                 {
                     _logger.LogInformation("Sincronización completada exitosamente");
-                    return Ok(result);
+                    return Ok(new
+                    {
+                        success = result.Success,
+                        message = result.Message,
+                        file_info = result.FileInfo != null ? new
+                        {
+                            name = result.FileInfo.Name,
+                            modified = result.FileInfo.Modified,
+                            size = result.FileInfo.Size
+                        } : null,
+                        processed_records = result.ProcessedRecords
+                    });
                 }
                 else
                 {
                     _logger.LogWarning($"Error en sincronización: {result.Message}");
-                    return BadRequest(result);
+                    return BadRequest(new
+                    {
+                        success = result.Success,
+                        error = result.Error,
+                        message = result.Message
+                    });
                 }
             }
             catch (Exception ex)
@@ -733,99 +754,7 @@ namespace HealthPredict.API.Controllers
             }
         }
 
-        /// <summary>
-        /// Ejecuta el script de Python para sincronizar desde Google Drive
-        /// </summary>
-        /// <returns>Resultado de la ejecución</returns>
-        private async Task<dynamic> ExecutePythonSyncScript()
-        {
-            try
-            {
-                var projectRoot = Directory.GetCurrentDirectory();
-                var parentDirectory = Directory.GetParent(projectRoot)?.FullName;
-                var scriptPath = Path.Combine(parentDirectory ?? projectRoot, "sync_pasos_simple.py");
 
-                if (!System.IO.File.Exists(scriptPath))
-                {
-                    return new
-                    {
-                        Success = false,
-                        Error = "script_not_found",
-                        Message = $"Script no encontrado en: {scriptPath}"
-                    };
-                }
-
-                var processInfo = new System.Diagnostics.ProcessStartInfo
-                {
-                    FileName = "python",
-                    Arguments = $"\"{scriptPath}\"",
-                    WorkingDirectory = parentDirectory ?? projectRoot,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true
-                };
-
-                using var process = System.Diagnostics.Process.Start(processInfo);
-                if (process == null)
-                {
-                    return new
-                    {
-                        Success = false,
-                        Error = "process_start_failed",
-                        Message = "No se pudo iniciar el proceso de Python"
-                    };
-                }
-
-                var output = await process.StandardOutput.ReadToEndAsync();
-                var error = await process.StandardError.ReadToEndAsync();
-                await process.WaitForExitAsync();
-
-                if (process.ExitCode == 0)
-                {
-                    // Intentar parsear la salida como JSON
-                    try
-                    {
-                        var result = JsonSerializer.Deserialize<dynamic>(output);
-                        return result ?? new
-                        {
-                            Success = true,
-                            Message = "Sincronización completada",
-                            Output = output
-                        };
-                    }
-                    catch
-                    {
-                        return new
-                        {
-                            Success = true,
-                            Message = "Sincronización completada",
-                            Output = output
-                        };
-                    }
-                }
-                else
-                {
-                    return new
-                    {
-                        Success = false,
-                        Error = "script_execution_failed",
-                        Message = $"Error ejecutando script: {error}",
-                        Output = output,
-                        ExitCode = process.ExitCode
-                    };
-                }
-            }
-            catch (Exception ex)
-            {
-                return new
-                {
-                    Success = false,
-                    Error = "execution_exception",
-                    Message = $"Excepción ejecutando script: {ex.Message}"
-                };
-            }
-        }
 
         [HttpPost("pasos")]
         public async Task<ActionResult> GuardarPasos([FromBody] object jsonData)

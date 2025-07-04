@@ -37,26 +37,7 @@ export class GoogleDriveSyncService {
     return this.http.post<SyncResult>(`${this.apiUrl}/HealthAutoExport/sync-google-drive`, {}, { headers });
   }
 
-  /**
-   * Método alternativo para desarrollo/pruebas
-   * Simula la sincronización con datos de ejemplo
-   */
-  syncPasosSimulado(): Observable<SyncResult> {
-    const datosEjemplo = [
-      {
-        date: new Date().toISOString().split('T')[0],
-        steps: Math.floor(Math.random() * 5000) + 5000,
-        distance: Math.round((Math.random() * 3 + 3) * 100) / 100,
-        calories: Math.floor(Math.random() * 200) + 200
-      }
-    ];
 
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
-
-    return this.http.post<SyncResult>(`${this.apiUrl}/HealthAutoExport/pasos`, datosEjemplo, { headers });
-  }
 
   /**
    * Obtener estado de la última sincronización

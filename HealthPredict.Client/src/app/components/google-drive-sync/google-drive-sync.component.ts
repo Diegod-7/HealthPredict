@@ -29,9 +29,8 @@ export class GoogleDriveSyncComponent implements OnInit {
       duration: 0 // No se cierra automáticamente
     });
 
-    // Por ahora usamos el método simulado para pruebas
-    // En producción cambiar a: this.googleDriveSyncService.syncPasosFromGoogleDrive()
-    this.googleDriveSyncService.syncPasosSimulado().subscribe({
+    // Usar el endpoint real de sincronización con Google Drive
+    this.googleDriveSyncService.syncPasosFromGoogleDrive().subscribe({
       next: (resultado: SyncResult) => {
         this.sincronizando = false;
         this.ultimoResultado = resultado;
