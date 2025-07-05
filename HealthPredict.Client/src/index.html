@@ -47,31 +47,47 @@
         navigator.serviceWorker.register('/sw.js')
           .then(function(registration) {
             console.log('ServiceWorker registrado exitosamente: ', registration.scope);
+            
+            // Detectar actualizaciones del service worker
+            registration.addEventListener('updatefound', function() {
+              console.log('Nueva versión del Service Worker detectada');
+              const newWorker = registration.installing;
+              
+              newWorker.addEventListener('statechange', function() {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  console.log('Nueva versión instalada, recargando...');
+                  // Forzar actualización
+                  newWorker.postMessage({ type: 'SKIP_WAITING' });
+                  window.location.reload();
+                }
+              });
+            });
+            
           }, function(err) {
             console.log('ServiceWorker falló al registrarse: ', err);
           });
       });
+      
+      // Escuchar cambios en el service worker
+      navigator.serviceWorker.addEventListener('controllerchange', function() {
+        console.log('Service Worker actualizado, recargando página...');
+        window.location.reload();
+      });
     }
     
-    // Debug PWA - Verificar si está ejecutándose como app standalone
-    window.addEventListener('DOMContentLoaded', function() {
-      console.log('=== DEBUG PWA HEALTHPREDICT ===');
-      console.log('Display mode:', window.matchMedia('(display-mode: standalone)').matches ? 'STANDALONE' : 'BROWSER');
-      console.log('Navigator standalone:', navigator.standalone);
-      console.log('User Agent:', navigator.userAgent);
-      console.log('Screen:', window.screen.width + 'x' + window.screen.height);
-      console.log('Viewport:', window.innerWidth + 'x' + window.innerHeight);
-      
-      // Verificar si se está ejecutando como PWA
-      if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
-        console.log('✅ APP EJECUTÁNDOSE EN MODO STANDALONE - SIN URL BAR');
-        document.body.classList.add('pwa-standalone');
-      } else {
-        console.log('❌ APP EJECUTÁNDOSE EN NAVEGADOR - CON URL BAR');
-        console.log('💡 INSTRUCCIÓN: Agregue a pantalla de inicio desde Safari');
-        document.body.classList.add('pwa-browser');
+    // Función global para limpiar cache (útil para desarrollo)
+    window.clearAppCache = function() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistration().then(function(registration) {
+          if (registration) {
+            registration.active.postMessage({ type: 'CLEAR_CACHE' });
+            console.log('Cache limpiado, recargando...');
+            setTimeout(() => window.location.reload(), 1000);
+          }
+        });
       }
-    });
+    };
   </script>
+   
 </body>
 </html>

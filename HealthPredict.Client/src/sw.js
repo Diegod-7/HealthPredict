@@ -1,20 +1,25 @@
-// Service Worker para HealthPredict PWA
-const CACHE_NAME = 'healthpredict-v1';
+// Service Worker para HealthPredict PWA - Versión mejorada
+const CACHE_NAME = 'healthpredict-v2.0'; // Incrementar versión para forzar limpieza
 const urlsToCache = [
   '/',
   '/index.html',
-  '/main.js',
-  '/polyfills.js',
-  '/runtime.js',
-  '/styles.css',
   '/manifest.json',
   '/assets/icons/icon-192x192.png',
   '/assets/icons/icon-512x512.png'
 ];
 
+// Detectar si estamos en desarrollo
+const isDevelopment = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+
 // Instalación del Service Worker
 self.addEventListener('install', function(event) {
-  console.log('Service Worker instalándose...');
+  console.log('Service Worker instalándose... v2.0');
+  
+  // En desarrollo, skipWaiting inmediatamente
+  if (isDevelopment) {
+    self.skipWaiting();
+  }
+  
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(function(cache) {
@@ -29,58 +34,117 @@ self.addEventListener('install', function(event) {
 
 // Activación del Service Worker
 self.addEventListener('activate', function(event) {
-  console.log('Service Worker activándose...');
+  console.log('Service Worker activándose... v2.0');
+  
   event.waitUntil(
-    caches.keys().then(function(cacheNames) {
-      return Promise.all(
-        cacheNames.map(function(cacheName) {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Eliminando cache antiguo:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    Promise.all([
+      // Limpiar caches antiguos
+      caches.keys().then(function(cacheNames) {
+        return Promise.all(
+          cacheNames.map(function(cacheName) {
+            if (cacheName !== CACHE_NAME) {
+              console.log('Eliminando cache antiguo:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }),
+      // En desarrollo, tomar control inmediatamente
+      isDevelopment ? self.clients.claim() : Promise.resolve()
+    ])
   );
 });
 
-// Interceptar requests
+// Interceptar requests con estrategia mejorada
 self.addEventListener('fetch', function(event) {
-  event.respondWith(
-    caches.match(event.request)
-      .then(function(response) {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-
-        return fetch(event.request).then(
-          function(response) {
-            // Check if we received a valid response
-            if(!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            // IMPORTANT: Clone the response. A response is a stream
-            // and because we want the browser to consume the response
-            // as well as the cache consuming the response, we need
-            // to clone it so we have two streams.
-            var responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then(function(cache) {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
-          }
-        );
-      })
-      .catch(function() {
-        // Si falla todo, mostrar página offline básica
-        if (event.request.destination === 'document') {
+  const request = event.request;
+  const url = new URL(request.url);
+  
+  // No cachear en desarrollo para evitar problemas
+  if (isDevelopment) {
+    event.respondWith(
+      fetch(request).catch(function() {
+        // Solo usar cache como fallback en desarrollo
+        if (request.destination === 'document') {
           return caches.match('/index.html');
         }
       })
     );
+    return;
+  }
+  
+  // Estrategia para archivos HTML: Network First
+  if (request.destination === 'document') {
+    event.respondWith(
+      fetch(request)
+        .then(function(response) {
+          // Si la respuesta es exitosa, actualizar cache
+          if (response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then(function(cache) {
+              cache.put(request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(function() {
+          // Fallback al cache
+          return caches.match(request).then(function(response) {
+            return response || caches.match('/index.html');
+          });
+        })
+    );
+    return;
+  }
+  
+  // Estrategia para archivos estáticos: Cache First
+  if (request.destination === 'image' || request.destination === 'script' || request.destination === 'style') {
+    event.respondWith(
+      caches.match(request).then(function(response) {
+        if (response) {
+          return response;
+        }
+        
+        return fetch(request).then(function(response) {
+          if (response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then(function(cache) {
+              cache.put(request, responseClone);
+            });
+          }
+          return response;
+        });
+      })
+    );
+    return;
+  }
+  
+  // Para todo lo demás: Network First
+  event.respondWith(
+    fetch(request).catch(function() {
+      return caches.match(request);
+    })
+  );
+});
+
+// Manejar mensajes del cliente para forzar actualizaciones
+self.addEventListener('message', function(event) {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    console.log('Forzando actualización del Service Worker');
+    self.skipWaiting();
+  }
+  
+  if (event.data && event.data.type === 'CLEAR_CACHE') {
+    console.log('Limpiando cache por solicitud del cliente');
+    event.waitUntil(
+      caches.keys().then(function(cacheNames) {
+        return Promise.all(
+          cacheNames.map(function(cacheName) {
+            console.log('Eliminando cache:', cacheName);
+            return caches.delete(cacheName);
+          })
+        );
+      })
+    );
+  }
 }); 

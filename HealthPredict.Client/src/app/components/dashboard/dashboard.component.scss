@@ -1,1 +1,155 @@
-/* Estilos para el dashboard */ 
+/* Estilos para el dashboard */
+
+.dashboard-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.user-info h2 {
+  margin: 0;
+  font-weight: 600;
+}
+
+.header-actions .btn {
+  margin-left: 10px;
+}
+
+.card {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.card-header {
+  border-radius: 10px 10px 0 0 !important;
+}
+
+.table-responsive {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.btn {
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.badge {
+  font-size: 0.8em;
+  padding: 0.5em 0.8em;
+}
+
+.alert {
+  border-radius: 10px;
+  border: none;
+}
+
+.list-group-item {
+  border-radius: 10px !important;
+  margin-bottom: 5px;
+  border: 1px solid #dee2e6;
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* ✅ ESTILOS PARA LA SECCIÓN DE ÚLTIMO MINUTO */
+.bg-gradient-primary {
+  background: linear-gradient(45deg, #007bff, #0056b3) !important;
+}
+
+.bg-gradient-info {
+  background: linear-gradient(45deg, #17a2b8, #138496) !important;
+}
+
+.bg-gradient-success {
+  background: linear-gradient(45deg, #28a745, #1e7e34) !important;
+}
+
+.bg-gradient-warning {
+  background: linear-gradient(45deg, #ffc107, #e0a800) !important;
+}
+
+.table-success {
+  background-color: rgba(40, 167, 69, 0.1) !important;
+}
+
+.table-warning {
+  background-color: rgba(255, 193, 7, 0.1) !important;
+}
+
+.fas {
+  font-weight: 900;
+}
+
+.rounded-circle {
+  border-radius: 50% !important;
+}
+
+/* Animaciones para las estadísticas */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card.bg-gradient-primary,
+.card.bg-gradient-info,
+.card.bg-gradient-success,
+.card.bg-gradient-warning {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.card.bg-gradient-primary {
+  animation-delay: 0.1s;
+}
+
+.card.bg-gradient-info {
+  animation-delay: 0.2s;
+}
+
+.card.bg-gradient-success {
+  animation-delay: 0.3s;
+}
+
+.card.bg-gradient-warning {
+  animation-delay: 0.4s;
+}
+
+/* Hover effects para las tarjetas de estadísticas */
+.card.bg-gradient-primary:hover,
+.card.bg-gradient-info:hover,
+.card.bg-gradient-success:hover,
+.card.bg-gradient-warning:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilos para la tabla de registros */
+.table-dark th {
+  background-color: #343a40 !important;
+  color: #fff !important;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+} 

@@ -117,14 +117,146 @@
       </div>
     </div>
 
-    <!-- Gráfico de Pasos del Día -->
-    <div class="row mb-4">
+    <!-- Análisis de Actividad del Último Minuto -->
+    <div class="row mb-4" *ngIf="datosUltimoMinuto && datosUltimoMinuto.length > 0">
       <div class="col-12">
-        <app-pasos-chart></app-pasos-chart>
+        <div class="card shadow-sm border-primary">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">📊 Análisis de Actividad Reciente</h5>
+            <small class="text-light">Registros del último minuto con actividad</small>
+          </div>
+          <div class="card-body">
+            <!-- Información del período analizado -->
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center mb-3">
+                  <div class="bg-primary rounded-circle p-2 me-3">
+                    <i class="fas fa-clock text-white"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0">Período Analizado</h6>
+                    <small class="text-muted">{{ fechaUltimoMinuto | date:'dd/MM/yyyy HH:mm' }}</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center mb-3">
+                  <div class="bg-success rounded-circle p-2 me-3">
+                    <i class="fas fa-walking text-white"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0">Registros Encontrados</h6>
+                    <small class="text-muted">{{ datosUltimoMinuto.length }} mediciones</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Estadísticas resumidas -->
+            <div class="row mb-4">
+              <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card bg-gradient-primary text-white h-100">
+                  <div class="card-body text-center">
+                    <i class="fas fa-plus-circle fa-2x mb-2"></i>
+                    <h4 class="mb-0">{{ estadisticasUltimoMinuto?.totalPasos | number:'1.1-1' }}</h4>
+                    <small>Pasos Totales</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card bg-gradient-info text-white h-100">
+                  <div class="card-body text-center">
+                    <i class="fas fa-chart-line fa-2x mb-2"></i>
+                    <h4 class="mb-0">{{ estadisticasUltimoMinuto?.promedioPasos | number:'1.1-1' }}</h4>
+                    <small>Promedio</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card bg-gradient-success text-white h-100">
+                  <div class="card-body text-center">
+                    <i class="fas fa-arrow-up fa-2x mb-2"></i>
+                    <h4 class="mb-0">{{ estadisticasUltimoMinuto?.maximoPasos | number:'1.1-1' }}</h4>
+                    <small>Máximo</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card bg-gradient-warning text-white h-100">
+                  <div class="card-body text-center">
+                    <i class="fas fa-arrow-down fa-2x mb-2"></i>
+                    <h4 class="mb-0">{{ estadisticasUltimoMinuto?.minimoPasos | number:'1.1-1' }}</h4>
+                    <small>Mínimo</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lista detallada de registros -->
+            <div class="row">
+              <div class="col-12">
+                <h6 class="mb-3">🔍 Detalle de Registros</h6>
+                <div class="table-responsive">
+                  <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                      <tr>
+                        <th>#</th>
+                        <th>Hora Exacta</th>
+                        <th>Valor</th>
+                        <th>Unidad</th>
+                        <th>Segundos</th>
+                        <th>Milisegundos</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let registro of datosUltimoMinuto; let i = index" 
+                          [ngClass]="{'table-success': registro.valor === estadisticasUltimoMinuto?.maximoPasos,
+                                      'table-warning': registro.valor === estadisticasUltimoMinuto?.minimoPasos}">
+                        <td>
+                          <span class="badge bg-primary">{{ i + 1 }}</span>
+                        </td>
+                        <td>
+                          <small class="text-muted">{{ registro.fecha | date:'HH:mm:ss.SSS' }}</small>
+                        </td>
+                        <td>
+                          <strong>{{ registro.valor | number:'1.2-2' }}</strong>
+                          <span *ngIf="registro.valor === estadisticasUltimoMinuto?.maximoPasos" class="ms-1">
+                            <i class="fas fa-crown text-warning" title="Valor máximo"></i>
+                          </span>
+                          <span *ngIf="registro.valor === estadisticasUltimoMinuto?.minimoPasos" class="ms-1">
+                            <i class="fas fa-arrow-down text-info" title="Valor mínimo"></i>
+                          </span>
+                        </td>
+                        <td>
+                          <span class="badge bg-secondary">{{ registro.unidad }}</span>
+                        </td>
+                        <td>
+                          <small class="text-muted">{{ obtenerSegundos(registro.fecha) }}</small>
+                        </td>
+                        <td>
+                          <small class="text-muted">{{ obtenerMilisegundos(registro.fecha) }}</small>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Información adicional -->
+            <div class="row mt-3">
+              <div class="col-12">
+                <div class="alert alert-info">
+                  <i class="fas fa-info-circle me-2"></i>
+              </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Sincronización con Google Drive -->
+    <!-- Sincronización de Datos -->
     <div class="row mb-4">
       <div class="col-12">
         <div class="card shadow-sm border-success">
