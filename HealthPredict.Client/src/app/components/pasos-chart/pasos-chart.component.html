@@ -4,7 +4,7 @@
     <div class="pasos-counter">
       <div class="counter-circle" [style.border-color]="getColorPorcentaje()">
         <div class="counter-number">
-          {{ pasosHoy?.totalPasos | number:'1.0-0' || 0 }}
+          {{ (pasosHoy?.totalPasos || 0) | number:'1.0-0' }}
         </div>
         <div class="counter-label">pasos hoy</div>
       </div>

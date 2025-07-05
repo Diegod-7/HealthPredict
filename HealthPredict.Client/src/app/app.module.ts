@@ -12,6 +12,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -38,6 +41,9 @@ import { HealthSensorComponent } from './components/health-sensor/health-sensor.
 // ✅ COMPONENTE DE SINCRONIZACIÓN CON GOOGLE DRIVE
 import { GoogleDriveSyncComponent } from './components/google-drive-sync/google-drive-sync.component';
 
+// ✅ COMPONENTE DE GRÁFICO DE PASOS
+import { PasosChartComponent } from './components/pasos-chart/pasos-chart.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -56,7 +62,9 @@ import { GoogleDriveSyncComponent } from './components/google-drive-sync/google-
     // ✅ COMPONENTE DE SENSORES DE SALUD
     HealthSensorComponent,
     // ✅ COMPONENTE DE SINCRONIZACIÓN CON GOOGLE DRIVE
-    GoogleDriveSyncComponent
+    GoogleDriveSyncComponent,
+    // ✅ COMPONENTE DE GRÁFICO DE PASOS
+    PasosChartComponent
   ],
   imports: [
     BrowserModule,
@@ -73,7 +81,10 @@ import { GoogleDriveSyncComponent } from './components/google-drive-sync/google-
     MatCardModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDialogModule
   ],
   providers: [],
   bootstrap: [AppComponent]
