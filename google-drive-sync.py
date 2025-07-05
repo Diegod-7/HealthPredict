@@ -466,7 +466,7 @@ def main():
         return
     
     # Configuración fija
-    ARCHIVO_FIJO = "HealthAutoExport-2025-07-04.json"
+    ARCHIVO_FIJO = "HealthAutoExport-2025-07-05.json"
     CARPETA_FIJA = "Mi unidad/HealthAutoExport/Health"
     
     print(f"\n📁 Archivo configurado: {ARCHIVO_FIJO}")

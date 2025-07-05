@@ -877,14 +877,20 @@ namespace HealthPredict.API.Controllers
                 
                 process.OutputDataReceived += (sender, e) =>
                 {
-                    if (!string.IsNullOrEmpty(e.Data))
+                    if (e.Data != null)
+                    {
                         outputBuilder.AppendLine(e.Data);
+                        _logger.LogInformation($"Script output: {e.Data}");
+                    }
                 };
                 
                 process.ErrorDataReceived += (sender, e) =>
                 {
-                    if (!string.IsNullOrEmpty(e.Data))
+                    if (e.Data != null)
+                    {
                         errorBuilder.AppendLine(e.Data);
+                        _logger.LogWarning($"Script error: {e.Data}");
+                    }
                 };
 
                 process.Start();
@@ -903,6 +909,9 @@ namespace HealthPredict.API.Controllers
                     });
                 }
 
+                // Asegurar que todas las salidas se han capturado
+                process.WaitForExit();
+                
                 var output = outputBuilder.ToString().Trim();
                 var error = errorBuilder.ToString().Trim();
 
@@ -913,23 +922,37 @@ namespace HealthPredict.API.Controllers
                     _logger.LogWarning($"Error del script: {error}");
                 }
 
-                if (process.ExitCode == 0 && !string.IsNullOrEmpty(output))
+                if (process.ExitCode == 0)
                 {
-                    try
+                    if (!string.IsNullOrEmpty(output))
                     {
-                        // Intentar parsear la respuesta JSON del script
-                        var result = JsonSerializer.Deserialize<object>(output);
-                        _logger.LogInformation("Sincronización de pasos completada exitosamente");
-                        return Ok(result);
+                        try
+                        {
+                            // Intentar parsear la respuesta JSON del script
+                            var result = JsonSerializer.Deserialize<object>(output);
+                            _logger.LogInformation("Sincronización de pasos completada exitosamente");
+                            return Ok(result);
+                        }
+                        catch (JsonException)
+                        {
+                            _logger.LogWarning("La respuesta del script no es JSON válido: {Output}", output);
+                            return Ok(new
+                            {
+                                success = true,
+                                message = "Sincronización completada",
+                                output = output
+                            });
+                        }
                     }
-                    catch (JsonException)
+                    else
                     {
-                        _logger.LogWarning("La respuesta del script no es JSON válido: {Output}", output);
+                        // El script terminó exitosamente pero sin salida
+                        _logger.LogInformation("Script terminó exitosamente pero sin salida");
                         return Ok(new
                         {
                             success = true,
-                            message = "Sincronización completada",
-                            output = output
+                            message = "Sincronización completada exitosamente",
+                            note = "Script ejecutado sin errores"
                         });
                     }
                 }
