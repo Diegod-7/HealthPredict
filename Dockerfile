@@ -32,10 +32,21 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-# Instalar dependencias para wkhtmltopdf si es necesario
+# Instalar Python 3 y dependencias
 RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-venv \
     libgdiplus \
     libc6-dev \
     && rm -rf /var/lib/apt/lists/*
+
+# Instalar dependencias de Python para el script
+RUN pip3 install --no-cache-dir \
+    google-auth \
+    google-auth-oauthlib \
+    google-auth-httplib2 \
+    google-api-python-client \
+    requests
 
 ENTRYPOINT ["dotnet", "HealthPredict.API.dll"] 
