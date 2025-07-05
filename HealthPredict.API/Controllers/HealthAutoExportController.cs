@@ -760,6 +760,12 @@ namespace HealthPredict.API.Controllers
                                 var fechaStr = point.TryGetProperty("date", out var dateElement) ? dateElement.GetString() : "";
                                 var fuente = point.TryGetProperty("source", out var sourceElement) ? sourceElement.GetString() : "iPhone";
 
+                                // ✅ FILTRO: Solo procesar datos que contengan "iPhone" en el source
+                                if (string.IsNullOrEmpty(fuente) || !fuente.Contains("iPhone"))
+                                {
+                                    continue; // Saltar este registro
+                                }
+
                                 // Convertir fecha
                                 DateTime fechaMedicion = DateTime.UtcNow;
                                 if (!string.IsNullOrEmpty(fechaStr))

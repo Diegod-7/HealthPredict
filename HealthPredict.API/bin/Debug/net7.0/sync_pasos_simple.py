@@ -22,7 +22,7 @@ SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
 CREDENTIALS_FILE = 'credentials.json'
 TOKEN_FILE = 'token.json'
 API_URL = 'https://healthpredict-l1hu.onrender.com/api/HealthAutoExport/pasos'
-ARCHIVO_FIJO = "HealthAutoExport-2025-07-04.json"
+ARCHIVO_FIJO = "HealthAutoExport-2025-07-05.json"
 
 class SyncPasosSimple:
     def __init__(self):
