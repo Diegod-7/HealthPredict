@@ -1,0 +1,107 @@
+<div class="pasos-chart-container">
+  <!-- Encabezado con información principal -->
+  <div class="header-info">
+    <div class="pasos-counter">
+      <div class="counter-circle" [style.border-color]="getColorPorcentaje()">
+        <div class="counter-number">
+          {{ pasosHoy?.totalPasos | number:'1.0-0' || 0 }}
+        </div>
+        <div class="counter-label">pasos hoy</div>
+      </div>
+      <div class="meta-info">
+        <div class="meta-progress">
+          <div class="progress-bar">
+            <div class="progress-fill" 
+                 [style.width.%]="getPorcentajeMeta()"
+                 [style.background-color]="getColorPorcentaje()">
+            </div>
+          </div>
+          <span class="meta-text">
+            {{ getPorcentajeMeta() | number:'1.0-0' }}% de {{ getMetaDelDia() | number:'1.0-0' }} pasos
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-item">
+        <mat-icon class="stat-icon">schedule</mat-icon>
+        <div class="stat-content">
+          <div class="stat-label">Última actualización</div>
+          <div class="stat-value" *ngIf="pasosHoy?.ultimaActualizacion">
+            {{ formatearHora(pasosHoy.ultimaActualizacion) }}
+          </div>
+          <div class="stat-value" *ngIf="!pasosHoy?.ultimaActualizacion">
+            Sin datos
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-item">
+        <mat-icon class="stat-icon">data_usage</mat-icon>
+        <div class="stat-content">
+          <div class="stat-label">Registros</div>
+          <div class="stat-value">{{ pasosHoy?.registros || 0 }}</div>
+        </div>
+      </div>
+
+      <div class="stat-item">
+        <mat-icon class="stat-icon">today</mat-icon>
+        <div class="stat-content">
+          <div class="stat-label">Fecha</div>
+          <div class="stat-value" *ngIf="pasosHoy?.fecha">
+            {{ formatearFecha(pasosHoy.fecha) }}
+          </div>
+          <div class="stat-value" *ngIf="!pasosHoy?.fecha">
+            Hoy
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gráfico -->
+  <div class="chart-container">
+    <div *ngIf="cargando" class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Cargando datos de pasos...</p>
+    </div>
+
+    <div *ngIf="error" class="error-container">
+      <mat-icon class="error-icon">error</mat-icon>
+      <p>{{ error }}</p>
+      <button mat-raised-button color="primary" (click)="cargarPasosHoy()">
+        <mat-icon>refresh</mat-icon>
+        Reintentar
+      </button>
+    </div>
+
+    <div *ngIf="!cargando && !error && pasosHoy" class="chart-wrapper">
+      <canvas 
+        baseChart
+        [data]="chartData"
+        [options]="chartOptions"
+        type="bar"
+        class="chart-canvas">
+      </canvas>
+    </div>
+
+    <div *ngIf="!cargando && !error && pasosHoy?.totalPasos === 0" class="no-data-container">
+      <mat-icon class="no-data-icon">directions_walk</mat-icon>
+      <h3>¡Comienza a caminar!</h3>
+      <p>Aún no hay datos de pasos para hoy. Los datos aparecerán aquí cuando sincronices tu actividad.</p>
+    </div>
+  </div>
+
+  <!-- Botón de actualización -->
+  <div class="actions">
+    <button 
+      mat-fab 
+      color="primary" 
+      (click)="cargarPasosHoy()"
+      [disabled]="cargando"
+      class="refresh-button">
+      <mat-icon [class.spinning]="cargando">refresh</mat-icon>
+    </button>
+  </div>
+</div> 

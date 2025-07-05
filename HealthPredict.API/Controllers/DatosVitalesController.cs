@@ -1,9 +1,12 @@
 using HealthPredict.BLL;
 using HealthPredict.Models;
+using HealthPredict.DAL;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace HealthPredict.API.Controllers
 {
@@ -13,11 +16,15 @@ namespace HealthPredict.API.Controllers
     {
         private readonly DatoVitalService _datoVitalService;
         private readonly AlertaService _alertaService;
+        private readonly ILogger<DatosVitalesController> _logger;
+        private readonly HealthPredictContext _context;
 
-        public DatosVitalesController(DatoVitalService datoVitalService, AlertaService alertaService)
+        public DatosVitalesController(DatoVitalService datoVitalService, AlertaService alertaService, ILogger<DatosVitalesController> logger, HealthPredictContext context)
         {
             _datoVitalService = datoVitalService;
             _alertaService = alertaService;
+            _logger = logger;
+            _context = context;
         }
 
         // GET: api/DatosVitales
@@ -237,6 +244,160 @@ namespace HealthPredict.API.Controllers
         {
             var estadisticas = await _datoVitalService.GetEstadisticasAsync(usuarioId, tipoDato, fechaInicio, fechaFin);
             return Ok(estadisticas);
+        }
+
+        /// <summary>
+        /// Obtener resumen de pasos del día actual
+        /// </summary>
+        [HttpGet("pasos-hoy/{usuarioId}")]
+        public async Task<ActionResult<object>> GetPasosHoy(int usuarioId)
+        {
+            try
+            {
+                var hoy = DateTime.Today;
+                var mañana = hoy.AddDays(1);
+
+                // Obtener todos los registros de pasos del día actual
+                var pasosHoy = await _context.DatosVitales
+                    .Where(d => d.UsuarioId == usuarioId && 
+                               d.TipoDato == "Pasos" && 
+                               d.FechaMedicion >= hoy && 
+                               d.FechaMedicion < mañana)
+                    .OrderBy(d => d.FechaMedicion)
+                    .ToListAsync();
+
+                if (!pasosHoy.Any())
+                {
+                    return Ok(new
+                    {
+                        fecha = hoy.ToString("yyyy-MM-dd"),
+                        totalPasos = 0,
+                        registros = 0,
+                        ultimaActualizacion = (DateTime?)null,
+                        datosGrafico = new List<object>()
+                    });
+                }
+
+                // Agrupar por hora y minuto exactos para evitar duplicados
+                var pasosPorMinuto = pasosHoy
+                    .GroupBy(d => new { 
+                        Fecha = d.FechaMedicion.Date,
+                        Hora = d.FechaMedicion.Hour,
+                        Minuto = d.FechaMedicion.Minute
+                    })
+                    .Select(g => new
+                    {
+                        FechaHora = new DateTime(g.Key.Fecha.Year, g.Key.Fecha.Month, g.Key.Fecha.Day, g.Key.Hora, g.Key.Minuto, 0),
+                        Pasos = g.Sum(d => (int)Math.Round(d.Valor)),
+                        Registros = g.Count()
+                    })
+                    .OrderBy(p => p.FechaHora)
+                    .ToList();
+
+                // Calcular total de pasos
+                var totalPasos = pasosPorMinuto.Sum(p => p.Pasos);
+
+                // Crear datos para el gráfico (agrupados por hora para mejor visualización)
+                var pasosPorHora = pasosPorMinuto
+                    .GroupBy(p => p.FechaHora.Hour)
+                    .Select(g => new
+                    {
+                        hora = g.Key,
+                        horaTexto = $"{g.Key:00}:00",
+                        pasos = g.Sum(p => p.Pasos),
+                        registros = g.Sum(p => p.Registros)
+                    })
+                    .OrderBy(p => p.hora)
+                    .ToList();
+
+                var ultimaActualizacion = pasosHoy.Max(d => d.FechaRegistro);
+
+                return Ok(new
+                {
+                    fecha = hoy.ToString("yyyy-MM-dd"),
+                    totalPasos = totalPasos,
+                    registros = pasosHoy.Count,
+                    ultimaActualizacion = ultimaActualizacion,
+                    datosGrafico = pasosPorHora
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo pasos del día actual para usuario {UsuarioId}", usuarioId);
+                return StatusCode(500, new { error = "Error interno del servidor" });
+            }
+        }
+
+        /// <summary>
+        /// Obtener resumen de pasos de los últimos 7 días
+        /// </summary>
+        [HttpGet("pasos-semana/{usuarioId}")]
+        public async Task<ActionResult<object>> GetPasosSemana(int usuarioId)
+        {
+            try
+            {
+                var hoy = DateTime.Today;
+                var haceUnaSemana = hoy.AddDays(-6); // Últimos 7 días incluyendo hoy
+
+                // Obtener todos los registros de pasos de la semana
+                var pasosSemana = await _context.DatosVitales
+                    .Where(d => d.UsuarioId == usuarioId && 
+                               d.TipoDato == "Pasos" && 
+                               d.FechaMedicion >= haceUnaSemana && 
+                               d.FechaMedicion < hoy.AddDays(1))
+                    .ToListAsync();
+
+                // Agrupar por día para evitar duplicados
+                var pasosPorDia = pasosSemana
+                    .GroupBy(d => d.FechaMedicion.Date)
+                    .Select(g => new
+                    {
+                        fecha = g.Key,
+                        fechaTexto = g.Key.ToString("dd/MM"),
+                        diaSemana = g.Key.ToString("dddd", new System.Globalization.CultureInfo("es-ES")),
+                        pasos = g.GroupBy(x => new { x.FechaMedicion.Hour, x.FechaMedicion.Minute })
+                                 .Sum(x => (int)Math.Round(x.Sum(y => y.Valor))),
+                        registros = g.Count()
+                    })
+                    .OrderBy(p => p.fecha)
+                    .ToList();
+
+                // Llenar días faltantes con 0 pasos
+                var datosSemana = new List<object>();
+                for (int i = 0; i < 7; i++)
+                {
+                    var fecha = haceUnaSemana.AddDays(i);
+                    var datoDia = pasosPorDia.FirstOrDefault(p => p.fecha == fecha);
+                    
+                    datosSemana.Add(new
+                    {
+                        fecha = fecha.ToString("yyyy-MM-dd"),
+                        fechaTexto = fecha.ToString("dd/MM"),
+                        diaSemana = fecha.ToString("dddd", new System.Globalization.CultureInfo("es-ES")),
+                        pasos = datoDia?.pasos ?? 0,
+                        registros = datoDia?.registros ?? 0,
+                        esHoy = fecha.Date == hoy.Date
+                    });
+                }
+
+                var totalPasos = pasosPorDia.Sum(p => p.pasos);
+                var promedioDiario = pasosPorDia.Any() ? totalPasos / 7 : 0;
+
+                return Ok(new
+                {
+                    fechaInicio = haceUnaSemana.ToString("yyyy-MM-dd"),
+                    fechaFin = hoy.ToString("yyyy-MM-dd"),
+                    totalPasos = totalPasos,
+                    promedioDiario = promedioDiario,
+                    diasConDatos = pasosPorDia.Count,
+                    datosGrafico = datosSemana
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo pasos de la semana para usuario {UsuarioId}", usuarioId);
+                return StatusCode(500, new { error = "Error interno del servidor" });
+            }
         }
 
         private string MapHealthKitType(string healthKitType)
